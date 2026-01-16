@@ -1,0 +1,65 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model NewsEvent {
+  id              String   @id @default(uuid())
+  title           String
+  category        String   // "Technology", "Economy", etc. (TS enum mapped to string here)
+  status          String   // "Live", "Archived", etc.
+  detectedAt      DateTime
+  lastUpdatedAt   DateTime @default(now())
+  confidenceScore Float
+  imageUrl        String?
+  
+  sources Source[]
+  signals Signal[]
+  briefs  Brief[]
+}
+
+model Signal {
+  id          String   @id @default(uuid())
+  eventId     String
+  event       NewsEvent @relation(fields: [eventId], references: [id])
+  headline    String
+  summary     String
+  generatedAt DateTime
+  imageUrl    String?
+  fullReport  String?  // The long detailed text
+}
+
+model Brief {
+  id          String    @id @default(uuid())
+  eventId     String
+  event       NewsEvent @relation(fields: [eventId], references: [id])
+  bulletPoints String   // Stored as JSON string or separated by newlines
+  generatedAt DateTime
+}
+
+model Source {
+  id              String    @id @default(uuid())
+  name            String
+  url             String
+  reliabilityScore Float
+  type            String
+  eventId         String
+  event           NewsEvent @relation(fields: [eventId], references: [id])
+}
+
+model Subscription {
+  id            String   @id @default(uuid())
+  name          String
+  email         String   @unique
+  interests     String   // Stored as JSON string (e.g. "[\"tech\", \"finance\"]")
+  status        String   // "active", "cancelled"
+  paymentMethod String?
+  createdAt     DateTime @default(now())
+}
