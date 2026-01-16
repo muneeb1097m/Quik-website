@@ -76,9 +76,10 @@ const GridStoryCard = ({ story, event }: { story: Signal, event: NewsEvent | und
 
 // Animation Variants
 // Animation Variants
+// Animation Variants
 const fadeInUp: Variants = {
     hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" as const } }
 };
 
 const staggerContainer: Variants = {
@@ -94,7 +95,7 @@ const staggerContainer: Variants = {
 
 const textReveal: Variants = {
     hidden: { y: "100%" },
-    visible: { y: 0, transition: { duration: 0.5, ease: "circOut" } }
+    visible: { y: 0, transition: { duration: 0.5, ease: "circOut" as const } }
 };
 
 export function LandingPage({ signals, events, mainStory, mainStoryEvent, gridStories, sideStories }: LandingPageProps) {
@@ -113,7 +114,7 @@ export function LandingPage({ signals, events, mainStory, mainStoryEvent, gridSt
                         opacity: [0.3, 0.5, 0.3],
                         x: [0, 50, 0]
                     }}
-                    transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+                    transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" as const }}
                     className="absolute top-[-20%] left-[-10%] w-[1000px] h-[1000px] bg-brand-green/5 rounded-full blur-[120px]"
                 />
                 <motion.div
@@ -122,7 +123,7 @@ export function LandingPage({ signals, events, mainStory, mainStoryEvent, gridSt
                         opacity: [0.3, 0.4, 0.3],
                         y: [0, 50, 0]
                     }}
-                    transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+                    transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" as const, delay: 2 }}
                     className="absolute top-[20%] right-[-10%] w-[800px] h-[800px] bg-brand-red/5 rounded-full blur-[100px]"
                 />
             </div>
@@ -154,7 +155,7 @@ export function LandingPage({ signals, events, mainStory, mainStoryEvent, gridSt
                                                 onError={() => setMainImageError(true)}
                                                 className="w-full h-full object-cover opacity-90"
                                                 whileHover={{ scale: 1.05 }}
-                                                transition={{ duration: 1.5, ease: "easeOut" }}
+                                                transition={{ duration: 1.5, ease: "easeOut" as const }}
                                             />
                                         ) : (
                                             <motion.img
@@ -162,7 +163,7 @@ export function LandingPage({ signals, events, mainStory, mainStoryEvent, gridSt
                                                 alt="News Fallback"
                                                 className="w-full h-full object-cover opacity-40 grayscale contrast-125"
                                                 whileHover={{ scale: 1.05 }}
-                                                transition={{ duration: 1.5, ease: "easeOut" }}
+                                                transition={{ duration: 1.5, ease: "easeOut" as const }}
                                             />
                                         )
                                     ) : (
@@ -187,7 +188,7 @@ export function LandingPage({ signals, events, mainStory, mainStoryEvent, gridSt
                                             <motion.h2
                                                 initial={{ y: "100%" }}
                                                 animate={{ y: 0 }}
-                                                transition={{ duration: 0.8, ease: "circOut", delay: 0.2 }}
+                                                transition={{ duration: 0.8, ease: "circOut" as const, delay: 0.2 }}
                                                 className="text-5xl lg:text-7xl font-extrabold text-white leading-[1] max-w-4xl tracking-tight mb-6 drop-shadow-xl"
                                             >
                                                 {mainStory.headline}
