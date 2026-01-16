@@ -5,6 +5,7 @@ import { NewsEvent, Signal } from '@/types';
 
 // Helper to serialize Prisma objects to match strict JSON/Client component requirements
 const serialize = (data: any): any => {
+  if (data === undefined || data === null) return null;
   return JSON.parse(JSON.stringify(data));
 };
 
@@ -16,17 +17,21 @@ export default async function Home() {
 
   // 2. Derive view data
   const mainStory = trending[0];
-  const gridStories = trending.slice(1, 4); // 3 items
-  const sideStories = trending.slice(4);
+  const gridStories = trending.slice(1, 3); // 2 items
+  const sideStories = trending.slice(3);
 
   const mainStoryEvent = mainStory ? await db.getEvent(mainStory.eventId) : undefined;
 
-  // 3. Render Client Component with Serialized Data
+  // 3. Serialize Data (Fixes "Date object" error)
   // We must serialize because Prisma returns Date objects, which cannot be passed directly to Client Components
+  const serializedSignals = serialize(allSignals).slice(0, 20);
+  const serializedEvents = serialize(allEvents);
+
+  // 4. Render Client Component with Serialized Data
   return (
     <LandingPage
-      signals={serialize(allSignals)}
-      events={serialize(allEvents)}
+      signals={serializedSignals}
+      events={serializedEvents}
       mainStory={serialize(mainStory)}
       mainStoryEvent={serialize(mainStoryEvent)}
       gridStories={serialize(gridStories)}

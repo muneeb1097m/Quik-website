@@ -23,6 +23,8 @@ export async function GET() {
 
         // 2. Process a subset (first 3 for demo speed)
         const newSignals = [];
+        let imageSearchCount = 0;
+        const MAX_IMAGE_SEARCHES = 1; // Strict safety limit for free tier (100/day)
 
         // Take top 3 recent items
         const batch = rawItems.slice(0, 3);
@@ -43,9 +45,14 @@ export async function GET() {
             // 3b. Image Fallback
             let finalImageUrl = item.imageUrl;
             if (!finalImageUrl) {
-                console.log('No RSS image. Attempting fallback search...');
-                const visualKeyword = await synthesizer.extractVisualKeyword(item.headline);
-                finalImageUrl = await imageSearcher.search(visualKeyword);
+                if (imageSearchCount < MAX_IMAGE_SEARCHES) {
+                    console.log('No RSS image. Attempting fallback search...');
+                    const visualKeyword = await synthesizer.extractVisualKeyword(item.headline);
+                    finalImageUrl = await imageSearcher.search(visualKeyword);
+                    if (finalImageUrl) imageSearchCount++;
+                } else {
+                    console.log('Skipping image search to conserve API quota.');
+                }
             }
 
             // 4. Save to DB

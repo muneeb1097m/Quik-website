@@ -26,11 +26,40 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
         setTimeout(() => setCopied(false), 2000);
     };
 
+    // Animation Variants
+    const fadeInUp = {
+        hidden: { opacity: 0, y: 20 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
+    };
+
+    const staggerContainer = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1,
+                delayChildren: 0.2
+            }
+        }
+    };
+
     if (!signal || !event) return null; // Safety check
 
     return (
         <div className="min-h-screen bg-slate-50 font-sans selection:bg-brand-green/20 selection:text-slate-900">
-            {/* ... Rest of JSX remains EXACTLY the same ... */}
+            {/* Background Gradient Orbs */}
+            <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+                <motion.div
+                    animate={{ opacity: [0.3, 0.5, 0.3], scale: [1, 1.1, 1] }}
+                    transition={{ duration: 10, repeat: Infinity }}
+                    className="absolute top-[-10%] right-[-10%] w-[800px] h-[800px] bg-brand-green/5 rounded-full blur-[100px]"
+                />
+                <motion.div
+                    animate={{ opacity: [0.3, 0.4, 0.3], scale: [1, 1.2, 1] }}
+                    transition={{ duration: 15, repeat: Infinity, delay: 2 }}
+                    className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-brand-blue/5 rounded-full blur-[120px]"
+                />
+            </div>
 
             {/* Footer Navigation bar */}
             <motion.div
@@ -45,20 +74,30 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
                 <div className="w-20" /> {/* Spacer */}
             </motion.div>
 
-            <main ref={containerRef} className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-12 relative">
+            <main ref={containerRef} className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20 relative z-10">
 
                 {/* Back Link */}
-                <div className="mb-8">
+                <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="mb-8"
+                >
                     <Link href="/" className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors font-medium group">
                         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                         Back to Intelligence Feed
                     </Link>
-                </div>
+                </motion.div>
 
                 <div className="grid lg:grid-cols-12 gap-12">
 
                     {/* Left Column: Context & Metadata */}
-                    <div className="lg:col-span-4 space-y-8">
+                    <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.3, duration: 0.6 }}
+                        className="lg:col-span-4 space-y-8"
+                    >
                         {/* Status Card */}
                         <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm sticky top-8">
                             <div className="flex items-center gap-3 mb-6">
@@ -98,11 +137,16 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
                                 {copied ? 'Link Copied' : 'Share Intelligence'}
                             </button>
                         </div>
-                    </div>
+                    </motion.div>
 
                     {/* Right Column: Content */}
                     <div className="lg:col-span-8">
-                        <article className="bg-white rounded-[2rem] p-8 md:p-12 shadow-sm border border-slate-100 relative overflow-hidden">
+                        <motion.article
+                            initial="hidden"
+                            animate="visible"
+                            variants={staggerContainer}
+                            className="bg-white rounded-[2rem] p-8 md:p-12 shadow-sm border border-slate-100 relative overflow-hidden"
+                        >
                             {/* AI Badge */}
                             <div className="absolute top-0 right-0 p-6 opacity-10 pointer-events-none">
                                 <Sparkles className="w-32 h-32" />
@@ -110,21 +154,44 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
 
                             {/* Header */}
                             <header className="mb-10 relative z-10">
-                                <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 leading-[1.1] mb-6 tracking-tight">
+                                <motion.h1
+                                    variants={fadeInUp}
+                                    className="text-4xl md:text-5xl font-extrabold text-slate-900 leading-[1.1] mb-6 tracking-tight"
+                                >
                                     {signal.headline}
-                                </h1>
-                                <div className="flex flex-wrap gap-4">
+                                </motion.h1>
+                                <motion.div variants={fadeInUp} className="flex flex-wrap gap-4">
                                     {event.sources && event.sources.map((source: any) => (
                                         <div key={source.id} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 text-xs font-bold text-slate-600 border border-slate-200">
                                             <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
                                             {source.name}
                                         </div>
                                     ))}
-                                </div>
+                                </motion.div>
                             </header>
 
+                            {/* Main Image */}
+                            {signal.imageUrl && (
+                                <motion.div
+                                    variants={fadeInUp}
+                                    className="mb-10 rounded-3xl overflow-hidden relative aspect-video shadow-lg"
+                                >
+                                    <img
+                                        src={signal.imageUrl}
+                                        alt={signal.headline}
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                            e.currentTarget.style.display = 'none';
+                                        }}
+                                    />
+                                </motion.div>
+                            )}
+
                             {/* Main Summary Box */}
-                            <div className="bg-brand-green/5 border border-brand-green/10 rounded-2xl p-8 mb-10 relative">
+                            <motion.div
+                                variants={fadeInUp}
+                                className="bg-brand-green/5 border border-brand-green/10 rounded-2xl p-8 mb-10 relative"
+                            >
                                 <h3 className="text-brand-green font-bold text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
                                     <Sparkles className="w-4 h-4" />
                                     Quik AI Summary
@@ -132,42 +199,73 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
                                 <p className="text-xl text-slate-800 font-medium leading-relaxed m-0 font-serif">
                                     {signal.summary}
                                 </p>
-                            </div>
+                            </motion.div>
 
                             {/* Detailed Report */}
                             <div className="prose prose-lg text-slate-600 leading-relaxed max-w-none">
-                                <p>
+                                <motion.p variants={fadeInUp}>
                                     This report was automatically generated by the Quik Intelligence Engine (QIE).
                                     Our systems continuously monitor global events to bring you confirmed updates as they happen.
-                                </p>
+                                </motion.p>
                                 {signal.fullReport && (
-                                    <div className="mt-12 pt-12 border-t border-slate-200">
+                                    <motion.div
+                                        variants={fadeInUp}
+                                        className="mt-12 pt-12 border-t border-slate-200"
+                                    >
                                         <h3 className="text-2xl font-bold text-slate-900 mb-6">Detailed Report</h3>
                                         <div className="space-y-6 text-lg text-slate-700 leading-relaxed font-serif">
                                             {signal.fullReport.split('\n\n').map((para: string, i: number) => (
                                                 <p key={i}>{para}</p>
                                             ))}
                                         </div>
-                                    </div>
+                                    </motion.div>
                                 )}
                             </div>
-                        </article>
+                        </motion.article>
 
                         {/* Related Stories */}
                         {related.length > 0 && (
-                            <div className="mt-20">
-                                <h3 className="text-2xl font-bold text-slate-900 mb-8">Related Intelligence</h3>
+                            <motion.div
+                                initial="hidden"
+                                whileInView="visible"
+                                viewport={{ once: true, margin: "-50px" }}
+                                variants={staggerContainer}
+                                className="mt-20"
+                            >
+                                <motion.h3 variants={fadeInUp} className="text-2xl font-bold text-slate-900 mb-8">Related Intelligence</motion.h3>
                                 <div className="grid md:grid-cols-2 gap-6">
                                     {related.map((item: any) => (
-                                        <Link key={item.id} href={`/news/${item.id}`} className="group bg-white p-6 rounded-2xl border border-slate-200 hover:border-slate-300 transition-colors">
-                                            <h4 className="font-bold text-slate-900 group-hover:text-brand-blue transition-colors mb-2 line-clamp-2">
-                                                {item.headline}
-                                            </h4>
-                                            <div className="text-xs text-slate-500 font-medium">{item.generatedAt}</div>
+                                        <Link key={item.id} href={`/news/${item.id}`} className="block h-full">
+                                            <motion.div
+                                                variants={fadeInUp}
+                                                whileHover={{ y: -5 }}
+                                                className="group h-full bg-white rounded-2xl border border-slate-200 hover:border-slate-300 hover:shadow-xl transition-all overflow-hidden flex flex-col"
+                                            >
+                                                {item.imageUrl && (
+                                                    <div className="h-48 overflow-hidden relative">
+                                                        <img
+                                                            src={item.imageUrl}
+                                                            alt={item.headline}
+                                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                                            onError={(e) => {
+                                                                e.currentTarget.style.display = 'none';
+                                                            }}
+                                                        />
+                                                    </div>
+                                                )}
+                                                <div className="p-6 flex flex-col flex-1">
+                                                    <h4 className="font-bold text-slate-900 group-hover:text-brand-blue transition-colors mb-2 line-clamp-2">
+                                                        {item.headline}
+                                                    </h4>
+                                                    <div className="mt-auto pt-2 text-xs text-slate-500 font-medium" suppressHydrationWarning>
+                                                        {new Date(item.generatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} • {new Date(item.generatedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                                                    </div>
+                                                </div>
+                                            </motion.div>
                                         </Link>
                                     ))}
                                 </div>
-                            </div>
+                            </motion.div>
                         )}
                     </div>
                 </div>

@@ -1,6 +1,5 @@
 'use client';
 
-import { Footer } from '@/components/Footer';
 import { Cpu, Globe, Zap, Shield, Users, Newspaper, Activity, TrendingUp, BarChart3, Lock, Server, CreditCard, Check, Loader2, ChevronLeft } from 'lucide-react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { useRef, useState } from 'react';
@@ -641,7 +640,7 @@ export default function AboutPage() {
                 </div>
 
             </main>
-            <Footer />
+
         </div>
     );
 }
