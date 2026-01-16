@@ -42,8 +42,9 @@ export async function GET() {
             console.log(`Synthesizing: ${item.headline}...`);
             const aiResult = await synthesizer.rewriteStory(item.headline, item.contentSnippet || '');
 
-            // 3b. Image Fallback
-            let finalImageUrl = item.imageUrl;
+            // 3b. Image Fallback - DISABLED per user request (Only use RSS provided images)
+            const finalImageUrl = item.imageUrl;
+            /*
             if (!finalImageUrl) {
                 if (imageSearchCount < MAX_IMAGE_SEARCHES) {
                     console.log('No RSS image. Attempting fallback search...');
@@ -54,6 +55,7 @@ export async function GET() {
                     console.log('Skipping image search to conserve API quota.');
                 }
             }
+            */
 
             // 4. Save to DB
             const eventId = `evt_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;

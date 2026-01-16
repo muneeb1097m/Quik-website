@@ -11,20 +11,25 @@ const serialize = (data: any): any => {
 
 export default async function Home() {
   // 1. Fetch all data needed for the landing page
-  const trending = await db.getTrending(7);
-  const allSignals = await db.getSignals();
+  // Fetch more initially to allow for filtering of items without images
+  const rawTrending = await db.getTrending(20);
+  const rawSignals = await db.getSignals();
   const allEvents = await db.getEvents();
 
+  // Filter: Strictly "Only add the news on the main page which has the image"
+  const validTrending = rawTrending.filter(s => !!s.imageUrl);
+  const validSignals = rawSignals.filter(s => !!s.imageUrl);
+
   // 2. Derive view data
-  const mainStory = trending[0];
-  const gridStories = trending.slice(1, 3); // 2 items
-  const sideStories = trending.slice(3);
+  const mainStory = validTrending[0];
+  const gridStories = validTrending.slice(1, 3); // 2 items
+  const sideStories = validTrending.slice(3, 7); // Max 4 side stories
 
   const mainStoryEvent = mainStory ? await db.getEvent(mainStory.eventId) : undefined;
 
   // 3. Serialize Data (Fixes "Date object" error)
   // We must serialize because Prisma returns Date objects, which cannot be passed directly to Client Components
-  const serializedSignals = serialize(allSignals).slice(0, 20);
+  const serializedSignals = serialize(validSignals).slice(0, 20);
   const serializedEvents = serialize(allEvents);
 
   // 4. Render Client Component with Serialized Data
