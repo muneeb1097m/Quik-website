@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react';
 import { ArrowLeft, Clock, Share2, Shield, Calendar, Globe, Sparkles, Check } from 'lucide-react';
 import Link from 'next/link';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, Variants } from 'framer-motion';
 
 // Define Props - using 'any' to speed up migration, ideal would be full types
 interface NewsDetailViewProps {
@@ -27,12 +27,13 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
     };
 
     // Animation Variants
-    const fadeInUp = {
+    // Animation Variants
+    const fadeInUp: Variants = {
         hidden: { opacity: 0, y: 20 },
         visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
     };
 
-    const staggerContainer = {
+    const staggerContainer: Variants = {
         hidden: { opacity: 0 },
         visible: {
             opacity: 1,

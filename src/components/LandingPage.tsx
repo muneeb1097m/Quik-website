@@ -2,7 +2,7 @@
 
 import { SignalCard } from '@/components/SignalCard';
 import { Car, Cpu, Globe, Trophy } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import { NewsEvent, Signal } from '@/types';
 import { useState } from 'react';
 import Link from 'next/link';
@@ -75,12 +75,13 @@ const GridStoryCard = ({ story, event }: { story: Signal, event: NewsEvent | und
 };
 
 // Animation Variants
-const fadeInUp = {
+// Animation Variants
+const fadeInUp: Variants = {
     hidden: { opacity: 0, y: 30 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
 };
 
-const staggerContainer = {
+const staggerContainer: Variants = {
     hidden: { opacity: 0 },
     visible: {
         opacity: 1,
@@ -91,7 +92,7 @@ const staggerContainer = {
     }
 };
 
-const textReveal = {
+const textReveal: Variants = {
     hidden: { y: "100%" },
     visible: { y: 0, transition: { duration: 0.5, ease: "circOut" } }
 };
