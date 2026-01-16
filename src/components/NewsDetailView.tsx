@@ -76,7 +76,7 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
                 <div className="w-20" /> {/* Spacer */}
             </motion.div>
 
-            <main ref={containerRef} className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20 relative z-10">
+            <main ref={containerRef} className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-24 lg:pt-32 pb-20 relative z-10">
 
                 {/* Back Link */}
                 <motion.div
@@ -91,17 +91,17 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
                     </Link>
                 </motion.div>
 
-                <div className="grid lg:grid-cols-12 gap-12">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
 
                     {/* Left Column: Context & Metadata */}
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.3, duration: 0.6 }}
-                        className="lg:col-span-4 space-y-8"
+                        className="lg:col-span-4 space-y-6 lg:space-y-8 order-2 lg:order-1"
                     >
-                        {/* Status Card */}
-                        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm sticky top-8">
+                        {/* Status Card - Sticky only on Desktop */}
+                        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm lg:sticky lg:top-8 relative z-20">
                             <div className="flex items-center gap-3 mb-6">
                                 <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center">
                                     <Shield className="w-6 h-6 text-brand-green fill-brand-green/20" />
@@ -142,12 +142,12 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
                     </motion.div>
 
                     {/* Right Column: Content */}
-                    <div className="lg:col-span-8">
+                    <div className="lg:col-span-8 order-1 lg:order-2">
                         <motion.article
                             initial="hidden"
                             animate="visible"
                             variants={staggerContainer}
-                            className="bg-white rounded-[2rem] p-8 md:p-12 shadow-sm border border-slate-100 relative overflow-hidden"
+                            className="bg-white rounded-[1.5rem] md:rounded-[2rem] p-6 md:p-12 shadow-sm border border-slate-100 relative overflow-hidden"
                         >
                             {/* AI Badge */}
                             <div className="absolute top-0 right-0 p-6 opacity-10 pointer-events-none">
@@ -155,10 +155,10 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
                             </div>
 
                             {/* Header */}
-                            <header className="mb-10 relative z-10">
+                            <header className="mb-8 md:mb-10 relative z-10">
                                 <motion.h1
                                     variants={fadeInUp}
-                                    className="text-4xl md:text-5xl font-extrabold text-slate-900 leading-[1.1] mb-6 tracking-tight"
+                                    className="text-3xl md:text-5xl font-extrabold text-slate-900 leading-[1.1] mb-4 md:mb-6 tracking-tight"
                                 >
                                     {signal.headline}
                                 </motion.h1>
@@ -176,7 +176,7 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
                             {signal.imageUrl && (
                                 <motion.div
                                     variants={fadeInUp}
-                                    className="mb-10 rounded-3xl overflow-hidden relative aspect-video shadow-lg"
+                                    className="mb-8 md:mb-10 rounded-2xl md:rounded-3xl overflow-hidden relative aspect-video shadow-lg"
                                 >
                                     <img
                                         src={signal.imageUrl}
@@ -192,19 +192,19 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
                             {/* Main Summary Box */}
                             <motion.div
                                 variants={fadeInUp}
-                                className="bg-brand-green/5 border border-brand-green/10 rounded-2xl p-8 mb-10 relative"
+                                className="bg-brand-green/5 border border-brand-green/10 rounded-2xl p-6 md:p-8 mb-8 md:mb-10 relative"
                             >
                                 <h3 className="text-brand-green font-bold text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
                                     <Sparkles className="w-4 h-4" />
                                     Quik AI Summary
                                 </h3>
-                                <p className="text-xl text-slate-800 font-medium leading-relaxed m-0 font-serif">
+                                <p className="text-lg md:text-xl text-slate-800 font-medium leading-relaxed m-0 font-serif">
                                     {signal.summary}
                                 </p>
                             </motion.div>
 
                             {/* Detailed Report */}
-                            <div className="prose prose-lg text-slate-600 leading-relaxed max-w-none">
+                            <div className="prose prose-base md:prose-lg text-slate-600 leading-relaxed max-w-none">
                                 <motion.p variants={fadeInUp}>
                                     This report was automatically generated by the Quik Intelligence Engine (QIE).
                                     Our systems continuously monitor global events to bring you confirmed updates as they happen.
@@ -215,7 +215,7 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
                                         className="mt-12 pt-12 border-t border-slate-200"
                                     >
                                         <h3 className="text-2xl font-bold text-slate-900 mb-6">Detailed Report</h3>
-                                        <div className="space-y-6 text-lg text-slate-700 leading-relaxed font-serif">
+                                        <div className="space-y-6 text-base md:text-lg text-slate-700 leading-relaxed font-serif">
                                             {signal.fullReport.split('\n\n').map((para: string, i: number) => (
                                                 <p key={i}>{para}</p>
                                             ))}
