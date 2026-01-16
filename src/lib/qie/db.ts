@@ -9,9 +9,11 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 // --- Helper accessors mirroring old API for compatibility ---
 export const db = {
-    getEvents: async () => {
+    getEvents: async (limit?: number) => {
         return await prisma.newsEvent.findMany({
-            include: { sources: true }
+            include: { sources: true },
+            orderBy: { detectedAt: 'desc' },
+            take: limit
         });
     },
 
@@ -29,7 +31,7 @@ export const db = {
         });
     },
 
-    getSignals: async (category?: string) => {
+    getSignals: async (category?: string, limit?: number) => {
         // Fetch all signals with even include
         const signals = await prisma.signal.findMany({
             include: {
@@ -39,7 +41,8 @@ export const db = {
                     }
                 }
             },
-            orderBy: { generatedAt: 'desc' }
+            orderBy: { generatedAt: 'desc' },
+            take: category ? undefined : limit // Apply limit only if no category filtering (if category exists, we need to filter locally or query differently)
         });
 
         if (!category) return signals;

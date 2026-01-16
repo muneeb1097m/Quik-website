@@ -9,12 +9,16 @@ const serialize = (data: any): any => {
   return JSON.parse(JSON.stringify(data));
 };
 
+// Enable ISR (Incremental Static Regeneration)
+// Revalidate page every 60 seconds
+export const revalidate = 60;
+
 export default async function Home() {
   // 1. Fetch all data needed for the landing page
-  // Fetch more initially to allow for filtering of items without images
+  // Limit fetches to manageable sizes for performance (e.g. 50 items)
   const rawTrending = await db.getTrending(20);
-  const rawSignals = await db.getSignals();
-  const allEvents = await db.getEvents();
+  const rawSignals = await db.getSignals(undefined, 50);
+  const allEvents = await db.getEvents(50);
 
   // Filter: Strictly "Only add the news on the main page which has the image"
   const validTrending = rawTrending.filter(s => !!s.imageUrl);
