@@ -27,7 +27,8 @@ export async function GET() {
         const MAX_IMAGE_SEARCHES = 1; // Strict safety limit for free tier (100/day)
 
         // Take top 3 recent items
-        const batch = rawItems.slice(0, 3);
+        // Take top 20 recent items to ensure we cover multiple feeds
+        const batch = rawItems.slice(0, 20);
 
         for (const item of batch) {
             // Check deduplication (basic check by url)
