@@ -11,6 +11,8 @@ export const metadata: Metadata = {
   description: 'Real-time intelligence, synthesized by AI.',
 };
 
+import { SpeedInsights } from "@vercel/speed-insights/next"
+
 export default function RootLayout({
   children,
 }: {
@@ -22,6 +24,7 @@ export default function RootLayout({
         <Navigation />
         {children}
         <Footer />
+        <SpeedInsights />
       </body>
     </html>
   );
