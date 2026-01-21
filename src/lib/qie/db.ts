@@ -1,4 +1,5 @@
 import { PrismaClient, NewsEvent, Signal, Brief, Source } from '@prisma/client';
+import { generateNewsImage } from '../image-gen';
 
 // Singleton pattern for Prisma Client in Next.js dev environment
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
@@ -68,12 +69,24 @@ export const db = {
         });
     },
 
+
+
     // Setter (used by Cron)
     addEvent: async (data: any) => {
         // "Upsert" logic ideally, but for now simple create
         // Data shape from cron is complex, need to map it back to Prisma schema
         try {
-            const { id, title, category, status, detectedAt, sources, signals, imageUrl } = data;
+            let { id, title, category, status, detectedAt, sources, signals, imageUrl } = data;
+
+            // Generate AI image if one wasn't provided (or if we want to enforce it)
+            // The user requested "whenever a news going to add... create an image"
+            // So we will prioritize generating one if the incoming one is missing or generic.
+            // For now, let's generate one if imageUrl is missing OR if we want to ensure high quality (optional).
+            // Let's assume we always generate a fallback if missing, but maybe we should specificially do it as requested.
+            // "whenever a news going to add... create an image" implies we should probably generate one.
+            if (!imageUrl) {
+                imageUrl = generateNewsImage(title, category);
+            }
 
             // Create Event
             await prisma.newsEvent.create({

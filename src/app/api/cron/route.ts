@@ -27,13 +27,13 @@ export async function GET() {
         const MAX_IMAGE_SEARCHES = 1; // Strict safety limit for free tier (100/day)
 
         // Take top 3 recent items
-        // Take top 20 recent items to ensure we cover multiple feeds
-        const batch = rawItems.slice(0, 20);
+        // Take top 5 recent items to ensure we finish within Vercel timeout (60s)
+        const batch = rawItems.slice(0, 5);
 
         for (const item of batch) {
             // Check deduplication (basic check by url)
             const allEvents = await db.getEvents();
-            const exists = allEvents.find(e => e.sources.some(s => s.url === item.url));
+            const exists = allEvents.find((e: any) => e.sources.some((s: any) => s.url === item.url));
             if (exists) {
                 console.log('Skipping duplicate:', item.headline);
                 continue;

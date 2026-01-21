@@ -48,11 +48,11 @@ export class NewsMonitor {
         console.log('QIE Monitor: Fetching RSS feeds...');
         let allItems: ExternalNewsItem[] = [];
 
-        for (const feed of RSS_FEEDS) {
+        const feedPromises = RSS_FEEDS.map(async (feed) => {
             try {
                 const parsed = await this.parser.parseURL(feed.url);
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const items = parsed.items.slice(0, 3).map((item: any) => {
+                return parsed.items.slice(0, 3).map((item: any) => {
                     // Extract Image Logic
                     let img = '';
                     if (item.enclosure?.url) img = item.enclosure.url;
@@ -69,11 +69,14 @@ export class NewsMonitor {
                         imageUrl: img
                     };
                 });
-                allItems = [...allItems, ...items];
             } catch (error) {
                 console.error(`Error fetching ${feed.name}:`, error);
+                return [];
             }
-        }
+        });
+
+        const results = await Promise.all(feedPromises);
+        allItems = results.flat();
 
         return allItems;
     }
