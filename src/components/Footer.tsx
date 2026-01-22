@@ -49,8 +49,8 @@ export function Footer() {
                         <ul className="space-y-4 text-sm text-slate-500">
                             <li><FooterLink href="/about">About Us</FooterLink></li>
                             <li><FooterLink href="#">Contact</FooterLink></li>
-                            <li><FooterLink href="#">Privacy Policy</FooterLink></li>
-                            <li><FooterLink href="#">Terms of Service</FooterLink></li>
+                            <li><FooterLink href="/privacy">Privacy Policy</FooterLink></li>
+                            <li><FooterLink href="/terms">Terms of Service</FooterLink></li>
                         </ul>
                     </div>
                 </div>
@@ -61,8 +61,8 @@ export function Footer() {
                     </p>
                     <div className="flex gap-8 text-sm text-slate-500">
                         {/* Repeated legal links for standard footer conventions, or keep minimal */}
-                        <FooterLink href="#">Privacy</FooterLink>
-                        <FooterLink href="#">Terms</FooterLink>
+                        <FooterLink href="/privacy">Privacy</FooterLink>
+                        <FooterLink href="/terms">Terms</FooterLink>
                         <FooterLink href="#">Cookies</FooterLink>
                     </div>
                 </div>

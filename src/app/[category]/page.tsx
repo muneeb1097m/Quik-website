@@ -19,6 +19,22 @@ interface PageProps {
     params: Promise<{ category: string }>;
 }
 
+import type { Metadata } from 'next';
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+    const { category } = await params;
+    const title = category.charAt(0).toUpperCase() + category.slice(1);
+
+    return {
+        title: `${title} News | Quik`,
+        description: `Latest ${title} news and intelligence, synthesized by AI.`,
+        openGraph: {
+            title: `${title} News | Quik`,
+            description: `Latest ${title} news and intelligence, synthesized by AI.`,
+        },
+    };
+}
+
 export default async function CategoryPage({ params }: PageProps) {
     const { category } = await params;
     const signals = await db.getSignals(category);
