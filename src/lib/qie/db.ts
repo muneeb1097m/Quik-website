@@ -61,6 +61,42 @@ export const db = {
         });
     },
 
+    // Optimized single query for homepage data - reduces TTFB significantly
+    getHomePageData: async () => {
+        // Fetch all data in parallel for maximum performance
+        const [trending, signals, events] = await Promise.all([
+            prisma.signal.findMany({
+                take: 20,
+                orderBy: { generatedAt: 'desc' },
+                include: {
+                    event: {
+                        include: {
+                            sources: true
+                        }
+                    }
+                }
+            }),
+            prisma.signal.findMany({
+                take: 50,
+                orderBy: { generatedAt: 'desc' },
+                include: {
+                    event: {
+                        include: {
+                            sources: true
+                        }
+                    }
+                }
+            }),
+            prisma.newsEvent.findMany({
+                take: 50,
+                include: { sources: true },
+                orderBy: { detectedAt: 'desc' }
+            })
+        ]);
+
+        return { trending, signals, events };
+    },
+
     getTrending: async (limit: number = 3) => {
         return await prisma.signal.findMany({
             take: limit,

@@ -10,15 +10,13 @@ const serialize = (data: any): any => {
 };
 
 // Enable ISR (Incremental Static Regeneration)
-// Revalidate page every 60 seconds
-export const revalidate = 60;
+// Revalidate page every 10 seconds for better performance
+export const revalidate = 10;
 
 export default async function Home() {
-  // 1. Fetch all data needed for the landing page
-  // Limit fetches to manageable sizes for performance (e.g. 50 items)
-  const rawTrending = await db.getTrending(20);
-  const rawSignals = await db.getSignals(undefined, 50);
-  const allEvents = await db.getEvents(50);
+  // Optimized: Single database call instead of 3 separate queries
+  // This significantly reduces TTFB by minimizing database round trips
+  const { trending: rawTrending, signals: rawSignals, events: allEvents } = await db.getHomePageData();
 
   const validTrending = rawTrending;
   const validSignals = rawSignals;
@@ -28,7 +26,7 @@ export default async function Home() {
   const gridStories = validTrending.slice(1, 3); // 2 items
   const sideStories = validTrending.slice(3, 7); // Max 4 side stories
 
-  const mainStoryEvent = mainStory ? await db.getEvent(mainStory.eventId) : undefined;
+  const mainStoryEvent = mainStory ? mainStory.event : undefined;
 
   // 3. Serialize Data (Fixes "Date object" error)
   // We must serialize because Prisma returns Date objects, which cannot be passed directly to Client Components
