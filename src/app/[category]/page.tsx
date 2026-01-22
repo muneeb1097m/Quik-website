@@ -45,7 +45,7 @@ export default async function CategoryPage({ params }: PageProps) {
                     {signals.map(signal => {
                         const event = signal.event as unknown as NewsEvent;
                         if (!event) return null;
-                        return <SignalCard key={signal.id} signal={signal} event={event} />;
+                        return <SignalCard key={signal.id} signal={signal as any} event={event} />;
                     })}
                     {signals.length === 0 && (
                         <p className="text-slate-500">No signals detected for this category primarily.</p>
