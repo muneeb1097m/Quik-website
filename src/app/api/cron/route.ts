@@ -4,6 +4,7 @@ import { GeminiSynthesizer } from '@/lib/qie/gemini';
 import { GoogleImageSearcher } from '@/lib/qie/image_search';
 import { db } from '@/lib/qie/db';
 import { EventCategory } from '@/types';
+import { generateNewsImage } from '@/lib/image-gen';
 
 // Prevent vercel time out
 export const maxDuration = 60;
@@ -14,7 +15,7 @@ export async function GET() {
 
     const monitor = new NewsMonitor();
     const synthesizer = new GeminiSynthesizer();
-    const imageSearcher = new GoogleImageSearcher();
+    // const imageSearcher = new GoogleImageSearcher(); // Unused
 
     try {
         // 1. Fetch Raw RSS
@@ -23,10 +24,7 @@ export async function GET() {
 
         // 2. Process a subset (first 3 for demo speed)
         const newSignals = [];
-        let imageSearchCount = 0;
-        const MAX_IMAGE_SEARCHES = 1; // Strict safety limit for free tier (100/day)
 
-        // Take top 3 recent items
         // Take top 5 recent items to ensure we finish within Vercel timeout (60s)
         const batch = rawItems.slice(0, 5);
 
@@ -43,20 +41,14 @@ export async function GET() {
             console.log(`Synthesizing: ${item.headline}...`);
             const aiResult = await synthesizer.rewriteStory(item.headline, item.contentSnippet || '');
 
-            // 3b. Image Fallback - DISABLED per user request (Only use RSS provided images)
-            const finalImageUrl = item.imageUrl;
-            /*
+            // 3b. Image Handling
+            // Priority: RSS Image -> AI Generated (Pollinations/Flux)
+            let finalImageUrl = item.imageUrl;
+
             if (!finalImageUrl) {
-                if (imageSearchCount < MAX_IMAGE_SEARCHES) {
-                    console.log('No RSS image. Attempting fallback search...');
-                    const visualKeyword = await synthesizer.extractVisualKeyword(item.headline);
-                    finalImageUrl = await imageSearcher.search(visualKeyword);
-                    if (finalImageUrl) imageSearchCount++;
-                } else {
-                    console.log('Skipping image search to conserve API quota.');
-                }
+                console.log('No RSS image. Generating AI image...');
+                finalImageUrl = generateNewsImage(aiResult.headline, aiResult.category);
             }
-            */
 
             // 4. Save to DB
             const eventId = `evt_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
