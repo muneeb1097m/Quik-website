@@ -42,13 +42,9 @@ export async function GET() {
             const aiResult = await synthesizer.rewriteStory(item.headline, item.contentSnippet || '');
 
             // 3b. Image Handling
-            // Priority: RSS Image -> AI Generated (Pollinations/Flux)
-            let finalImageUrl = item.imageUrl;
-
-            if (!finalImageUrl) {
-                console.log('No RSS image. Generating AI image...');
-                finalImageUrl = generateNewsImage(aiResult.headline, aiResult.category);
-            }
+            // Priority: ALWAYS use AI Generated (Pollinations/Flux) as per user request
+            console.log('Generating AI image...');
+            const finalImageUrl = generateNewsImage(aiResult.headline, aiResult.category);
 
             // 4. Save to DB
             const eventId = `evt_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
