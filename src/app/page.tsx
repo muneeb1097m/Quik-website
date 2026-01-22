@@ -20,8 +20,6 @@ export default async function Home() {
   const rawSignals = await db.getSignals(undefined, 50);
   const allEvents = await db.getEvents(50);
 
-  // Filter: Strictly "Only add the news on the main page which has the image"
-  // UPDATE: Filter removed per user request. We now have AI generation + UI fallbacks.
   const validTrending = rawTrending;
   const validSignals = rawSignals;
 

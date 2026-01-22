@@ -34,6 +34,7 @@ export interface Signal {
   generatedAt: string | Date;
   imageUrl?: string | null;
   fullReport?: string | null;
+  event?: NewsEvent;
 }
 
 export interface Brief {

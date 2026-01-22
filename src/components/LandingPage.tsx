@@ -216,7 +216,7 @@ export function LandingPage({ signals, events, mainStory, mainStoryEvent, gridSt
                         className="lg:col-span-4 flex flex-col md:flex-row lg:flex-col gap-4 md:gap-6 h-auto lg:h-full"
                     >
                         {gridStories.map((story) => {
-                            const evt = getEvent(story.eventId);
+                            const evt = story.event || getEvent(story.eventId);
                             return (
                                 <motion.div variants={fadeInUp} key={story.id} className="flex-1 min-h-[260px]">
                                     <GridStoryCard story={story} event={evt} />
@@ -247,8 +247,18 @@ export function LandingPage({ signals, events, mainStory, mainStoryEvent, gridSt
                             className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6"
                         >
                             {signals.map((signal, index) => {
-                                const event = getEvent(signal.eventId);
-                                if (!event) return null;
+                                // Use the event embedded in signal if available, otherwise look it up
+                                // If still not found, we don't hide it anymore per user request, we just fallback
+                                const event = signal.event || getEvent(signal.eventId) || {
+                                    id: 'unknown',
+                                    title: 'News',
+                                    category: 'Technology', // Default generic
+                                    status: 'Live',
+                                    detectedAt: new Date(),
+                                    lastUpdatedAt: new Date(),
+                                    confidenceScore: 0,
+                                    sources: []
+                                } as any as NewsEvent;
 
                                 // Make every 5th card span full width for variety
                                 const isWide = (index + 1) % 5 === 0;
