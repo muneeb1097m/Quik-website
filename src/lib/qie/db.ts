@@ -28,13 +28,44 @@ export const db = {
     getSignal: async (id: string) => {
         return await prisma.signal.findUnique({
             where: { id },
-            include: { event: true } // Need event for category check usually
+            include: {
+                event: {
+                    include: { sources: true }
+                }
+            }
         });
     },
 
     getSignals: async (category?: string, limit?: number) => {
-        // Fetch all signals with even include
+        let whereClause = {};
+
+        if (category) {
+            const c = category.toLowerCase();
+            let targetCategories: string[] = [category]; // Default to exact match
+
+            // Map URL slug to DB categories (handling both legacy and new Gemini outputs)
+            if (c === 'tech') targetCategories = ['Technology', 'technology', 'Tech'];
+            else if (c === 'business') targetCategories = ['Business', 'economy', 'Business & Finance'];
+            else if (c === 'global') targetCategories = ['Global', 'international', 'World'];
+            else if (c === 'telecom') targetCategories = ['Telecom', 'Telecommunications'];
+            else if (c === 'auto') targetCategories = ['Auto', 'Automotive'];
+            else if (c === 'pakistan') targetCategories = ['Pakistan', 'Startup Pakistan'];
+            else if (c === 'sports') targetCategories = ['Sports'];
+            else targetCategories = [category, c, c.charAt(0).toUpperCase() + c.slice(1)];
+
+            whereClause = {
+                event: {
+                    category: {
+                        in: targetCategories,
+                        mode: 'insensitive' // Optional if using Postgres, but good helper
+                    }
+                }
+            };
+        }
+
+        // Fetch signals with filter applied at DB level
         const signals = await prisma.signal.findMany({
+            where: whereClause,
             include: {
                 event: {
                     include: {
@@ -43,22 +74,10 @@ export const db = {
                 }
             },
             orderBy: { generatedAt: 'desc' },
-            take: category ? undefined : limit // Apply limit only if no category filtering (if category exists, we need to filter locally or query differently)
+            take: limit
         });
 
-        if (!category) return signals;
-
-        // Strict category logic
-        const c = category.toLowerCase();
-
-        return signals.filter(s => {
-            const ec = s.event.category.toLowerCase();
-            if (c === 'tech') return ec === 'technology';
-            if (c === 'business') return ec === 'economy';
-            if (c === 'global') return ec === 'international';
-            // Simple match
-            return ec === c;
-        });
+        return signals;
     },
 
     // Optimized single query for homepage data - reduces TTFB significantly

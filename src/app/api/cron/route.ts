@@ -75,7 +75,8 @@ export async function GET() {
                 headline: aiResult.headline,
                 summary: aiResult.summary,
                 generatedAt: new Date().toISOString(),
-                imageUrl: finalImageUrl
+                imageUrl: finalImageUrl,
+                fullReport: aiResult.fullReport
             };
             await db.addSignal(signal);
             newSignals.push(signal);

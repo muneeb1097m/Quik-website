@@ -19,19 +19,21 @@ const model = genAI.getGenerativeModel({
     Return a pure JSON object (no markdown code blocks) with keys:
     - "headline": Max 12 words. Punchy. No clickbait.
     - "summary": Max 2 sentences. The "So What?".
-    - "category": Best fit among [Technology, Business, Startups, Auto, Telecom, Global].
+    - "category": Best fit among [Technology, Business, Startups, Auto, Telecom, Global, Pakistan, Sports].
+    - "fullReport": A detailed, multi-paragraph article (3-4 paragraphs) explaining the news in depth, context, and implications.
     `
 });
 
 export class GeminiSynthesizer {
 
-    async rewriteStory(rawHeadline: string, rawSnippet: string): Promise<{ headline: string, summary: string, category: string }> {
+    async rewriteStory(rawHeadline: string, rawSnippet: string): Promise<{ headline: string, summary: string, category: string, fullReport: string }> {
         if (!API_KEY) {
             console.warn('GEMINI_API_KEY not found. Returning raw data.');
             return {
                 headline: rawHeadline,
                 summary: rawSnippet.slice(0, 150) + '...',
-                category: 'General'
+                category: 'General',
+                fullReport: rawSnippet // Fallback to snippet
             };
         }
 
@@ -53,7 +55,8 @@ export class GeminiSynthesizer {
             return {
                 headline: rawHeadline,
                 summary: rawSnippet.slice(0, 100),
-                category: 'Latest'
+                category: 'Latest',
+                fullReport: rawSnippet // Fallback to snippet if failed
             };
         }
     }

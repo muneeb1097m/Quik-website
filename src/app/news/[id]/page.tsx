@@ -56,8 +56,8 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ id:
         notFound();
     }
 
-    const event = await db.getEvent(signal.eventId);
-    if (!event) return null; // Should ideally also be handled
+    // Event is now included in signal fetch
+    const event = signal.event;
 
     // Fetch related stories
     const related = await db.getSignals(event.category);
