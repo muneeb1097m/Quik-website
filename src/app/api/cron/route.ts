@@ -25,8 +25,11 @@ export async function GET() {
         // 2. Process a subset (first 3 for demo speed)
         const newSignals = [];
 
-        // Take top 5 recent items to ensure we finish within Vercel timeout (60s)
-        const batch = rawItems.slice(0, 5);
+        // Shuffle items to ensure variety (otherwise we always process the first feed's items)
+        const shuffled = rawItems.sort(() => 0.5 - Math.random());
+
+        // Take top 5 random items to ensure we finish within Vercel timeout (60s)
+        const batch = shuffled.slice(0, 5);
 
         for (const item of batch) {
             // Check deduplication (basic check by url)

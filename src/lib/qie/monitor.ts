@@ -18,6 +18,15 @@ const RSS_FEEDS = [
     { name: 'BBC UK', url: 'http://feeds.bbci.co.uk/news/uk/rss.xml', category: 'International' },
     { name: 'Al Jazeera', url: 'https://www.aljazeera.com/xml/rss/all.xml', category: 'International' },
     { name: 'The National UAE', url: 'https://www.thenationalnews.com/rss/', category: 'International' },
+    // Sports
+    { name: 'BBC Sport', url: 'http://feeds.bbci.co.uk/sport/rss.xml', category: 'Sports' },
+    { name: 'ESPN', url: 'https://www.espn.com/espn/rss/news', category: 'Sports' },
+    { name: 'Sky Sports', url: 'https://www.skysports.com/rss/12040', category: 'Sports' },
+    // Auto
+    { name: 'Autoblog', url: 'https://www.autoblog.com/rss.xml', category: 'Auto' },
+    { name: 'Motor1', url: 'https://www.motor1.com/rss/', category: 'Auto' },
+    // Telecom / Pakistan Specific
+    { name: 'Propakistani Telecom', url: 'https://propakistani.pk/category/telecom/feed/', category: 'Telecom' },
 ];
 
 export interface ExternalNewsItem {
