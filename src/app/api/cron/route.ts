@@ -34,11 +34,11 @@ export async function GET() {
             return NextResponse.json({ success: true, message: 'No new items to process.' });
         }
 
-        // 3. Process the batch (Top 5 new items)
-        // With an external cron running every 3 mins, this will quickly clear any backlog.
-        // No need to shuffle; we prioritize the freshest or most relevant news.
+        // 3. Process the batch (Top 15 new items)
+        // With an external cron running every 3 mins, this will populate all categories faster.
+        // 15 items ensures good category distribution across Pakistan, Sports, AI, Auto, etc.
         const newSignals = [];
-        const batch = newItems.slice(0, 5);
+        const batch = newItems.slice(0, 15);
 
         for (const item of batch) {
             // Already checked deduplication above
