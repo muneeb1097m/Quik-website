@@ -5,6 +5,7 @@ import { GoogleImageSearcher } from '@/lib/qie/image_search';
 import { db } from '@/lib/qie/db';
 import { EventCategory } from '@/types';
 import { generateNewsImage } from '@/lib/image-gen';
+import { scrapeArticleContent } from '@/lib/qie/scraper';
 
 // Prevent vercel time out
 export const maxDuration = 60;
@@ -43,9 +44,14 @@ export async function GET() {
             // Already checked deduplication above
             // Proceed directly to synthesis
 
-            // 3. Synthesize with Gemini
-            console.log(`Synthesizing: ${item.headline}...`);
-            const aiResult = await synthesizer.rewriteStory(item.headline, item.contentSnippet || '');
+            // 3. Scrape Full Content
+            console.log(`Scraping full content for: ${item.headline}...`);
+            const fullText = await scrapeArticleContent(item.url);
+            const contextToAnalyze = fullText.length > 200 ? fullText : (item.contentSnippet || item.headline);
+
+            // 4. Synthesize with Gemini
+            console.log(`Synthesizing with ${(fullText.length > 200 ? 'FULL TEXT' : 'SNIPPET')}...`);
+            const aiResult = await synthesizer.rewriteStory(item.headline, contextToAnalyze);
 
             // 3b. Image Handling
             // Priority: ALWAYS use AI Generated (Pollinations/Flux) as per user request
