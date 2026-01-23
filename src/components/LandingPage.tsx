@@ -60,7 +60,7 @@ const GridStoryCard = ({ story, event }: { story: Signal, event: NewsEvent | und
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
             </div>
 
-            <div className="relative z-10 glass-panel w-fit px-3 py-1 rounded-full text-[10px] font-bold text-white bg-white/10 backdrop-blur-md mb-3 border border-white/20">
+            <div className="relative z-10 glass-panel w-fit px-3 py-1 rounded-full text-[10px] font-bold text-white bg-black/60 backdrop-blur-md mb-3 border border-white/20 shadow-sm">
                 {event?.category || 'News'}
             </div>
 
@@ -180,7 +180,7 @@ export function LandingPage({ signals, events, mainStory, mainStoryEvent, gridSt
                                             transition={{ delay: 0.4 }}
                                             className="flex items-center gap-3 mb-4 md:mb-6"
                                         >
-                                            <div className="glass-panel px-4 py-1.5 rounded-full border-brand-green/20 bg-brand-green/10 text-white text-xs md:text-sm font-bold shadow-[0_0_20px_rgba(255,236,215,0.2)] backdrop-blur-md">
+                                            <div className="glass-panel px-4 py-1.5 rounded-full border-white/20 bg-black/60 text-white text-xs md:text-sm font-bold shadow-sm backdrop-blur-md">
                                                 {mainStoryEvent?.category || 'Trending'}
                                             </div>
                                         </motion.div>
