@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/qie/db';
+import { sendEmail } from '@/lib/email';
 
 export async function POST(request: Request) {
     try {
@@ -21,12 +22,7 @@ export async function POST(request: Request) {
             );
         }
 
-        // 2. Simulate Payment Processing (Simulating latency for UX)
-        // In a real app, this would be: await stripe.paymentIntents.create({...})
-        const PAYMENT_DELAY = 1500;
-        await new Promise(resolve => setTimeout(resolve, PAYMENT_DELAY));
-
-        // 3. Save to Database
+        // 2. Save to Database
         try {
             const subscription = await prisma.subscription.create({
                 data: {
@@ -34,11 +30,35 @@ export async function POST(request: Request) {
                     email,
                     interests: JSON.stringify(interests), // Store array as JSON string
                     status: 'active',
-                    paymentMethod: paymentMethod || 'credit_card'
+                    paymentMethod: paymentMethod || 'free'
                 }
             });
 
-            // 4. Return Success
+            // 3. Check total subscriber count
+            const totalSubscribers = await prisma.subscription.count();
+
+            // 4. Send admin notification if exactly 100 users
+            if (totalSubscribers === 100) {
+                try {
+                    await sendEmail(
+                        'muneebbhatti1097m@gmail.com',
+                        '🎉 Milestone Reached: 100 Subscribers!',
+                        `
+                        <h1 style="color: #1e293b;">Congratulations!</h1>
+                        <p>Your Quik News newsletter has reached <strong>100 subscribers</strong>! 🎊</p>
+                        <p>Latest subscriber: <strong>${email}</strong></p>
+                        <p>Time to celebrate and plan for the next phase! 🚀</p>
+                        `
+                    );
+                    console.log('🎉 Admin notified: 100 subscribers milestone!');
+                } catch (emailError) {
+                    console.error('Failed to send admin notification:', emailError);
+                }
+            }
+
+            console.log(`✅ New subscriber #${totalSubscribers}: ${email}`);
+
+            // 5. Return Success
             return NextResponse.json({
                 status: 'success',
                 message: 'Subscription active',

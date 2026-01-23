@@ -260,18 +260,54 @@ export default function AboutPage() {
                                         <div className="pt-4">
                                             <button
                                                 type="button"
-                                                onClick={() => {
-                                                    if (email && isValidEmail && selectedInterests.length > 0) setFormStep('payment');
-                                                    else if (!email) setIsValidEmail(false);
+                                                onClick={async () => {
+                                                    if (email && isValidEmail && selectedInterests.length > 0) {
+                                                        setIsProcessing(true);
+                                                        try {
+                                                            const response = await fetch('/api/subscribe', {
+                                                                method: 'POST',
+                                                                headers: { 'Content-Type': 'application/json' },
+                                                                body: JSON.stringify({
+                                                                    name: 'Subscriber',
+                                                                    email,
+                                                                    interests: selectedInterests,
+                                                                    paymentMethod: 'free'
+                                                                })
+                                                            });
+
+                                                            const data = await response.json();
+
+                                                            if (response.ok && data.status === 'success') {
+                                                                setFormStep('success');
+                                                            } else {
+                                                                alert(data.error || 'Subscription failed. Please try again.');
+                                                            }
+                                                        } catch (err) {
+                                                            console.error(err);
+                                                            alert('An unexpected error occurred.');
+                                                        } finally {
+                                                            setIsProcessing(false);
+                                                        }
+                                                    } else if (!email) {
+                                                        setIsValidEmail(false);
+                                                    }
                                                 }}
-                                                className={`w-full font-bold text-lg py-5 rounded-xl transition-all shadow-xl ${email && isValidEmail && selectedInterests.length > 0
+                                                disabled={isProcessing}
+                                                className={`w-full font-bold text-lg py-5 rounded-xl transition-all shadow-xl flex items-center justify-center gap-3 ${email && isValidEmail && selectedInterests.length > 0
                                                     ? 'bg-slate-900 text-white hover:bg-slate-800 hover:scale-[1.01] active:scale-[0.98] shadow-slate-900/20'
                                                     : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                                                     }`}
                                             >
-                                                Proceed to Payment
+                                                {isProcessing ? (
+                                                    <>
+                                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                                        Subscribing...
+                                                    </>
+                                                ) : (
+                                                    'Get Daily Intelligence Updates'
+                                                )}
                                             </button>
-                                            <p className="text-center text-xs text-slate-400 mt-4">Next step: Secure Credit Card Payment ($5/mo)</p>
+                                            <p className="text-center text-xs text-slate-400 mt-4">Free. No credit card required.</p>
                                         </div>
                                     </motion.div>
                                 )}

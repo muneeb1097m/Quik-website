@@ -7,6 +7,35 @@ export function Footer() {
     return (
         <footer className="w-full bg-slate-50 border-t border-slate-200 mt-20">
             <div className="max-w-[1600px] mx-auto px-8 py-16">
+
+                {/* Newsletter Signup Section */}
+                <div className="bg-slate-900 rounded-3xl p-8 md:p-12 mb-16">
+                    <div className="max-w-2xl mx-auto text-center">
+                        <h3 className="text-2xl md:text-3xl font-bold text-white mb-3">
+                            Get Daily Intelligence Updates
+                        </h3>
+                        <p className="text-slate-400 mb-8">
+                            Join our community and receive personalized news based on your interests. Free. No spam.
+                        </p>
+                        <div className="flex flex-col sm:flex-row gap-3">
+                            <input
+                                type="email"
+                                placeholder="Enter your email"
+                                className="flex-1 px-6 py-4 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-white/30 transition-all"
+                            />
+                            <Link
+                                href="/about"
+                                className="px-8 py-4 bg-white text-slate-900 font-bold rounded-xl hover:bg-slate-100 transition-all whitespace-nowrap"
+                            >
+                                Subscribe Now
+                            </Link>
+                        </div>
+                        <p className="text-xs text-slate-500 mt-4">
+                            Free forever. No credit card required.
+                        </p>
+                    </div>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
                     <div className="md:col-span-1">
                         <Link href="/" className="flex items-center gap-2 mb-6 group">
