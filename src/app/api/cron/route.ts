@@ -50,7 +50,7 @@ export async function GET() {
             const fullText = scrapedData.content;
             const contextToAnalyze = fullText.length > 200 ? fullText : (item.contentSnippet || item.headline);
 
-            // 4. Synthesize with Gemini
+            // 4. Synthesize with Gemini (NO CATEGORIZATION - we use RSS feed category)
             console.log(`Synthesizing with ${(fullText.length > 200 ? 'FULL TEXT' : 'SNIPPET')}...`);
             const aiResult = await synthesizer.rewriteStory(item.headline, contextToAnalyze);
 
@@ -60,7 +60,7 @@ export async function GET() {
 
             if (!finalImageUrl) {
                 console.log('No real image found, generating fallback AI image...');
-                finalImageUrl = generateNewsImage(aiResult.headline, aiResult.category);
+                finalImageUrl = generateNewsImage(aiResult.headline, item.category || 'Technology');
             } else {
                 console.log('Using Real Image:', finalImageUrl);
             }
@@ -68,11 +68,14 @@ export async function GET() {
             // 4. Save to DB
             const eventId = `evt_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
 
+            // CRITICAL: Use RSS feed category, NOT Gemini's category
+            const finalCategory = item.category || 'Technology'; // Trust the RSS source
+
             // Add Event
             await db.addEvent({
                 id: eventId,
                 title: aiResult.headline,
-                category: aiResult.category as EventCategory, // "Technology" | "Business" etc
+                category: finalCategory as EventCategory, // Use RSS category directly!
                 status: 'Live',
                 detectedAt: new Date().toISOString(),
                 lastUpdatedAt: new Date().toISOString(),
