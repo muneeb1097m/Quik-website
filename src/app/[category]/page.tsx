@@ -52,8 +52,8 @@ export default async function CategoryPage({ params }: PageProps) {
             <div className="fixed top-[-10%] left-[-10%] w-[800px] h-[800px] bg-brand-green/5 rounded-full blur-[120px] pointer-events-none" />
             <div className="fixed top-[20%] right-[-10%] w-[600px] h-[600px] bg-brand-red/5 rounded-full blur-[100px] pointer-events-none" />
 
-            <main className="max-w-[1200px] mx-auto px-6 pt-32 pb-20 relative z-10">
-                <h1 className="text-4xl font-bold text-slate-900 mb-8 border-b border-slate-200 pb-4">
+            <main className="max-w-[1200px] mx-auto px-6 pt-40 pb-20 relative z-10">
+                <h1 className="text-4xl font-bold text-slate-900 mb-8 mt-8 border-b border-slate-200 pb-4">
                     {category === 'pakistan' ? 'Startup Pakistan' : title} News
                 </h1>
 
