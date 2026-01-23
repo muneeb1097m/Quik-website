@@ -1,4 +1,4 @@
-export type EventCategory = 'Politics' | 'Technology' | 'Sports' | 'Economy' | 'Science' | 'International' | 'Business';
+export type EventCategory = 'Politics' | 'Technology' | 'Sports' | 'Economy' | 'Science' | 'International' | 'Business' | 'Auto' | 'Telecom' | 'Global' | 'Pakistan' | 'Startups';
 
 export type EventStatus = 'Detecting' | 'Verifying' | 'Live' | 'Archived';
 

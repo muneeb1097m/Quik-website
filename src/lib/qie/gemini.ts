@@ -55,7 +55,7 @@ export class GeminiSynthesizer {
             return {
                 headline: rawHeadline,
                 summary: rawSnippet.slice(0, 100),
-                category: 'Latest',
+                category: 'Technology',
                 fullReport: rawSnippet // Fallback to snippet if failed
             };
         }
