@@ -1,6 +1,6 @@
 import * as cheerio from 'cheerio';
 
-export async function scrapeArticleContent(url: string): Promise<string> {
+export async function scrapeArticleContent(url: string): Promise<{ content: string, imageUrl?: string }> {
     try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
@@ -15,11 +15,16 @@ export async function scrapeArticleContent(url: string): Promise<string> {
 
         if (!response.ok) {
             console.warn(`Failed to fetch ${url}: ${response.status}`);
-            return '';
+            return { content: '' };
         }
 
         const html = await response.text();
         const $ = cheerio.load(html);
+
+        // Extract og:image
+        let imageUrl = $('meta[property="og:image"]').attr('content');
+        if (!imageUrl) imageUrl = $('meta[name="twitter:image"]').attr('content');
+        if (!imageUrl) imageUrl = $('link[rel="image_src"]').attr('href');
 
         // Remove unwanted elements
         $('script, style, nav, footer, header, aside, .advertisement, .ads, .social-share').remove();
@@ -52,10 +57,10 @@ export async function scrapeArticleContent(url: string): Promise<string> {
             content = $('body').find('p').map((_, el) => $(el).text().trim()).get().join('\n\n');
         }
 
-        return content.trim();
+        return { content: content.trim(), imageUrl };
 
     } catch (error) {
         console.error(`Error scraping ${url}:`, error);
-        return '';
+        return { content: '' };
     }
 }

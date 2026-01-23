@@ -46,7 +46,8 @@ export async function GET() {
 
             // 3. Scrape Full Content
             console.log(`Scraping full content for: ${item.headline}...`);
-            const fullText = await scrapeArticleContent(item.url);
+            const scrapedData = await scrapeArticleContent(item.url);
+            const fullText = scrapedData.content;
             const contextToAnalyze = fullText.length > 200 ? fullText : (item.contentSnippet || item.headline);
 
             // 4. Synthesize with Gemini
@@ -54,9 +55,15 @@ export async function GET() {
             const aiResult = await synthesizer.rewriteStory(item.headline, contextToAnalyze);
 
             // 3b. Image Handling
-            // Priority: ALWAYS use AI Generated (Pollinations/Flux) as per user request
-            console.log('Generating AI image...');
-            const finalImageUrl = generateNewsImage(aiResult.headline, aiResult.category);
+            // Priority: Real Image (Scraped/RSS) > AI (to avoid rate limits & "non-AI" look)
+            let finalImageUrl = scrapedData.imageUrl || item.imageUrl;
+
+            if (!finalImageUrl) {
+                console.log('No real image found, generating fallback AI image...');
+                finalImageUrl = generateNewsImage(aiResult.headline, aiResult.category);
+            } else {
+                console.log('Using Real Image:', finalImageUrl);
+            }
 
             // 4. Save to DB
             const eventId = `evt_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
