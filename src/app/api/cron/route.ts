@@ -55,15 +55,11 @@ export async function GET() {
             const aiResult = await synthesizer.rewriteStory(item.headline, contextToAnalyze);
 
             // 3b. Image Handling
-            // Priority: Real Image (Scraped/RSS) > AI (to avoid rate limits & "non-AI" look)
-            let finalImageUrl = scrapedData.imageUrl || item.imageUrl;
+            // Priority: AI Generated (clean, no text) > Scraped (often has text that conflicts)
+            // User reported scraped images have too much embedded text
+            let finalImageUrl = generateNewsImage(aiResult.headline, item.category || 'Technology');
 
-            if (!finalImageUrl) {
-                console.log('No real image found, generating fallback AI image...');
-                finalImageUrl = generateNewsImage(aiResult.headline, item.category || 'Technology');
-            } else {
-                console.log('Using Real Image:', finalImageUrl);
-            }
+            console.log('Using AI-generated image (text-free):', finalImageUrl);
 
             // 4. Save to DB
             const eventId = `evt_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
