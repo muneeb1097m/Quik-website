@@ -46,7 +46,7 @@ function extractKeywords(title: string, category: string): string {
  * Generate image using Pollinations.ai
  */
 function generatePollinationsImage(keywords: string, seed: number): string {
-  const prompt = `Create a visual representation of specific news ${keywords} which looks real and non ai, No text no logo just a visual representaation`;
+  const prompt = `${keywords} news photography style, photorealistic, NO TEXT, NO WORDS, NO TYPOGRAPHY, NO LETTERS, clean visual only, editorial photo`;
   const encodedPrompt = encodeURIComponent(prompt);
 
   // Using turbo model for faster generation and less rate limits
@@ -57,7 +57,7 @@ function generatePollinationsImage(keywords: string, seed: number): string {
  * Generate image using alternative service
  */
 function generateImageAI(keywords: string, seed: number): string {
-  const prompt = `Create a visual representation of specific news ${keywords} which looks real and non ai, No text no logo just a visual representaation`;
+  const prompt = `${keywords} news photography style, photorealistic, NO TEXT, NO WORDS, NO TYPOGRAPHY, NO LETTERS, clean visual only, editorial photo`;
   const encodedPrompt = encodeURIComponent(prompt);
 
   // Alternative free AI image generation
