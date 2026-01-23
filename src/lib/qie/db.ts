@@ -83,33 +83,42 @@ export const db = {
     // Optimized single query for homepage data - reduces TTFB significantly
     getHomePageData: async () => {
         // Fetch all data in parallel for maximum performance
+        // Select specific fields to reduce payload size (exclude fullReport)
+        const commonSignalSelect = {
+            id: true,
+            headline: true,
+            summary: true,
+            imageUrl: true,
+            generatedAt: true,
+            eventId: true,
+            event: {
+                select: {
+                    id: true,
+                    category: true,
+                    sources: true
+                }
+            }
+        };
+
         const [trending, signals, events] = await Promise.all([
             prisma.signal.findMany({
-                take: 20,
+                take: 10, // Reduced from 20 -> 10 (Page only needs ~7)
                 orderBy: { generatedAt: 'desc' },
-                include: {
-                    event: {
-                        include: {
-                            sources: true
-                        }
-                    }
-                }
+                select: commonSignalSelect
             }),
             prisma.signal.findMany({
-                take: 50,
+                take: 20, // Reduced from 50 -> 20 (Page limit is 20)
                 orderBy: { generatedAt: 'desc' },
-                include: {
-                    event: {
-                        include: {
-                            sources: true
-                        }
-                    }
-                }
+                select: commonSignalSelect
             }),
             prisma.newsEvent.findMany({
-                take: 50,
-                include: { sources: true },
-                orderBy: { detectedAt: 'desc' }
+                take: 20, // Reduced from 50 -> 20
+                orderBy: { detectedAt: 'desc' },
+                select: {
+                    id: true,
+                    category: true,
+                    sources: true
+                }
             })
         ]);
 

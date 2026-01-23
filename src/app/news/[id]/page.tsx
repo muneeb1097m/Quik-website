@@ -60,7 +60,7 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ id:
     const event = signal.event;
 
     // Fetch related stories
-    const related = await db.getSignals(event.category);
+    const related = await db.getSignals(event.category, 4);
     // Filter out current and limit (simple client-side filter logic for now, DB query ideal later)
     const filteredRelated = related.filter(s => s.id !== signal.id).slice(0, 3);
 
