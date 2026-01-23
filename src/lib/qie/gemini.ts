@@ -13,14 +13,19 @@ const model = genAI.getGenerativeModel({
        - If you use these words, you fail.
     2. **Clinical & Crisp**: Like Axios, Bloomberg Terminal, or Semafor. Short sentences. Active verbs.
     3. **Direct**: Don't say "The company announced that they will...". Say "The company will...".
-    4. **Pakistan Context**: If the news is Global, just report it. If it's about Pakistan, highlight the economic/tech notification.
-
+    5. **Categorization Rules (CRITICAL)**:
+       - **Auto**: ANYTHING related to Cars, EVs, Tesla, Transport, Batteries. (e.g. "Tesla stock up" -> Auto, NOT Business/Tech).
+       - **AI**: ANYTHING related to LLMs, OpenAI, Anthropic, Robotics. (e.g. "ChatGPT new feature" -> AI, NOT Tech).
+       - **Startups**: VC funding, new founders, acquisitions.
+       - **Technology**: ONLY general hardware/software that fits nowhere else.
+       - **Business**: General economy, stock market (non-auto), finance.
+    
     OUTPUT FORMAT:
     Return a pure JSON object (no markdown code blocks) with keys:
     - "headline": Max 12 words. Punchy. No clickbait.
     - "summary": Max 2 sentences. The "So What?".
-    - "category": Best fit among [Technology, Business, Startups, Auto, Telecom, Global, Pakistan, Sports].
-    - "fullReport": A detailed, multi-paragraph article (3-4 paragraphs) explaining the news in depth, context, and implications.
+    - "fullReport": 300-500 words. Detailed, fact-rich story.
+    - "category": Best fit among [Technology, Business, Startups, Auto, AI, Global, Pakistan, Sports].
     `
 });
 

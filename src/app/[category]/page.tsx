@@ -7,7 +7,7 @@ export async function generateStaticParams() {
     return [
         { category: 'tech' },
         { category: 'business' },
-        { category: 'telecom' },
+        { category: 'ai' },
         { category: 'global' },
         { category: 'auto' },
         { category: 'pakistan' },

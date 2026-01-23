@@ -25,8 +25,11 @@ const RSS_FEEDS = [
     // Auto
     { name: 'Autoblog', url: 'https://www.autoblog.com/rss.xml', category: 'Auto' },
     { name: 'Motor1', url: 'https://www.motor1.com/rss/', category: 'Auto' },
-    // Telecom / Pakistan Specific
-    { name: 'Propakistani Telecom', url: 'https://propakistani.pk/category/telecom/feed/', category: 'Telecom' },
+    { name: 'Motor1', url: 'https://www.motor1.com/rss/', category: 'Auto' },
+    // AI Specific
+    { name: 'TechCrunch AI', url: 'https://techcrunch.com/category/artificial-intelligence/feed/', category: 'AI' },
+    { name: 'Wired AI', url: 'https://www.wired.com/feed/tag/ai/latest/rss', category: 'AI' },
+    { name: 'The Verge AI', url: 'https://www.theverge.com/rss/artificial-intelligence/index.xml', category: 'AI' },
 ];
 
 export interface ExternalNewsItem {

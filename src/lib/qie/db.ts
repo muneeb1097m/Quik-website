@@ -47,8 +47,8 @@ export const db = {
             if (c === 'tech') targetCategories = ['Technology', 'technology', 'Tech'];
             else if (c === 'business') targetCategories = ['Business', 'economy', 'Business & Finance'];
             else if (c === 'global') targetCategories = ['Global', 'international', 'World'];
-            else if (c === 'telecom') targetCategories = ['Telecom', 'Telecommunications'];
-            else if (c === 'auto') targetCategories = ['Auto', 'Automotive'];
+            else if (c === 'ai') targetCategories = ['AI', 'Artificial Intelligence', 'Robotics'];
+            else if (c === 'auto') targetCategories = ['Auto', 'Automotive', 'EV', 'Electric Vehicles', 'Cars'];
             else if (c === 'pakistan') targetCategories = ['Pakistan', 'Startup Pakistan'];
             else if (c === 'sports') targetCategories = ['Sports'];
             else targetCategories = [category, c, c.charAt(0).toUpperCase() + c.slice(1)];
