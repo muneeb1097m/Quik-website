@@ -135,6 +135,16 @@ export const db = {
 
 
 
+    getExistingUrls: async (urls: string[]) => {
+        const found = await prisma.source.findMany({
+            where: {
+                url: { in: urls }
+            },
+            select: { url: true } // Only need the URL string
+        });
+        return new Set(found.map(s => s.url));
+    },
+
     // Setter (used by Cron)
     addEvent: async (data: any) => {
         // "Upsert" logic ideally, but for now simple create

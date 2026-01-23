@@ -22,23 +22,26 @@ export async function GET() {
         const rawItems = await monitor.fetchLatestNews();
         console.log(`Fetched ${rawItems.length} items from RSS.`);
 
-        // 2. Process a subset (first 3 for demo speed)
+        // 2. Efficiently De-duplicate (Batch Check)
+        const allUrls = rawItems.map(i => i.url);
+        const existingUrls = await db.getExistingUrls(allUrls);
+
+        const newItems = rawItems.filter(item => !existingUrls.has(item.url));
+        console.log(`Found ${newItems.length} new items to process (after dedupe).`);
+
+        if (newItems.length === 0) {
+            return NextResponse.json({ success: true, message: 'No new items to process.' });
+        }
+
+        // 3. Process the batch (Top 5 new items)
+        // With an external cron running every 3 mins, this will quickly clear any backlog.
+        // No need to shuffle; we prioritize the freshest or most relevant news.
         const newSignals = [];
-
-        // Shuffle items to ensure variety (otherwise we always process the first feed's items)
-        const shuffled = rawItems.sort(() => 0.5 - Math.random());
-
-        // Take top 5 random items to ensure we finish within Vercel timeout (60s)
-        const batch = shuffled.slice(0, 5);
+        const batch = newItems.slice(0, 5);
 
         for (const item of batch) {
-            // Check deduplication (basic check by url)
-            const allEvents = await db.getEvents();
-            const exists = allEvents.find((e: any) => e.sources.some((s: any) => s.url === item.url));
-            if (exists) {
-                console.log('Skipping duplicate:', item.headline);
-                continue;
-            }
+            // Already checked deduplication above
+            // Proceed directly to synthesis
 
             // 3. Synthesize with Gemini
             console.log(`Synthesizing: ${item.headline}...`);
