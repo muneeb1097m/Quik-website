@@ -11,13 +11,7 @@ import { scrapeArticleContent } from '@/lib/qie/scraper';
 export const maxDuration = 60;
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request) {
-    // Verify Cron Secret to prevent unauthorized execution
-    const authHeader = request.headers.get('authorization');
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-        return new NextResponse('Unauthorized', { status: 401 });
-    }
-
+export async function GET() {
     console.log('Cron Job Started: fetching news...');
 
     const monitor = new NewsMonitor();
