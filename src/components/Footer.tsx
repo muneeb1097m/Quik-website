@@ -2,6 +2,7 @@
 
 import { Github, Twitter, Linkedin } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
 
 export function Footer() {
     return (
@@ -17,19 +18,9 @@ export function Footer() {
                         <p className="text-slate-400 mb-8">
                             Join our community and receive personalized news based on your interests. Free. No spam.
                         </p>
-                        <div className="flex flex-col sm:flex-row gap-3">
-                            <input
-                                type="email"
-                                placeholder="Enter your email"
-                                className="flex-1 px-6 py-4 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-white/30 transition-all"
-                            />
-                            <Link
-                                href="/about"
-                                className="px-8 py-4 bg-white text-slate-900 font-bold rounded-xl hover:bg-slate-100 transition-all whitespace-nowrap"
-                            >
-                                Subscribe Now
-                            </Link>
-                        </div>
+
+                        <NewsletterForm />
+
                         <p className="text-xs text-slate-500 mt-4">
                             Free forever. No credit card required.
                         </p>
@@ -100,7 +91,94 @@ export function Footer() {
     );
 }
 
+
+
+function NewsletterForm() {
+    const [email, setEmail] = useState('');
+    const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+    const [message, setMessage] = useState('');
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!email) return;
+
+        setStatus('loading');
+        setMessage('');
+
+        try {
+            const res = await fetch('/api/subscribe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email,
+                    name: 'Subscriber', // Default name
+                    interests: ['General'], // Default interest
+                    paymentMethod: 'free'
+                })
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                setStatus('success');
+                setMessage('Welcome aboard! You have successfully subscribed.');
+                setEmail('');
+            } else {
+                setStatus('error');
+                setMessage(data.error || 'Something went wrong. Please try again.');
+            }
+        } catch (error) {
+            setStatus('error');
+            setMessage('Network error. Please try again later.');
+        }
+    };
+
+    if (status === 'success') {
+        return (
+            <div className="bg-green-500/20 border border-green-500/30 rounded-xl p-4 text-green-200">
+                <p className="font-bold flex items-center justify-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-green-400"></span>
+                    {message}
+                </p>
+            </div>
+        );
+    }
+
+    return (
+        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
+            <div className="flex-1 relative">
+                <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email"
+                    disabled={status === 'loading'}
+                    required
+                    className="w-full h-full px-6 py-4 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-white/30 transition-all disabled:opacity-50"
+                />
+            </div>
+            <button
+                type="submit"
+                disabled={status === 'loading'}
+                className="px-8 py-4 bg-white text-slate-900 font-bold rounded-xl hover:bg-slate-100 transition-all whitespace-nowrap disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center min-w-[140px]"
+            >
+                {status === 'loading' ? (
+                    <div className="w-5 h-5 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
+                ) : (
+                    'Subscribe Now'
+                )}
+            </button>
+            {status === 'error' && (
+                <div className="absolute -bottom-8 left-0 text-red-400 text-xs text-left w-full pl-2">
+                    {message}
+                </div>
+            )}
+        </form>
+    );
+}
+
 function SocialLink({ href, icon }: { href: string; icon: React.ReactNode }) {
+    // ... existing SocialLink code ...
     return (
         <a
             href={href}
