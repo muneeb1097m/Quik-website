@@ -1,29 +1,17 @@
 /**
  * Generates an AI image URL for a news event using free image generation services.
- * This implementation includes multiple fallback options to avoid rate limits.
+ * This implementation distributes requests across 10 different models (10% each)
+ * to avoid rate limits and provide visual variety.
  */
 export function generateNewsImage(title: string, category: string): string {
   // Extract keywords from title for better image generation
   const keywords = extractKeywords(title, category);
 
-  // Generate a random seed to ensure uniqueness
+  // Generate a random seed to ensure uniqueness and deterministic model selection
   const seed = Math.floor(Math.random() * 1000000);
 
-  // Try multiple free services with different approaches
-  // Using a rotation strategy to distribute load
-  const serviceIndex = seed % 3;
-
-  switch (serviceIndex) {
-    case 0:
-      // Pollinations.ai - Free, no API key, multiple models
-      return generatePollinationsImage(keywords, seed);
-    case 1:
-      // Image.ai - Alternative free service
-      return generateImageAI(keywords, seed);
-    default:
-      // Picsum Photos - Ultra-reliable fallback (random photos by category)
-      return generatePicsumImage(category, seed);
-  }
+  // Use one of 10 different models based on the seed (10% probability each)
+  return generateMultiModelImage(keywords, seed);
 }
 
 /**
@@ -43,34 +31,34 @@ function extractKeywords(title: string, category: string): string {
 }
 
 /**
- * Generate image using Pollinations.ai
+ * Available models on Pollinations.ai
+ * Using 10 distinct models/styles to distribute load and provide variety.
  */
-function generatePollinationsImage(keywords: string, seed: number): string {
-  const prompt = `${keywords} news photography style, photorealistic, NO TEXT, NO WORDS, NO TYPOGRAPHY, NO LETTERS, clean visual only, editorial photo`;
-  const encodedPrompt = encodeURIComponent(prompt);
-
-  // Using turbo model for faster generation and less rate limits
-  return `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&model=turbo&seed=${seed}&nologo=true&enhance=true`;
-}
+const MODEL_OPTIONS = [
+  'flux',             // Standard Flux model
+  'flux-realism',     // Photorealistic variant
+  'flux-anime',       // Anime style
+  'flux-3d',          // 3D render style
+  'turbo',            // Fast generation
+  'stable-diffusion', // Classic SD
+  'midjourney',       // Midjourney style wrapper
+  'any-dark',         // Dark aesthetic
+  'seedream',         // Surreal/dreamy
+  'kontext'           // Context-aware
+];
 
 /**
- * Generate image using alternative service
+ * Generate image using one of the 10 available models
  */
-function generateImageAI(keywords: string, seed: number): string {
-  const prompt = `${keywords} news photography style, photorealistic, NO TEXT, NO WORDS, NO TYPOGRAPHY, NO LETTERS, clean visual only, editorial photo`;
+function generateMultiModelImage(keywords: string, seed: number): string {
+  const prompt = `${keywords} news photography style, highly detailed, 8k resolution`;
   const encodedPrompt = encodeURIComponent(prompt);
 
-  // Alternative free AI image generation
-  return `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&model=flux-realism&seed=${seed}&nologo=true`;
+  // Select model based on the last digit of the seed (0-9)
+  const modelIndex = seed % 10;
+  const selectedModel = MODEL_OPTIONS[modelIndex];
+
+  // Construct URL with the specific model
+  return `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&model=${selectedModel}&seed=${seed}&nologo=true&enhance=true`;
 }
 
-/**
- * Fallback to Picsum Photos - always reliable, no limits
- */
-function generatePicsumImage(category: string, seed: number): string {
-  // Use seed for consistent random selection
-  const imageId = 100 + (seed % 900); // Range 100-999 for good quality images
-
-  // Grayscale with blur for a more "news" aesthetic
-  return `https://picsum.photos/seed/${imageId}/1024/1024?grayscale&blur=1`;
-}

@@ -56,10 +56,55 @@ export async function GET() {
 
             // 3b. Image Handling
             // Priority: AI Generated (clean, no text) > Scraped (often has text that conflicts)
-            // User reported scraped images have too much embedded text
-            let finalImageUrl = generateNewsImage(aiResult.headline, item.category || 'Technology');
+            // Implementation: multi-model rotation with STRICT availability & content check
+            let finalImageUrl = '';
+            let attempts = 0;
+            const maxAttempts = 4; // Increased attempts to find a working model
 
-            console.log('Using AI-generated image (text-free):', finalImageUrl);
+            while (attempts < maxAttempts) {
+                // Generate a new URL (random seed selects random model)
+                const candidateUrl = generateNewsImage(aiResult.headline, item.category || 'Technology');
+
+                try {
+                    // We must use GET, not HEAD, to check content-length reliably on some CDNs
+                    // and ensure we trigger the generation to catch the error image if it occurs.
+                    const check = await fetch(candidateUrl, {
+                        method: 'GET',
+                        headers: { 'User-Agent': 'QuikNews/1.0 (Monitor)' }, // Polite UA
+                        signal: AbortSignal.timeout(8000) // 8s timeout for generation
+                    });
+
+                    const size = parseInt(check.headers.get('content-length') || '0');
+                    const contentType = check.headers.get('content-type') || '';
+
+                    // Validation Rules:
+                    // 1. Must be 200 OK
+                    // 2. Must be an image
+                    // 3. Must be > 15KB (Error images are usually small optimized SVGs/PNGs ~5-10KB)
+                    //    Real 1024x1024 AI images are typically > 100KB
+                    const isValidImage = check.ok &&
+                        contentType.startsWith('image/') &&
+                        size > 15000;
+
+                    if (isValidImage) {
+                        finalImageUrl = candidateUrl;
+                        console.log(`Image verified: ${size} bytes, Type: ${contentType}`);
+                        break;
+                    }
+
+                    console.warn(`Image generation attempt ${attempts + 1} rejected: Status=${check.status}, Size=${size}b, Type=${contentType}`);
+                } catch (err) {
+                    console.warn(`Image generation attempt ${attempts + 1} error:`, err);
+                }
+                attempts++;
+            }
+
+            // Fallback if all AI attempts fail
+            if (!finalImageUrl) {
+                console.warn('All AI image generation attempts failed/limited. Using Safe Fallback.');
+                // Picsum fallback (Guaranteed to work, never shows "limit exceeded")
+                finalImageUrl = `https://picsum.photos/seed/${Date.now()}/1024/1024?grayscale&blur=2`;
+            }
 
             // 4. Save to DB
             const eventId = `evt_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;

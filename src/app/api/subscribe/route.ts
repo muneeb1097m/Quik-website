@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/qie/db';
 import { sendEmail } from '@/lib/email';
+import { validateEmail } from '@/lib/email-validator';
 
 export async function POST(request: Request) {
     try {
@@ -8,9 +9,18 @@ export async function POST(request: Request) {
         const { name, email, interests, paymentMethod } = body;
 
         // 1. Basic Validation
-        if (!email || !email.includes('@')) {
+        if (!email) {
             return NextResponse.json(
-                { status: 'error', error: 'Invalid email address' },
+                { status: 'error', error: 'Email address is required' },
+                { status: 400 }
+            );
+        }
+
+        // 2. Advanced Email Validation (Format + MX Record)
+        const emailValidation = await validateEmail(email);
+        if (!emailValidation.valid) {
+            return NextResponse.json(
+                { status: 'error', error: emailValidation.error || 'Invalid email address' },
                 { status: 400 }
             );
         }
@@ -69,7 +79,7 @@ export async function POST(request: Request) {
             // Handle duplicate email unique constraint
             if (dbError.code === 'P2002') {
                 return NextResponse.json(
-                    { status: 'error', error: 'This email is already subscribed.' },
+                    { status: 'error', error: 'This email is already subscribed to our newsletter' },
                     { status: 409 }
                 );
             }
