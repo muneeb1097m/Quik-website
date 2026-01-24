@@ -6,6 +6,7 @@ import { motion, Variants } from 'framer-motion';
 import { NewsEvent, Signal } from '@/types';
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface LandingPageProps {
     signals: Signal[];
@@ -106,25 +107,23 @@ export function LandingPage({ signals, events, mainStory, mainStoryEvent, gridSt
     return (
         <div className="min-h-screen bg-slate-50 relative overflow-hidden font-sans selection:bg-brand-green/20 selection:text-slate-900">
 
-            {/* Ambient Light Orbs - Subtle & Soft */}
+            {/* Ambient Light Orbs - Optimized for Performance */}
             <div className="fixed inset-0 pointer-events-none z-0">
-                <motion.div
-                    animate={{
-                        scale: [1, 1.2, 1],
-                        opacity: [0.3, 0.5, 0.3],
-                        x: [0, 50, 0]
-                    }}
-                    transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" as const }}
-                    className="absolute top-[-20%] left-[-10%] w-[1000px] h-[1000px] bg-brand-green/5 rounded-full blur-[120px]"
-                />
                 <motion.div
                     animate={{
                         scale: [1, 1.1, 1],
                         opacity: [0.3, 0.4, 0.3],
-                        y: [0, 50, 0]
                     }}
-                    transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" as const, delay: 2 }}
-                    className="absolute top-[20%] right-[-10%] w-[800px] h-[800px] bg-brand-red/5 rounded-full blur-[100px]"
+                    transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                    className="absolute top-[-20%] left-[-10%] w-[800px] h-[800px] bg-brand-green/5 rounded-full blur-[100px] will-change-transform translate-z-0"
+                />
+                <motion.div
+                    animate={{
+                        scale: [1, 1.1, 1],
+                        opacity: [0.2, 0.3, 0.2],
+                    }}
+                    transition={{ duration: 12, repeat: Infinity, ease: "linear", delay: 1 }}
+                    className="absolute top-[20%] right-[-10%] w-[600px] h-[600px] bg-brand-red/5 rounded-full blur-[80px] will-change-transform translate-z-0"
                 />
             </div>
 
@@ -149,27 +148,41 @@ export function LandingPage({ signals, events, mainStory, mainStoryEvent, gridSt
                                 <div className="absolute inset-0 overflow-hidden">
                                     {mainStory ? (
                                         !mainImageError && mainStory.imageUrl ? (
-                                            <motion.img
-                                                src={mainStory.imageUrl}
-                                                alt={mainStory.headline}
-                                                onError={() => setMainImageError(true)}
-                                                className="w-full h-full object-cover opacity-90"
+                                            <motion.div
+                                                className="relative w-full h-full"
                                                 whileHover={{ scale: 1.05 }}
-                                                transition={{ duration: 1.5, ease: "easeOut" as const }}
-                                            />
+                                                transition={{ duration: 1.5, ease: "easeOut" }}
+                                            >
+                                                <Image
+                                                    src={mainStory.imageUrl}
+                                                    alt={mainStory.headline}
+                                                    fill
+                                                    priority={true} // Critical for LCP
+                                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 70vw, 800px"
+                                                    className="object-cover opacity-90"
+                                                    onError={() => setMainImageError(true)}
+                                                />
+                                            </motion.div>
                                         ) : (
-                                            <motion.img
-                                                src="https://images.unsplash.com/photo-1495020689067-958852a7765e?q=80&w=2940&auto=format&fit=crop"
-                                                alt="News Fallback"
-                                                className="w-full h-full object-cover opacity-40 grayscale contrast-125"
+                                            <motion.div
+                                                className="relative w-full h-full"
                                                 whileHover={{ scale: 1.05 }}
-                                                transition={{ duration: 1.5, ease: "easeOut" as const }}
-                                            />
+                                                transition={{ duration: 1.5, ease: "easeOut" }}
+                                            >
+                                                <Image
+                                                    src="https://images.unsplash.com/photo-1495020689067-958852a7765e?q=80&w=2940&auto=format&fit=crop"
+                                                    alt="News Fallback"
+                                                    fill
+                                                    priority={true}
+                                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 70vw, 800px"
+                                                    className="object-cover opacity-40 grayscale contrast-125"
+                                                />
+                                            </motion.div>
                                         )
                                     ) : (
                                         <div className="w-full h-full bg-slate-800" />
                                     )}
-                                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent opacity-90" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent opacity-90 pointer-events-none" />
                                 </div>
 
                                 {mainStory && (

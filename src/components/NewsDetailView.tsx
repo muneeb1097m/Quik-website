@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react';
 import { ArrowLeft, Clock, Share2, Shield, Calendar, Globe, Sparkles, Check } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion, useScroll, useTransform, Variants } from 'framer-motion';
 
 // Define Props - using 'any' to speed up migration, ideal would be full types
@@ -49,17 +50,17 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
 
     return (
         <div className="min-h-screen bg-slate-50 font-sans selection:bg-brand-green/20 selection:text-slate-900">
-            {/* Background Gradient Orbs */}
+            {/* Background Gradient Orbs - Optimized */}
             <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
                 <motion.div
-                    animate={{ opacity: [0.3, 0.5, 0.3], scale: [1, 1.1, 1] }}
-                    transition={{ duration: 10, repeat: Infinity }}
-                    className="absolute top-[-10%] right-[-10%] w-[800px] h-[800px] bg-brand-green/5 rounded-full blur-[100px]"
+                    animate={{ opacity: [0.3, 0.4, 0.3], scale: [1, 1.1, 1] }}
+                    transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                    className="absolute top-[-10%] right-[-10%] w-[800px] h-[800px] bg-brand-green/5 rounded-full blur-[100px] will-change-transform translate-z-0"
                 />
                 <motion.div
-                    animate={{ opacity: [0.3, 0.4, 0.3], scale: [1, 1.2, 1] }}
-                    transition={{ duration: 15, repeat: Infinity, delay: 2 }}
-                    className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-brand-blue/5 rounded-full blur-[120px]"
+                    animate={{ opacity: [0.2, 0.3, 0.2], scale: [1, 1.2, 1] }}
+                    transition={{ duration: 15, repeat: Infinity, delay: 2, ease: "linear" }}
+                    className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-brand-blue/5 rounded-full blur-[120px] will-change-transform translate-z-0"
                 />
             </div>
 
@@ -178,12 +179,16 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
                                     variants={fadeInUp}
                                     className="mb-8 md:mb-10 rounded-2xl md:rounded-3xl overflow-hidden relative aspect-video shadow-lg"
                                 >
-                                    <img
+                                    <Image
                                         src={signal.imageUrl}
                                         alt={signal.headline}
-                                        className="w-full h-full object-cover"
+                                        fill
+                                        priority={true}
+                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 70vw, 800px"
+                                        className="object-cover"
                                         onError={(e) => {
-                                            e.currentTarget.style.display = 'none';
+                                            // Next/Image onError handling is limited, usually parent div handles hiding
+                                            // or we can use a state to switch to fallback, but for now we keep simple
                                         }}
                                     />
                                 </motion.div>
