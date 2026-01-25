@@ -35,140 +35,154 @@ export async function GET() {
             return NextResponse.json({ success: true, message: 'No new items to process.' });
         }
 
-        // 3. Process the batch (Top 5 new items)
-        // User requested 5-7 items. 5 is safe for 60s timeout.
-        const newSignals = [];
-        const batch = newItems.slice(0, 5);
+        // 3. Process the batch (Top 15 new items)
+        // User requested 500+ images/day. 
+        // 15 items * 24h * 4 (15min runs) = 1440 items/day capacity
+        const batch = newItems.slice(0, 15);
 
-        for (const item of batch) {
-            // Already checked deduplication above
-            // Proceed directly to synthesis
+        console.log(`Processing batch of ${batch.length} items in parallel...`);
 
-            // 3. Scrape Full Content
-            console.log(`Scraping full content for: ${item.headline}...`);
-            const scrapedData = await scrapeArticleContent(item.url);
-            const fullText = scrapedData.content;
-            const contextToAnalyze = fullText.length > 200 ? fullText : (item.contentSnippet || item.headline);
+        // Check daily limit ONCE for the whole batch to save DB calls
+        // It's okay if we go slightly over 95 for Google Images due to concurrency
+        const todayCount = await db.getTodayCount();
+        let googleSearchUsed = todayCount;
 
-            // 4. Synthesize with Gemini (NO CATEGORIZATION - we use RSS feed category)
-            console.log(`Synthesizing with ${(fullText.length > 200 ? 'FULL TEXT' : 'SNIPPET')}...`);
-            const aiResult = await synthesizer.rewriteStory(item.headline, contextToAnalyze);
-
-            // 3b. Image Handling
-            // Priority: Google Image Search (First 95/day) > Pollinations AI (Flux) > Safe Fallback
-            let finalImageUrl = '';
-
-            // Attempt 1: Google Image Search
-            // Limit: 100 free searches/day. We cap at 95 to be safe.
+        // Process in parallel
+        const results = await Promise.all(batch.map(async (item) => {
             try {
-                const todayCount = await db.getTodayCount();
+                // 3. Scrape Full Content
+                console.log(`[${item.source}] Scraping full content for: ${item.headline}...`);
+                const scrapedData = await scrapeArticleContent(item.url);
+                const fullText = scrapedData.content;
+                const contextToAnalyze = fullText.length > 200 ? fullText : (item.contentSnippet || item.headline);
 
-                if (todayCount < 95) {
-                    const visualKeywords = await synthesizer.extractVisualKeyword(aiResult.headline);
-                    console.log(`Google Search Keywords: ${visualKeywords} (Daily usage: ${todayCount}/95)`);
-                    const googleUrl = await imageSearcher.search(visualKeywords);
+                // 4. Synthesize with Gemini (NO CATEGORIZATION - we use RSS feed category)
+                console.log(`[${item.source}] Synthesizing...`);
+                const aiResult = await synthesizer.rewriteStory(item.headline, contextToAnalyze);
 
-                    if (googleUrl) {
-                        // Quickly verify the Google image is accessible
-                        const check = await fetch(googleUrl, { method: 'HEAD', signal: AbortSignal.timeout(3000) });
-                        if (check.ok && check.headers.get('content-type')?.startsWith('image/')) {
-                            finalImageUrl = googleUrl;
-                            console.log('Using Google Image:', googleUrl);
-                        }
-                    }
-                } else {
-                    console.log(`Google Search daily limit reached (${todayCount}/95). Skipping.`);
-                }
-            } catch (gErr) {
-                console.warn('Google Image Search skipped or failed:', gErr);
-            }
+                // 3b. Image Handling
+                // Priority: Google Image Search (First 95/day) > Pollinations AI (Flux) > Safe Fallback
+                let finalImageUrl = '';
 
-            // Attempt 2: Pollinations AI (If Google failed)
-            let attempts = 0;
-            const maxAttempts = 4;
-
-            while (!finalImageUrl && attempts < maxAttempts) {
-                // Generate a new URL (random seed selects random model)
-                const candidateUrl = generateNewsImage(aiResult.headline, item.category || 'Technology');
-
+                // Attempt 1: Google Image Search
+                // Limit: 100 free searches/day. We cap at 95 to be safe.
                 try {
-                    // We must use GET, not HEAD, to check content-length reliably on some CDNs
-                    // and ensure we trigger the generation to catch the error image if it occurs.
-                    const check = await fetch(candidateUrl, {
-                        method: 'GET',
-                        headers: { 'User-Agent': 'QuikNews/1.0 (Monitor)' }, // Polite UA
-                        signal: AbortSignal.timeout(8000) // 8s timeout for generation
-                    });
+                    if (googleSearchUsed < 95) {
+                        // Optimistically increment local counter to distribute "slots"
+                        googleSearchUsed++;
 
-                    const size = parseInt(check.headers.get('content-length') || '0');
-                    const contentType = check.headers.get('content-type') || '';
+                        const visualKeywords = await synthesizer.extractVisualKeyword(aiResult.headline);
+                        console.log(`[${item.source}] Google Search Keywords: ${visualKeywords}`);
+                        const googleUrl = await imageSearcher.search(visualKeywords);
 
-                    // Validation Rules:
-                    // 1. Must be 200 OK
-                    // 2. Must be an image
-                    // 3. Must be > 50KB (Error images are small ~10-15KB, Real images are >100KB)
-                    const isValidImage = check.ok &&
-                        contentType.startsWith('image/') &&
-                        size > 50000;
-
-                    if (isValidImage) {
-                        finalImageUrl = candidateUrl;
-                        console.log(`Image verified: ${size} bytes, Type: ${contentType}`);
-                        break;
+                        if (googleUrl) {
+                            // Quickly verify the Google image is accessible
+                            const check = await fetch(googleUrl, { method: 'HEAD', signal: AbortSignal.timeout(3000) });
+                            if (check.ok && check.headers.get('content-type')?.startsWith('image/')) {
+                                finalImageUrl = googleUrl;
+                                console.log('[${item.source}] Using Google Image:', googleUrl);
+                            }
+                        }
+                    } else {
+                        console.log(`[${item.source}] Google Search daily limit reached/skipped.`);
                     }
-
-                    console.warn(`Image generation attempt ${attempts + 1} rejected: Status=${check.status}, Size=${size}b, Type=${contentType}`);
-                } catch (err) {
-                    console.warn(`Image generation attempt ${attempts + 1} error:`, err);
+                } catch (gErr) {
+                    console.warn(`[${item.source}] Google Image Search skipped or failed:`, gErr);
                 }
-                attempts++;
+
+                // Attempt 2: Pollinations AI (If Google failed)
+                let attempts = 0;
+                const maxAttempts = 4;
+
+                while (!finalImageUrl && attempts < maxAttempts) {
+                    // Generate a new URL (random seed selects random model)
+                    const candidateUrl = generateNewsImage(aiResult.headline, item.category || 'Technology');
+
+                    try {
+                        // We must use GET, not HEAD, to check content-length reliably on some CDNs
+                        // and ensure we trigger the generation to catch the error image if it occurs.
+                        const check = await fetch(candidateUrl, {
+                            method: 'GET',
+                            headers: { 'User-Agent': 'QuikNews/1.0 (Monitor)' }, // Polite UA
+                            signal: AbortSignal.timeout(8000) // 8s timeout for generation
+                        });
+
+                        const size = parseInt(check.headers.get('content-length') || '0');
+                        const contentType = check.headers.get('content-type') || '';
+
+                        // Validation Rules:
+                        // 1. Must be 200 OK
+                        // 2. Must be an image
+                        // 3. Must be > 50KB (Error images are small ~10-15KB, Real images are >100KB)
+                        const isValidImage = check.ok &&
+                            contentType.startsWith('image/') &&
+                            size > 50000;
+
+                        if (isValidImage) {
+                            finalImageUrl = candidateUrl;
+                            console.log(`[${item.source}] Image verified: ${size} bytes`);
+                            break;
+                        }
+
+                        console.warn(`[${item.source}] Image generation attempt ${attempts + 1} rejected: Size=${size}b`);
+                    } catch (err) {
+                        console.warn(`[${item.source}] Image generation attempt ${attempts + 1} error:`, err);
+                    }
+                    attempts++;
+                }
+
+                // Fallback if all AI attempts fail
+                if (!finalImageUrl) {
+                    console.warn(`[${item.source}] All AI image generation attempts failed/limited. Using Safe Fallback.`);
+                    // Picsum fallback (Guaranteed to work, never shows "limit exceeded")
+                    finalImageUrl = `https://picsum.photos/seed/${Date.now()}/1024/1024?grayscale&blur=2`;
+                }
+
+                // 4. Save to DB
+                const eventId = `evt_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+
+                // CRITICAL: Use RSS feed category, NOT Gemini's category
+                const finalCategory = item.category || 'Technology'; // Trust the RSS source
+
+                // Add Event
+                await db.addEvent({
+                    id: eventId,
+                    title: aiResult.headline,
+                    category: finalCategory as EventCategory, // Use RSS category directly!
+                    status: 'Live',
+                    detectedAt: new Date().toISOString(),
+                    lastUpdatedAt: new Date().toISOString(),
+                    confidenceScore: 0.9,
+                    sources: [{
+                        id: `src_${Date.now()}`,
+                        name: item.source,
+                        url: item.url,
+                        reliabilityScore: 1,
+                        type: 'Media'
+                    }],
+                    imageUrl: finalImageUrl
+                });
+
+                // Add Signal
+                const signal = {
+                    id: `sig_${eventId}`,
+                    eventId: eventId,
+                    headline: aiResult.headline,
+                    summary: aiResult.summary,
+                    generatedAt: new Date().toISOString(),
+                    imageUrl: finalImageUrl,
+                    fullReport: stripHtml(aiResult.fullReport)
+                };
+                await db.addSignal(signal);
+                return signal;
+
+            } catch (innerError) {
+                console.error(`Error processing item ${item.headline}:`, innerError);
+                return null;
             }
+        }));
 
-            // Fallback if all AI attempts fail
-            if (!finalImageUrl) {
-                console.warn('All AI image generation attempts failed/limited. Using Safe Fallback.');
-                // Picsum fallback (Guaranteed to work, never shows "limit exceeded")
-                finalImageUrl = `https://picsum.photos/seed/${Date.now()}/1024/1024?grayscale&blur=2`;
-            }
-
-            // 4. Save to DB
-            const eventId = `evt_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
-
-            // CRITICAL: Use RSS feed category, NOT Gemini's category
-            const finalCategory = item.category || 'Technology'; // Trust the RSS source
-
-            // Add Event
-            await db.addEvent({
-                id: eventId,
-                title: aiResult.headline,
-                category: finalCategory as EventCategory, // Use RSS category directly!
-                status: 'Live',
-                detectedAt: new Date().toISOString(),
-                lastUpdatedAt: new Date().toISOString(),
-                confidenceScore: 0.9,
-                sources: [{
-                    id: `src_${Date.now()}`,
-                    name: item.source,
-                    url: item.url,
-                    reliabilityScore: 1,
-                    type: 'Media'
-                }],
-                imageUrl: finalImageUrl
-            });
-
-            // Add Signal
-            const signal = {
-                id: `sig_${eventId}`,
-                eventId: eventId,
-                headline: aiResult.headline,
-                summary: aiResult.summary,
-                generatedAt: new Date().toISOString(),
-                imageUrl: finalImageUrl,
-                fullReport: stripHtml(aiResult.fullReport)
-            };
-            await db.addSignal(signal);
-            newSignals.push(signal);
-        }
+        const newSignals = results.filter(s => s !== null);
 
         return NextResponse.json({
             success: true,
