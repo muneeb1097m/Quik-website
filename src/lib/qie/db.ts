@@ -94,6 +94,7 @@ export const db = {
             event: {
                 select: {
                     id: true,
+                    title: true,
                     category: true,
                     sources: true
                 }
@@ -116,6 +117,7 @@ export const db = {
                 orderBy: { detectedAt: 'desc' },
                 select: {
                     id: true,
+                    title: true,
                     category: true,
                     sources: true
                 }

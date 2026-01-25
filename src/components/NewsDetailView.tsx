@@ -55,12 +55,12 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
                 <motion.div
                     animate={{ opacity: [0.3, 0.4, 0.3], scale: [1, 1.1, 1] }}
                     transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-                    className="absolute top-[-10%] right-[-10%] w-[800px] h-[800px] bg-brand-green/5 rounded-full blur-[100px] will-change-transform translate-z-0"
+                    className="absolute top-[-10%] right-[-10%] w-[800px] h-[800px] bg-brand-green/5 rounded-full blur-[60px] will-change-transform translate-z-0"
                 />
                 <motion.div
                     animate={{ opacity: [0.2, 0.3, 0.2], scale: [1, 1.2, 1] }}
                     transition={{ duration: 15, repeat: Infinity, delay: 2, ease: "linear" }}
-                    className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-brand-blue/5 rounded-full blur-[120px] will-change-transform translate-z-0"
+                    className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-brand-blue/5 rounded-full blur-[60px] will-change-transform translate-z-0"
                 />
             </div>
 
@@ -250,12 +250,14 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
                                             >
                                                 {item.imageUrl && (
                                                     <div className="h-48 overflow-hidden relative">
-                                                        <img
+                                                        <Image
                                                             src={item.imageUrl}
                                                             alt={item.headline}
-                                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                                            fill
+                                                            sizes="(max-width: 768px) 100vw, 33vw"
+                                                            className="object-cover transition-transform duration-700 group-hover:scale-110"
                                                             onError={(e) => {
-                                                                e.currentTarget.style.display = 'none';
+                                                                // e.currentTarget.style.display = 'none'; // Not working on Next/Image component
                                                             }}
                                                         />
                                                     </div>

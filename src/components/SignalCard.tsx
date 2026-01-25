@@ -3,6 +3,7 @@ import { Signal, NewsEvent } from '@/types';
 import { useState } from 'react';
 import { Clock } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface SignalCardProps {
     signal: Signal;
@@ -36,11 +37,13 @@ export function SignalCard({ signal, event, onClick }: SignalCardProps) {
                 <div className="mb-6 -mx-8 -mt-8 aspect-video overflow-hidden relative bg-slate-100 w-[calc(100%+4rem)]">
                     {showImage ? (
                         <>
-                            <img
-                                src={signal.imageUrl || undefined}
+                            <Image
+                                src={signal.imageUrl || ''}
                                 alt={signal.headline}
+                                fill
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                 onError={() => setImageError(true)}
-                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                className="object-cover transition-transform duration-700 group-hover:scale-105"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60" />
                         </>

@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 
 function CurrentDate() {
     const [dateStr, setDateStr] = useState('');
@@ -37,10 +38,13 @@ export function Navigation() {
             {/* Logo (Left) */}
             <div className="pointer-events-auto flex-shrink-0 relative z-50">
                 <Link href="/">
-                    <img
+                    <Image
                         src="/logo.png"
                         alt="Quik News"
+                        height={80}
+                        width={120} // Approximating based on ratio, better to set explicit
                         className="h-20 md:h-32 w-auto object-contain"
+                        priority
                     />
                 </Link>
             </div>

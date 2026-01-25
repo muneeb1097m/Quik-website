@@ -6,6 +6,7 @@ import { db } from '@/lib/qie/db';
 import { EventCategory } from '@/types';
 import { generateNewsImage } from '@/lib/image-gen';
 import { scrapeArticleContent } from '@/lib/qie/scraper';
+import { stripHtml } from '@/lib/utils';
 
 // Prevent vercel time out
 export const maxDuration = 60;
@@ -79,11 +80,10 @@ export async function GET() {
                     // Validation Rules:
                     // 1. Must be 200 OK
                     // 2. Must be an image
-                    // 3. Must be > 15KB (Error images are usually small optimized SVGs/PNGs ~5-10KB)
-                    //    Real 1024x1024 AI images are typically > 100KB
+                    // 3. Must be > 50KB (Error images are small ~10-15KB, Real images are >100KB)
                     const isValidImage = check.ok &&
                         contentType.startsWith('image/') &&
-                        size > 15000;
+                        size > 50000;
 
                     if (isValidImage) {
                         finalImageUrl = candidateUrl;
@@ -138,7 +138,7 @@ export async function GET() {
                 summary: aiResult.summary,
                 generatedAt: new Date().toISOString(),
                 imageUrl: finalImageUrl,
-                fullReport: aiResult.fullReport
+                fullReport: stripHtml(aiResult.fullReport)
             };
             await db.addSignal(signal);
             newSignals.push(signal);

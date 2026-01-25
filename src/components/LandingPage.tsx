@@ -27,11 +27,13 @@ const GridStoryCard = ({ story, event }: { story: Signal, event: NewsEvent | und
             {/* Background Image */}
             <div className="absolute inset-0 bg-slate-800">
                 {!imageError && story.imageUrl ? (
-                    <img
+                    <Image
                         src={story.imageUrl}
                         alt={story.headline}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
                         onError={() => setImageError(true)}
-                        className="w-full h-full object-cover opacity-80 transition-transform duration-700 group-hover:scale-110"
+                        className="object-cover opacity-80 transition-transform duration-700 group-hover:scale-110"
                     />
                 ) : (
                     // Fallback "Smart" Image based on Category/Keywords
@@ -115,7 +117,7 @@ export function LandingPage({ signals, events, mainStory, mainStoryEvent, gridSt
                         opacity: [0.3, 0.4, 0.3],
                     }}
                     transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-                    className="absolute top-[-20%] left-[-10%] w-[800px] h-[800px] bg-brand-green/5 rounded-full blur-[100px] will-change-transform translate-z-0"
+                    className="absolute top-[-20%] left-[-10%] w-[800px] h-[800px] bg-brand-green/5 rounded-full blur-[60px] will-change-transform translate-z-0"
                 />
                 <motion.div
                     animate={{
@@ -123,7 +125,7 @@ export function LandingPage({ signals, events, mainStory, mainStoryEvent, gridSt
                         opacity: [0.2, 0.3, 0.2],
                     }}
                     transition={{ duration: 12, repeat: Infinity, ease: "linear", delay: 1 }}
-                    className="absolute top-[20%] right-[-10%] w-[600px] h-[600px] bg-brand-red/5 rounded-full blur-[80px] will-change-transform translate-z-0"
+                    className="absolute top-[20%] right-[-10%] w-[600px] h-[600px] bg-brand-red/5 rounded-full blur-[50px] will-change-transform translate-z-0"
                 />
             </div>
 

@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { stripHtml } from '@/lib/utils';
 
 const API_KEY = process.env.GEMINI_API_KEY || '';
 const genAI = new GoogleGenerativeAI(API_KEY);
@@ -30,9 +31,9 @@ export class GeminiSynthesizer {
             console.warn('GEMINI_API_KEY not found. Returning raw data.');
             return {
                 headline: rawHeadline,
-                summary: rawSnippet.slice(0, 150) + '...',
+                summary: stripHtml(rawSnippet).slice(0, 150) + '...',
                 category: 'General',
-                fullReport: rawSnippet // Fallback to snippet
+                fullReport: stripHtml(rawSnippet) // Fallback to snippet
             };
         }
 
@@ -53,9 +54,9 @@ export class GeminiSynthesizer {
             // Fallback
             return {
                 headline: rawHeadline,
-                summary: rawSnippet.slice(0, 100),
+                summary: stripHtml(rawSnippet).slice(0, 100),
                 category: 'Technology',
-                fullReport: rawSnippet // Fallback to snippet if failed
+                fullReport: stripHtml(rawSnippet) // Fallback to snippet if failed
             };
         }
     }

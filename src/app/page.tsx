@@ -1,13 +1,7 @@
-
 import { db } from '@/lib/qie/db';
 import { LandingPage } from '@/components/LandingPage';
 import { NewsEvent, Signal } from '@/types';
-
-// Helper to serialize Prisma objects to match strict JSON/Client component requirements
-const serialize = (data: any): any => {
-  if (data === undefined || data === null) return null;
-  return JSON.parse(JSON.stringify(data));
-};
+import { serialize } from '@/lib/utils';
 
 // Enable ISR (Incremental Static Regeneration)
 // Revalidate page every 10 seconds for better performance
@@ -30,18 +24,19 @@ export default async function Home() {
 
   // 3. Serialize Data (Fixes "Date object" error)
   // We must serialize because Prisma returns Date objects, which cannot be passed directly to Client Components
-  const serializedSignals = serialize(validSignals).slice(0, 20);
-  const serializedEvents = serialize(allEvents);
+  // Casting to any to bypass strict type definition of full DB objects vs selected partials
+  const serializedSignals = serialize(validSignals as any).slice(0, 20);
+  const serializedEvents = serialize(allEvents as any);
 
   // 4. Render Client Component with Serialized Data
   return (
     <LandingPage
       signals={serializedSignals}
       events={serializedEvents}
-      mainStory={serialize(mainStory)}
-      mainStoryEvent={serialize(mainStoryEvent)}
-      gridStories={serialize(gridStories)}
-      sideStories={serialize(sideStories)}
+      mainStory={serialize(mainStory as any)}
+      mainStoryEvent={serialize(mainStoryEvent as any)}
+      gridStories={serialize(gridStories as any)}
+      sideStories={serialize(sideStories as any)}
     />
   );
 }

@@ -1,6 +1,8 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Use a fallback key during build if env var is missing to prevent build failures
+const resendApiKey = process.env.RESEND_API_KEY || 're_123456789_build_dummy_key';
+const resend = new Resend(resendApiKey);
 
 export async function sendEmail(to: string, subject: string, html: string) {
     try {

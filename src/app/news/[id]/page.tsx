@@ -1,6 +1,7 @@
 import { db } from '@/lib/qie/db';
 import { notFound } from 'next/navigation';
 import NewsDetailView from '@/components/NewsDetailView';
+import { serialize } from '@/lib/utils';
 
 import type { Metadata } from 'next';
 
@@ -67,9 +68,9 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ id:
     // 3. Render Client Component with Data
     return (
         <NewsDetailView
-            signal={JSON.parse(JSON.stringify(signal))}
-            event={JSON.parse(JSON.stringify(event))}
-            related={JSON.parse(JSON.stringify(filteredRelated))}
+            signal={serialize(signal)}
+            event={serialize(event)}
+            related={serialize(filteredRelated)}
         />
     );
 }
