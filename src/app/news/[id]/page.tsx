@@ -65,12 +65,50 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ id:
     // Filter out current and limit (simple client-side filter logic for now, DB query ideal later)
     const filteredRelated = related.filter(s => s.id !== signal.id).slice(0, 3);
 
+    // JSON-LD Structured Data for Google News
+    const jsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'NewsArticle',
+        headline: signal.headline,
+        description: signal.summary,
+        image: signal.imageUrl || 'https://quik.news/og-default.png',
+        datePublished: signal.generatedAt.toISOString(),
+        dateModified: signal.generatedAt.toISOString(),
+        author: {
+            '@type': 'Organization',
+            name: 'Quik AI',
+            url: 'https://quik.news',
+        },
+        publisher: {
+            '@type': 'Organization',
+            name: 'Quik',
+            url: 'https://quik.news',
+            logo: {
+                '@type': 'ImageObject',
+                url: 'https://quik.news/logo.png',
+            },
+        },
+        mainEntityOfPage: {
+            '@type': 'WebPage',
+            '@id': `https://quik.news/news/${signal.id}`,
+        },
+        articleSection: event.category,
+        keywords: [event.category, 'AI News', 'Technology', 'Breaking News'].join(', '),
+    };
+
     // 3. Render Client Component with Data
     return (
-        <NewsDetailView
-            signal={serialize(signal)}
-            event={serialize(event)}
-            related={serialize(filteredRelated)}
-        />
+        <>
+            {/* Structured Data */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
+            <NewsDetailView
+                signal={serialize(signal)}
+                event={serialize(event)}
+                related={serialize(filteredRelated)}
+            />
+        </>
     );
 }

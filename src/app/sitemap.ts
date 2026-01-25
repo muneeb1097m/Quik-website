@@ -11,6 +11,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         '/business',
         '/telecom',
         '/global',
+        '/ai',
         '/auto',
         '/pakistan',
         '/sports',
@@ -24,8 +25,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
     // Fetch recent signals for news pages
-    // We'll fetch the last 100 signals to have a good coverage
-    const signals = await db.getSignals(undefined, 100);
+    // Increased to 500 for better search engine coverage
+    const signals = await db.getSignals(undefined, 500);
 
     const newsRoutes = signals.map((signal) => ({
         url: `${baseUrl}/news/${signal.id}`,
