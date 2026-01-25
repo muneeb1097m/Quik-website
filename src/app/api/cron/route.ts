@@ -17,7 +17,7 @@ export async function GET() {
 
     const monitor = new NewsMonitor();
     const synthesizer = new GeminiSynthesizer();
-    // const imageSearcher = new GoogleImageSearcher(); // Unused
+    const imageSearcher = new GoogleImageSearcher();
 
     try {
         // 1. Fetch Raw RSS
@@ -55,13 +55,39 @@ export async function GET() {
             const aiResult = await synthesizer.rewriteStory(item.headline, contextToAnalyze);
 
             // 3b. Image Handling
-            // Priority: AI Generated (clean, no text) > Scraped (often has text that conflicts)
-            // Implementation: multi-model rotation with STRICT availability & content check
+            // Priority: Google Image Search (First 95/day) > Pollinations AI (Flux) > Safe Fallback
             let finalImageUrl = '';
-            let attempts = 0;
-            const maxAttempts = 4; // Increased attempts to find a working model
 
-            while (attempts < maxAttempts) {
+            // Attempt 1: Google Image Search
+            // Limit: 100 free searches/day. We cap at 95 to be safe.
+            try {
+                const todayCount = await db.getTodayCount();
+
+                if (todayCount < 95) {
+                    const visualKeywords = await synthesizer.extractVisualKeyword(aiResult.headline);
+                    console.log(`Google Search Keywords: ${visualKeywords} (Daily usage: ${todayCount}/95)`);
+                    const googleUrl = await imageSearcher.search(visualKeywords);
+
+                    if (googleUrl) {
+                        // Quickly verify the Google image is accessible
+                        const check = await fetch(googleUrl, { method: 'HEAD', signal: AbortSignal.timeout(3000) });
+                        if (check.ok && check.headers.get('content-type')?.startsWith('image/')) {
+                            finalImageUrl = googleUrl;
+                            console.log('Using Google Image:', googleUrl);
+                        }
+                    }
+                } else {
+                    console.log(`Google Search daily limit reached (${todayCount}/95). Skipping.`);
+                }
+            } catch (gErr) {
+                console.warn('Google Image Search skipped or failed:', gErr);
+            }
+
+            // Attempt 2: Pollinations AI (If Google failed)
+            let attempts = 0;
+            const maxAttempts = 4;
+
+            while (!finalImageUrl && attempts < maxAttempts) {
                 // Generate a new URL (random seed selects random model)
                 const candidateUrl = generateNewsImage(aiResult.headline, item.category || 'Technology');
 

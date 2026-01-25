@@ -206,5 +206,17 @@ export const db = {
         } catch (e) {
             console.error("DB Add Signal Error", e);
         }
+    },
+
+    getTodayCount: async () => {
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+        return await prisma.newsEvent.count({
+            where: {
+                detectedAt: {
+                    gte: startOfDay
+                }
+            }
+        });
     }
 };
