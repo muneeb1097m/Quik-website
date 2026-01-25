@@ -109,77 +109,43 @@ export function LandingPage({ signals, events, mainStory, mainStoryEvent, gridSt
     return (
         <div className="min-h-screen bg-slate-50 relative overflow-hidden font-sans selection:bg-brand-green/20 selection:text-slate-900">
 
-            {/* Ambient Light Orbs - Optimized for Performance */}
+            {/* Ambient Light Orbs - Optimized using CSS Animation instead of JS Motion Loop */}
             <div className="fixed inset-0 pointer-events-none z-0">
-                <motion.div
-                    animate={{
-                        scale: [1, 1.1, 1],
-                        opacity: [0.3, 0.4, 0.3],
-                    }}
-                    transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-                    className="absolute top-[-20%] left-[-10%] w-[800px] h-[800px] bg-brand-green/5 rounded-full blur-[60px] will-change-transform translate-z-0"
-                />
-                <motion.div
-                    animate={{
-                        scale: [1, 1.1, 1],
-                        opacity: [0.2, 0.3, 0.2],
-                    }}
-                    transition={{ duration: 12, repeat: Infinity, ease: "linear", delay: 1 }}
-                    className="absolute top-[20%] right-[-10%] w-[600px] h-[600px] bg-brand-red/5 rounded-full blur-[50px] will-change-transform translate-z-0"
-                />
+                <div className="absolute top-[-20%] left-[-10%] w-[800px] h-[800px] bg-brand-green/5 rounded-full blur-[60px] animate-pulse-slow" />
+                <div className="absolute top-[20%] right-[-10%] w-[600px] h-[600px] bg-brand-red/5 rounded-full blur-[50px] animate-pulse-slower" />
             </div>
 
             <main className="max-w-[1600px] mx-auto px-4 md:px-8 pt-24 lg:pt-40 pb-20 relative z-10">
 
-                {/* HERO: Asymmetrical Bento Grid */}
-                <motion.div
-                    initial="hidden"
-                    animate="visible"
-                    variants={staggerContainer}
-                    className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6 h-auto min-h-[500px] lg:h-[600px] mb-12 lg:mb-20"
-                >
+                {/* HERO: Asymmetrical Bento Grid - RESTORED INSTANT RENDER (LCP FIX) */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6 h-auto min-h-[500px] lg:h-[600px] mb-12 lg:mb-20">
 
                     {/* Main Card (Left) */}
                     <div className="lg:col-span-8 h-[500px] lg:h-full block">
                         <Link href={mainStory ? `/news/${mainStory.id}` : '#'} className="block h-full">
-                            <motion.div
-                                variants={fadeInUp}
-                                className="relative group cursor-pointer overflow-hidden rounded-[1.5rem] md:rounded-[2.5rem] bg-slate-900 shadow-sm hover:shadow-2xl hover:shadow-brand-green/10 transition-all duration-700 h-full"
-                            >
-                                {/* Parallax Image Container */}
-                                <div className="absolute inset-0 overflow-hidden">
+                            <div className="relative group cursor-pointer overflow-hidden rounded-[1.5rem] md:rounded-[2.5rem] bg-slate-900 shadow-sm hover:shadow-2xl hover:shadow-brand-green/10 transition-all duration-700 h-full">
+                                {/* Static Image Container - No Framer Motion Delay */}
+                                <div className="absolute inset-0 overflow-hidden transform transition-transform duration-1000 group-hover:scale-105">
                                     {mainStory ? (
                                         !mainImageError && mainStory.imageUrl ? (
-                                            <motion.div
-                                                className="relative w-full h-full"
-                                                whileHover={{ scale: 1.05 }}
-                                                transition={{ duration: 1.5, ease: "easeOut" }}
-                                            >
-                                                <Image
-                                                    src={mainStory.imageUrl}
-                                                    alt={mainStory.headline}
-                                                    fill
-                                                    priority={true} // Critical for LCP
-                                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 70vw, 800px"
-                                                    className="object-cover opacity-90"
-                                                    onError={() => setMainImageError(true)}
-                                                />
-                                            </motion.div>
+                                            <Image
+                                                src={mainStory.imageUrl}
+                                                alt={mainStory.headline}
+                                                fill
+                                                priority={true} // Critical for LCP
+                                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 70vw, 800px"
+                                                className="object-cover opacity-90"
+                                                onError={() => setMainImageError(true)}
+                                            />
                                         ) : (
-                                            <motion.div
-                                                className="relative w-full h-full"
-                                                whileHover={{ scale: 1.05 }}
-                                                transition={{ duration: 1.5, ease: "easeOut" }}
-                                            >
-                                                <Image
-                                                    src="https://images.unsplash.com/photo-1495020689067-958852a7765e?q=80&w=2940&auto=format&fit=crop"
-                                                    alt="News Fallback"
-                                                    fill
-                                                    priority={true}
-                                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 70vw, 800px"
-                                                    className="object-cover opacity-40 grayscale contrast-125"
-                                                />
-                                            </motion.div>
+                                            <Image
+                                                src="https://images.unsplash.com/photo-1495020689067-958852a7765e?q=80&w=2940&auto=format&fit=crop"
+                                                alt="News Fallback"
+                                                fill
+                                                priority={true}
+                                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 70vw, 800px"
+                                                className="object-cover opacity-40 grayscale contrast-125"
+                                            />
                                         )
                                     ) : (
                                         <div className="w-full h-full bg-slate-800" />
@@ -189,57 +155,39 @@ export function LandingPage({ signals, events, mainStory, mainStoryEvent, gridSt
 
                                 {mainStory && (
                                     <div className="absolute inset-0 p-6 md:p-12 flex flex-col justify-end">
-                                        <motion.div
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.4 }}
-                                            className="flex items-center gap-3 mb-4 md:mb-6"
-                                        >
+                                        <div className="flex items-center gap-3 mb-4 md:mb-6">
                                             <div className="glass-panel px-4 py-1.5 rounded-full border-white/20 bg-black/60 text-white text-xs md:text-sm font-bold shadow-sm backdrop-blur-md">
                                                 {mainStoryEvent?.category || 'Trending'}
                                             </div>
-                                        </motion.div>
-                                        <div className="overflow-hidden">
-                                            <motion.h2
-                                                initial={{ y: "100%" }}
-                                                animate={{ y: 0 }}
-                                                transition={{ duration: 0.8, ease: "circOut" as const, delay: 0.2 }}
-                                                className="text-3xl md:text-5xl lg:text-7xl font-extrabold text-white leading-[1.1] md:leading-[1] max-w-4xl tracking-tight mb-4 md:mb-6 drop-shadow-xl"
-                                            >
-                                                {mainStory.headline}
-                                            </motion.h2>
                                         </div>
-                                        <motion.div
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            transition={{ delay: 0.6 }}
-                                            className="flex items-center gap-4 text-slate-300 font-medium text-sm md:text-base"
-                                        >
+                                        <div className="overflow-hidden">
+                                            <h2 className="text-3xl md:text-5xl lg:text-7xl font-extrabold text-white leading-[1.1] md:leading-[1] max-w-4xl tracking-tight mb-4 md:mb-6 drop-shadow-xl">
+                                                {mainStory.headline}
+                                            </h2>
+                                        </div>
+                                        <div className="flex items-center gap-4 text-slate-300 font-medium text-sm md:text-base">
                                             <span>{mainStoryEvent?.sources[0]?.name || 'N/A'}</span>
                                             <span className="w-1 h-1 rounded-full bg-slate-400" />
                                             <span suppressHydrationWarning>{new Date(mainStory.generatedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
-                                        </motion.div>
+                                        </div>
                                     </div>
                                 )}
-                            </motion.div>
+                            </div>
                         </Link>
                     </div>
 
                     {/* Sub Grid (Right) */}
-                    <motion.div
-                        variants={staggerContainer}
-                        className="lg:col-span-4 flex flex-col md:flex-row lg:flex-col gap-4 md:gap-6 h-auto lg:h-full"
-                    >
+                    <div className="lg:col-span-4 flex flex-col md:flex-row lg:flex-col gap-4 md:gap-6 h-auto lg:h-full">
                         {gridStories.map((story) => {
                             const evt = story.event || getEvent(story.eventId);
                             return (
-                                <motion.div variants={fadeInUp} key={story.id} className="flex-1 min-h-[260px]">
+                                <div key={story.id} className="flex-1 min-h-[260px]">
                                     <GridStoryCard story={story} event={evt} />
-                                </motion.div>
+                                </div>
                             );
                         })}
-                    </motion.div>
-                </motion.div>
+                    </div>
+                </div>
 
                 {/* Lower Section Feed */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
