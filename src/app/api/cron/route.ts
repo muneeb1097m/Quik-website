@@ -110,13 +110,23 @@ export async function GET() {
                         const size = parseInt(check.headers.get('content-length') || '0');
                         const contentType = check.headers.get('content-type') || '';
 
-                        // Validation Rules:
+                        // Additional check: Read first 2KB to detect error messages
+                        const buffer = await check.arrayBuffer();
+                        const sampleText = new TextDecoder().decode(buffer.slice(0, 2048)).toLowerCase();
+                        const hasErrorText = sampleText.includes('limit') ||
+                            sampleText.includes('error') ||
+                            sampleText.includes('exceeded') ||
+                            sampleText.includes('quota');
+
+                        // Validation Rules (STRENGTHENED):
                         // 1. Must be 200 OK
                         // 2. Must be an image
-                        // 3. Must be > 50KB (Error images are small ~10-15KB, Real images are >100KB)
+                        // 3. Must be > 100KB (Error images typically 10-80KB, Real images >100KB)
+                        // 4. Must NOT contain error text in first 2KB
                         const isValidImage = check.ok &&
                             contentType.startsWith('image/') &&
-                            size > 50000;
+                            size > 100000 &&
+                            !hasErrorText;
 
                         if (isValidImage) {
                             finalImageUrl = candidateUrl;
@@ -124,7 +134,7 @@ export async function GET() {
                             break;
                         }
 
-                        console.warn(`[${item.source}] Image generation attempt ${attempts + 1} rejected: Size=${size}b`);
+                        console.warn(`[${item.source}] Image generation attempt ${attempts + 1} rejected: Size=${size}b, HasError=${hasErrorText}`);
                     } catch (err) {
                         console.warn(`[${item.source}] Image generation attempt ${attempts + 1} error:`, err);
                     }
