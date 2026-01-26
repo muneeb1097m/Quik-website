@@ -4,7 +4,7 @@ import { findFAQMatch } from '@/lib/chatbot/faq';
 import { searchNews } from '@/lib/chatbot/news-search';
 import { ChatbotAgent } from '@/lib/qie/gemini';
 
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 interface ChatMessage {
