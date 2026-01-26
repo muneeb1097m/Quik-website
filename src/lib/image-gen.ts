@@ -4,14 +4,19 @@ const POLLINATIONS_API_KEY = process.env.POLLINATIONS_API_KEY || 'sk_maBugbU2Xpx
  * Generates an AI image URL using Pollinations.ai.
  * Rotates between multiple cost-effective models to distribute load.
  */
-export function generateNewsImage(title: string, category: string): string {
+// Available models
+export const POLLINATIONS_MODELS = {
+  FLUX: 'flux',
+  TURBO: 'turbo',
+  // 'flux-realism', 'any-dark' // other potential models if needed
+};
+
+/**
+ * Generates an AI image URL using Pollinations.ai.
+ * Allows specifying a model, defaults to FLUX.
+ */
+export function generateNewsImage(title: string, category: string, model: string = POLLINATIONS_MODELS.FLUX): string {
   const keywords = extractKeywords(title, category);
-
-  // Available models (Cost-effective rotation)
-  const models = ['flux', 'turbo', 'zimage', 'klein'];
-
-  // Randomly select one model
-  const selectedModel = models[Math.floor(Math.random() * models.length)];
 
   // Random seed for variety
   const seed = Math.floor(Math.random() * 1000000);
@@ -20,7 +25,15 @@ export function generateNewsImage(title: string, category: string): string {
   const encodedPrompt = encodeURIComponent(prompt);
 
   // Construct URL with selected model
-  return `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&model=${selectedModel}&seed=${seed}&nologo=true&enhance=true&api_key=${POLLINATIONS_API_KEY}`;
+  // Added "nologo=true" and "enhance=true"
+  // Added "private=true" to potentially avoid some caching/tracking
+  let url = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&model=${model}&seed=${seed}&nologo=true&enhance=true&private=true`;
+
+  if (POLLINATIONS_API_KEY) {
+    url += `&token=${POLLINATIONS_API_KEY}`;
+  }
+
+  return url;
 }
 
 /**

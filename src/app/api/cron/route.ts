@@ -4,7 +4,7 @@ import { GeminiSynthesizer } from '@/lib/qie/gemini';
 import { GoogleImageSearcher } from '@/lib/qie/image_search';
 import { db } from '@/lib/qie/db';
 import { EventCategory } from '@/types';
-import { generateNewsImage } from '@/lib/image-gen';
+import { generateNewsImage, POLLINATIONS_MODELS } from '@/lib/image-gen';
 import { scrapeArticleContent } from '@/lib/qie/scraper';
 import { stripHtml } from '@/lib/utils';
 
@@ -90,55 +90,69 @@ export async function GET() {
                     console.warn(`[${item.source}] Google Image Search skipped or failed:`, gErr);
                 }
 
-                // Attempt 2: Pollinations AI (If Google failed)
-                let attempts = 0;
-                const maxAttempts = 4;
+                // Attempt 2: Pollinations AI (Flux -> Turbo)
+                // We use a priority list of models to try.
+                // 1. Flux (Best quality)
+                // 2. Turbo (Faster, often less limited)
+                if (!finalImageUrl) {
+                    const modelsToTry = [POLLINATIONS_MODELS.FLUX, POLLINATIONS_MODELS.TURBO];
 
-                while (!finalImageUrl && attempts < maxAttempts) {
-                    // Generate a new URL (random seed selects random model)
-                    const candidateUrl = generateNewsImage(aiResult.headline, item.category || 'Technology');
+                    for (const model of modelsToTry) {
+                        try {
+                            const candidateUrl = generateNewsImage(aiResult.headline, item.category || 'Technology', model);
+                            console.log(`[${item.source}] Trying Pollinations model: ${model}...`);
 
-                    try {
-                        // We must use GET, not HEAD, to check content-length reliably on some CDNs
-                        // and ensure we trigger the generation to catch the error image if it occurs.
-                        const check = await fetch(candidateUrl, {
-                            method: 'GET',
-                            headers: { 'User-Agent': 'QuikNews/1.0 (Monitor)' }, // Polite UA
-                            signal: AbortSignal.timeout(8000) // 8s timeout for generation
-                        });
+                            // We must use GET to check content-length and content
+                            const check = await fetch(candidateUrl, {
+                                method: 'GET',
+                                headers: { 'User-Agent': 'QuikNews/1.0 (Monitor)' },
+                                signal: AbortSignal.timeout(10000) // 10s timeout per attempt
+                            });
 
-                        const size = parseInt(check.headers.get('content-length') || '0');
-                        const contentType = check.headers.get('content-type') || '';
+                            // Check for redirects (often means error page or verification page)
+                            // Pollinations sometimes redirects to a generic / error page
+                            if (check.redirected) {
+                                console.warn(`[${item.source}] Image redirected (suspicious): ${check.url}`);
+                                continue;
+                            }
 
-                        // Additional check: Read first 2KB to detect error messages
-                        const buffer = await check.arrayBuffer();
-                        const sampleText = new TextDecoder().decode(buffer.slice(0, 2048)).toLowerCase();
-                        const hasErrorText = sampleText.includes('limit') ||
-                            sampleText.includes('error') ||
-                            sampleText.includes('exceeded') ||
-                            sampleText.includes('quota');
+                            const size = parseInt(check.headers.get('content-length') || '0');
+                            const contentType = check.headers.get('content-type') || '';
 
-                        // Validation Rules (STRENGTHENED):
-                        // 1. Must be 200 OK
-                        // 2. Must be an image
-                        // 3. Must be > 100KB (Error images typically 10-80KB, Real images >100KB)
-                        // 4. Must NOT contain error text in first 2KB
-                        const isValidImage = check.ok &&
-                            contentType.startsWith('image/') &&
-                            size > 100000 &&
-                            !hasErrorText;
+                            // Buffer check for error text
+                            const buffer = await check.arrayBuffer();
+                            // If it's a small file (likely error), decode text to check content
+                            let hasErrorText = false;
 
-                        if (isValidImage) {
-                            finalImageUrl = candidateUrl;
-                            console.log(`[${item.source}] Image verified: ${size} bytes`);
-                            break;
+                            if (size < 150000) { // Bumped safe threshold to 150KB
+                                const text = new TextDecoder().decode(buffer.slice(0, 2048)).toLowerCase();
+                                hasErrorText = text.includes('rate limit') ||
+                                    text.includes('limit reached') ||
+                                    (text.includes('error') && !text.includes('error: none')); // rudimentary check
+                            }
+
+                            // STRENGTHENED VALIDATION:
+                            // 1. Must be 200 OK
+                            // 2. Must be image/ content type
+                            // 3. Must be > 80KB (Valid Flux/Turbo images are usually >200KB. Error images are ~10-50KB)
+                            // 4. Must not have error text
+                            const isValidImage = check.ok &&
+                                contentType.startsWith('image/') &&
+                                size > 80000 &&
+                                !hasErrorText;
+
+                            if (isValidImage) {
+                                finalImageUrl = candidateUrl;
+                                console.log(`[${item.source}] Image verified (${model}): ${size} bytes`);
+                                break; // Success!
+                            } else {
+                                console.warn(`[${item.source}] Image rejected (${model}): Size=${size}b, ErrorText=${hasErrorText}`);
+                            }
+
+                        } catch (err) {
+                            console.warn(`[${item.source}] Image generation failed for ${model}:`, err);
                         }
-
-                        console.warn(`[${item.source}] Image generation attempt ${attempts + 1} rejected: Size=${size}b, HasError=${hasErrorText}`);
-                    } catch (err) {
-                        console.warn(`[${item.source}] Image generation attempt ${attempts + 1} error:`, err);
                     }
-                    attempts++;
                 }
 
                 // Fallback if all AI attempts fail
