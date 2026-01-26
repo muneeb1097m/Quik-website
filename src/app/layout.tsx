@@ -61,7 +61,7 @@ export const metadata: Metadata = {
 import Script from 'next/script';
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from '@vercel/analytics/react';
-import { ChatWidget } from '@/components/ChatWidget';
+
 
 export default function RootLayout({
   children,
@@ -74,7 +74,7 @@ export default function RootLayout({
         <Navigation />
         {children}
         <Footer />
-        <ChatWidget />
+
         <SpeedInsights />
         <Analytics />
         <Script src="https://www.googletagmanager.com/gtag/js?id=G-VDRE507J76" strategy="afterInteractive" />

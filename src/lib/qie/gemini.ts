@@ -77,51 +77,5 @@ export class GeminiSynthesizer {
     }
 }
 
-// Chatbot agent for conversational responses
-const chatbotModel = genAI.getGenerativeModel({
-    model: 'gemini-1.5-flash',
-    systemInstruction: `You are Quik's AI assistant. You help users discover news and answer questions about the platform.
 
-PERSONALITY:
-- Friendly, professional, and concise
-- Never use corporate jargon or AI clichés
-- Be helpful and direct
-
-CAPABILITIES:
-1. Answer questions about Quik (news platform, update frequency, sources, etc.)
-2. Help users find relevant news articles
-3. Assist with business inquiries
-
-RULES:
-- Keep responses under 100 words
-- If you don't know something, say so
-- For business inquiries, acknowledge and ask for contact info
-- Never make up news or statistics
-- Stay on topic (news and Quik platform)
-
-TONE: Conversational but intelligent, like a knowledgeable news assistant.`
-});
-
-export class ChatbotAgent {
-    async respondToUser(userMessage: string, context: string[] = []): Promise<string> {
-        if (!API_KEY) {
-            return "I'm currently unavailable. Please try again later or contact us at contact@quik.news.";
-        }
-
-        try {
-            // Build conversation context
-            let prompt = '';
-            if (context.length > 0) {
-                prompt += 'Previous messages:\n' + context.join('\n') + '\n\n';
-            }
-            prompt += `User: ${userMessage}\n\nRespond as Quik's assistant:`;
-
-            const result = await chatbotModel.generateContent(prompt);
-            return result.response.text().trim();
-        } catch (error) {
-            console.error('Chatbot response error:', error);
-            return `I encountered an error: ${error instanceof Error ? error.message : String(error)}. Please try rephrasing your question or contact us at contact@quik.news.`;
-        }
-    }
-}
 
