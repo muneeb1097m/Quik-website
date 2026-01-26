@@ -68,6 +68,8 @@ export function Footer() {
                         <h4 className="font-bold text-slate-900 mb-6">Company</h4>
                         <ul className="space-y-4 text-sm text-slate-500">
                             <li><FooterLink href="/about">About Us</FooterLink></li>
+                            <li><FooterLink href="/authors">Our Team</FooterLink></li>
+                            <li><FooterLink href="/editorial-policy">Editorial Policy</FooterLink></li>
                             <li><FooterLink href="#">Contact</FooterLink></li>
                             <li><FooterLink href="/privacy">Privacy Policy</FooterLink></li>
                             <li><FooterLink href="/terms">Terms of Service</FooterLink></li>
