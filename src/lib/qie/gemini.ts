@@ -120,7 +120,7 @@ export class ChatbotAgent {
             return result.response.text().trim();
         } catch (error) {
             console.error('Chatbot response error:', error);
-            return "I encountered an error. Please try rephrasing your question or contact us at contact@quik.news.";
+            return `I encountered an error: ${error instanceof Error ? error.message : String(error)}. Please try rephrasing your question or contact us at contact@quik.news.`;
         }
     }
 }
