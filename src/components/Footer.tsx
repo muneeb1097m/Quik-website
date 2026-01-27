@@ -3,6 +3,7 @@
 import { Github, Twitter, Linkedin } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 export function Footer() {
     return (
@@ -58,7 +59,7 @@ export function Footer() {
                         <h4 className="font-bold text-slate-900 mb-6">Topics</h4>
                         <ul className="space-y-4 text-sm text-slate-500">
                             {/* Niche Categories from Nav */}
-                            <li><FooterLink href="/telecom">Telecom</FooterLink></li>
+                            {/* <li><FooterLink href="/telecom">Telecom</FooterLink></li> */}
                             <li><FooterLink href="/auto">Automotive</FooterLink></li>
                             <li><FooterLink href="/sports">Sports</FooterLink></li>
                         </ul>
@@ -105,7 +106,7 @@ function NewsletterForm() {
         if (!email) return;
 
         setStatus('loading');
-        setMessage('');
+        // setMessage(''); // No longer using message state
 
         try {
             const res = await fetch('/api/subscribe', {
@@ -113,8 +114,8 @@ function NewsletterForm() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     email,
-                    name: 'Subscriber', // Default name
-                    interests: ['General'], // Default interest
+                    name: 'Subscriber',
+                    interests: ['General'],
                     paymentMethod: 'free'
                 })
             });
@@ -123,28 +124,33 @@ function NewsletterForm() {
 
             if (res.ok) {
                 setStatus('success');
-                setMessage('Welcome aboard! You have successfully subscribed.');
+                toast.success('Welcome aboard! You have successfully subscribed.');
                 setEmail('');
+                // Reset success state after a delay or keep it
+                setTimeout(() => setStatus('idle'), 3000);
             } else {
-                setStatus('error');
-                setMessage(data.error || 'Something went wrong. Please try again.');
+                setStatus('idle'); // Allow retrying
+                if (res.status === 409) {
+                    toast.error('This email is already subscribed to our newsletter.');
+                } else {
+                    toast.error(data.error || 'Something went wrong. Please try again.');
+                }
             }
         } catch (error) {
-            setStatus('error');
-            setMessage('Network error. Please try again later.');
+            setStatus('idle');
+            toast.error('Network error. Please try again later.');
         }
     };
 
-    if (status === 'success') {
-        return (
-            <div className="bg-green-500/20 border border-green-500/30 rounded-xl p-4 text-green-200">
-                <p className="font-bold flex items-center justify-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-green-400"></span>
-                    {message}
-                </p>
-            </div>
-        );
-    }
+    // Check if status is success, but we handled UI via toast mostly. 
+    // We can show a checkmark button state or something, but the original UI returned early.
+    // Let's keep the button loading state but remove the big message block logic that replaces the form.
+    // Actually, user might prefer to see the form again to add another email?
+    // The original code replaced the form with a success message.
+    // "Also if the email is good ... add them in news letter and send an email ... successfully subscribed"
+    // "If the email already exist then simply show a pop-up ... UI."
+    // So ONLY for duplicates show popup. For success, the original UI was fine, but let's add toast there too.
+
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">

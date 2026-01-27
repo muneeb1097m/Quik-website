@@ -3,6 +3,7 @@
 import { Cpu, Globe, Zap, Shield, Users, Newspaper, Activity, TrendingUp, BarChart3, Lock, Server, CreditCard, Check, Loader2, ChevronLeft } from 'lucide-react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 // Animated Counter Component
 const StatCounter = ({ value, label }: { value: string, label: string }) => {
@@ -279,12 +280,17 @@ export default function AboutPage() {
 
                                                             if (response.ok && data.status === 'success') {
                                                                 setFormStep('success');
+                                                                toast.success('Subscription Activated!', { description: `Welcome to Quik Intelligence, ${email}` });
                                                             } else {
-                                                                alert(data.error || 'Subscription failed. Please try again.');
+                                                                if (response.status === 409) {
+                                                                    toast.error('Already Subscribed', { description: 'This email is already receiving our intelligence feed.' });
+                                                                } else {
+                                                                    toast.error('Subscription Failed', { description: data.error || 'Please check your details and try again.' });
+                                                                }
                                                             }
                                                         } catch (err) {
                                                             console.error(err);
-                                                            alert('An unexpected error occurred.');
+                                                            toast.error('System Error', { description: 'An unexpected error occurred. Please try again later.' });
                                                         } finally {
                                                             setIsProcessing(false);
                                                         }
@@ -378,12 +384,17 @@ export default function AboutPage() {
 
                                                         if (response.ok && data.status === 'success') {
                                                             setFormStep('success');
+                                                            toast.success('Payment Successful', { description: 'Your premium subscription is now active.' });
                                                         } else {
-                                                            alert(data.error || 'Payment failed. Please try again.');
+                                                            if (response.status === 409) {
+                                                                toast.error('Already Subscribed', { description: 'This email is already associated with an active subscription.' });
+                                                            } else {
+                                                                toast.error('Payment Failed', { description: data.error || 'Please try again.' });
+                                                            }
                                                         }
                                                     } catch (err) {
                                                         console.error(err);
-                                                        alert('An unexpected error occurred.');
+                                                        toast.error('Processing Error', { description: 'An unexpected error occurred during payment processing.' });
                                                     } finally {
                                                         setIsProcessing(false);
                                                     }

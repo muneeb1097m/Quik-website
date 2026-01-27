@@ -33,9 +33,10 @@ export async function verifyEmailDomain(email: string): Promise<{ valid: boolean
             return { valid: false, error: 'Email domain does not exist' };
         }
 
-        // Other DNS errors
-        console.error('DNS verification error:', error);
-        return { valid: false, error: 'Unable to verify email domain' };
+        // For other errors (timeouts, network issues), we should probably ALLOW it
+        // to avoid blocking legitimate users during transient network issues
+        console.warn('DNS verification skipped due to error:', error);
+        return { valid: true };
     }
 }
 
