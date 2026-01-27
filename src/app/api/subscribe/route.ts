@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/qie/db';
 import { sendEmail } from '@/lib/email';
 import { validateEmail } from '@/lib/email-validator';
+import { generateWelcomeEmail } from '@/lib/email-template';
 
 export async function POST(request: Request) {
     try {
@@ -43,6 +44,20 @@ export async function POST(request: Request) {
                     paymentMethod: paymentMethod || 'free'
                 }
             });
+
+            // 2b. Send Welcome Email
+            try {
+                const welcomeHtml = generateWelcomeEmail(name);
+                await sendEmail(
+                    email,
+                    'Welcome to Quik News! ⚡',
+                    welcomeHtml
+                );
+                console.log(`📧 Welcome email sent to ${email}`);
+            } catch (welcomeError) {
+                console.error(`❌ Failed to send welcome email to ${email}:`, welcomeError);
+                // Don't fail the request, just log it
+            }
 
             // 3. Check total subscriber count
             const totalSubscribers = await prisma.subscription.count();

@@ -1,4 +1,4 @@
-const POLLINATIONS_API_KEY = process.env.POLLINATIONS_API_KEY || 'sk_maBugbU2Xpx0D3no5vC1m235Cow3O8y3';
+const POLLINATIONS_API_KEY = process.env.POLLINATIONS_API_KEY;
 
 /**
  * Generates an AI image URL using Pollinations.ai.
