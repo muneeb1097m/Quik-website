@@ -4,7 +4,8 @@ import { GeminiSynthesizer } from '@/lib/qie/gemini';
 import { GoogleImageSearcher } from '@/lib/qie/image_search';
 import { db } from '@/lib/qie/db';
 import { EventCategory } from '@/types';
-import { generateNewsImage, POLLINATIONS_MODELS } from '@/lib/image-gen';
+
+import { PollinationsProvider, HercaiProvider, AirforceProvider, HuggingFaceProvider, POLLINATIONS_MODELS } from '@/lib/qie/image-providers';
 import { scrapeArticleContent } from '@/lib/qie/scraper';
 import { stripHtml } from '@/lib/utils';
 
@@ -90,17 +91,30 @@ export async function GET() {
                     console.warn(`[${item.source}] Google Image Search skipped or failed:`, gErr);
                 }
 
-                // Attempt 2: Pollinations AI (Flux -> Turbo)
-                // We use a priority list of models to try.
-                // 1. Flux (Best quality)
-                // 2. Turbo (Faster, often less limited)
+                // Attempt 2: Load Balanced Image Generation (Pollinations vs Hercai)
+                // Note: Research showed Hercai is unstable (503). 
+                // We prioritize Pollinations (Flux) and use Hercai as fallback.
                 if (!finalImageUrl) {
-                    const modelsToTry = [POLLINATIONS_MODELS.FLUX, POLLINATIONS_MODELS.TURBO];
+                    // We prioritize API Keys first (Airforce), then Pollinations, then Hercai fallback.
+                    // Note: HF provider currently returns null (binary image handling needed), so we skip adding it related logic for now or add it but it will just return null.
 
-                    for (const model of modelsToTry) {
+                    const providers = [
+                        new AirforceProvider(), // Best Quality if Key exists
+                        // new HuggingFaceProvider(), // Uncomment if we implement binary upload
+                        new PollinationsProvider(POLLINATIONS_MODELS.FLUX), // Free Primary
+                        new HercaiProvider(), // Free Fallback 1
+                        new PollinationsProvider(POLLINATIONS_MODELS.TURBO) // Free Fallback 2
+                    ];
+
+                    for (const provider of providers) {
                         try {
-                            const candidateUrl = generateNewsImage(aiResult.headline, item.category || 'Technology', model);
-                            console.log(`[${item.source}] Trying Pollinations model: ${model}...`);
+                            console.log(`[${item.source}] Trying image provider: ${provider.name}...`);
+                            const candidateUrl = await provider.generate(aiResult.headline, item.category || 'Technology');
+
+                            if (!candidateUrl) {
+                                console.warn(`[${item.source}] Provider ${provider.name} returned no URL.`);
+                                continue;
+                            }
 
                             // We must use GET to check content-length and content
                             const check = await fetch(candidateUrl, {
@@ -109,10 +123,13 @@ export async function GET() {
                                 signal: AbortSignal.timeout(10000) // 10s timeout per attempt
                             });
 
-                            // Check for redirects (often means error page or verification page)
-                            // Pollinations sometimes redirects to a generic / error page
                             if (check.redirected) {
                                 console.warn(`[${item.source}] Image redirected (suspicious): ${check.url}`);
+                                continue;
+                            }
+
+                            if (!check.ok) {
+                                console.warn(`[${item.source}] Image check failed: ${check.status}`);
                                 continue;
                             }
 
@@ -121,36 +138,29 @@ export async function GET() {
 
                             // Buffer check for error text
                             const buffer = await check.arrayBuffer();
-                            // If it's a small file (likely error), decode text to check content
                             let hasErrorText = false;
 
-                            if (size < 150000) { // Bumped safe threshold to 150KB
+                            if (size < 150000) {
                                 const text = new TextDecoder().decode(buffer.slice(0, 2048)).toLowerCase();
                                 hasErrorText = text.includes('rate limit') ||
                                     text.includes('limit reached') ||
-                                    (text.includes('error') && !text.includes('error: none')); // rudimentary check
+                                    (text.includes('error') && !text.includes('error: none'));
                             }
 
-                            // STRENGTHENED VALIDATION:
-                            // 1. Must be 200 OK
-                            // 2. Must be image/ content type
-                            // 3. Must be > 80KB (Valid Flux/Turbo images are usually >200KB. Error images are ~10-50KB)
-                            // 4. Must not have error text
-                            const isValidImage = check.ok &&
-                                contentType.startsWith('image/') &&
-                                size > 80000 &&
+                            const isValidImage = contentType.startsWith('image/') &&
+                                size > 50000 && // Lowered slightly for Hercai potentially
                                 !hasErrorText;
 
                             if (isValidImage) {
                                 finalImageUrl = candidateUrl;
-                                console.log(`[${item.source}] Image verified (${model}): ${size} bytes`);
+                                console.log(`[${item.source}] Image verified (${provider.name}): ${size} bytes`);
                                 break; // Success!
                             } else {
-                                console.warn(`[${item.source}] Image rejected (${model}): Size=${size}b, ErrorText=${hasErrorText}`);
+                                console.warn(`[${item.source}] Image rejected (${provider.name}): Size=${size}b, ErrorText=${hasErrorText}`);
                             }
 
                         } catch (err) {
-                            console.warn(`[${item.source}] Image generation failed for ${model}:`, err);
+                            console.warn(`[${item.source}] Image generation failed for ${provider.name}:`, err);
                         }
                     }
                 }
