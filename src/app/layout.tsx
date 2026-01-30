@@ -1,9 +1,11 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { Navigation } from '@/components/Navigation';
-import { Footer } from '@/components/Footer';
 import { Toaster } from 'sonner';
+import Script from 'next/script';
+import { SpeedInsights } from "@vercel/speed-insights/next"
+import { Analytics } from '@vercel/analytics/react';
+import dynamic from 'next/dynamic';
 
 // Performance: Optimize font loading with swap and variable font
 const inter = Inter({
@@ -12,6 +14,16 @@ const inter = Inter({
   variable: '--font-inter',
   preload: true,
   fallback: ['system-ui', 'arial'],
+});
+
+// Performance: Dynamic imports to reduce initial bundle size
+const Navigation = dynamic(() => import('@/components/Navigation').then(mod => ({ default: mod.Navigation })), {
+  ssr: true,
+  loading: () => <div className="h-16" /> // Prevent layout shift
+});
+
+const Footer = dynamic(() => import('@/components/Footer').then(mod => ({ default: mod.Footer })), {
+  ssr: true,
 });
 
 export const metadata: Metadata = {
@@ -65,11 +77,6 @@ export const metadata: Metadata = {
     },
   },
 };
-
-import Script from 'next/script';
-import { SpeedInsights } from "@vercel/speed-insights/next"
-import { Analytics } from '@vercel/analytics/react';
-
 
 export default function RootLayout({
   children,

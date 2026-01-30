@@ -3,6 +3,9 @@ import { SignalCard } from '@/components/SignalCard';
 import { notFound } from 'next/navigation';
 import { NewsEvent } from '@/types';
 
+// Performance: Enable ISR with 30-second revalidation
+export const revalidate = 30;
+
 export async function generateStaticParams() {
     return [
         { category: 'tech' },

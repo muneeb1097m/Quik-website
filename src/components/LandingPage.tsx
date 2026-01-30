@@ -2,7 +2,6 @@
 
 import { SignalCard } from '@/components/SignalCard';
 import { Car, Cpu, Globe, Trophy } from 'lucide-react';
-import { motion, Variants } from 'framer-motion';
 import { NewsEvent, Signal } from '@/types';
 import { useState } from 'react';
 import Link from 'next/link';
@@ -34,6 +33,7 @@ const GridStoryCard = ({ story, event }: { story: Signal, event: NewsEvent | und
                         sizes="(max-width: 768px) 100vw, 33vw"
                         onError={() => setImageError(true)}
                         className="object-cover opacity-80 transition-transform duration-700 group-hover:scale-110"
+                        loading="lazy"
                     />
                 ) : (
                     // Fallback "Smart" Image based on Category/Keywords
@@ -75,30 +75,6 @@ const GridStoryCard = ({ story, event }: { story: Signal, event: NewsEvent | und
             </div>
         </Link>
     );
-};
-
-// Animation Variants
-// Animation Variants
-// Animation Variants
-const fadeInUp: Variants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" as const } }
-};
-
-const staggerContainer: Variants = {
-    hidden: { opacity: 0 },
-    visible: {
-        opacity: 1,
-        transition: {
-            staggerChildren: 0.1,
-            delayChildren: 0.2
-        }
-    }
-};
-
-const textReveal: Variants = {
-    hidden: { y: "100%" },
-    visible: { y: 0, transition: { duration: 0.5, ease: "circOut" as const } }
 };
 
 export function LandingPage({ signals, events, mainStory, mainStoryEvent, gridStories, sideStories }: LandingPageProps) {
@@ -193,22 +169,12 @@ export function LandingPage({ signals, events, mainStory, mainStoryEvent, gridSt
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
 
                     <div className="lg:col-span-8">
-                        <motion.h3
-                            initial={{ opacity: 0, x: -20 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
-                            className="text-xl md:text-2xl font-bold text-slate-900 mb-6 md:mb-8 flex items-center gap-3"
-                        >
-                            <Cpu className="w-6 h-6 text-slate-400 animate-pulse" />
+                        <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-6 md:mb-8 flex items-center gap-3">
+                            <Cpu className="w-6 h-6 text-slate-400" />
                             Raw Feed
-                        </motion.h3>
-                        <motion.div
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true, margin: "-100px" }}
-                            variants={staggerContainer}
-                            className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6"
-                        >
+                        </h3>
+                        {/* Performance: Removed expensive framer-motion stagger animations */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                             {signals.map((signal, index) => {
                                 // Use the event embedded in signal if available, otherwise look it up
                                 // If still not found, we don't hide it anymore per user request, we just fallback
@@ -227,29 +193,21 @@ export function LandingPage({ signals, events, mainStory, mainStoryEvent, gridSt
                                 const isWide = (index + 1) % 5 === 0;
 
                                 return (
-                                    <motion.div
+                                    <div
                                         key={signal.id}
-                                        variants={fadeInUp}
                                         className={isWide ? 'md:col-span-2' : ''}
-                                        whileHover={{ y: -5 }}
                                     >
                                         <SignalCard signal={signal} event={event} />
-                                    </motion.div>
+                                    </div>
                                 );
                             })}
-                        </motion.div>
+                        </div>
                     </div>
 
                     {/* Right Sidebar */}
                     <div className="lg:col-span-4">
                         <div className="sticky top-28 space-y-8">
-                            <motion.div
-                                initial={{ opacity: 0, x: 20 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: 0.2 }}
-                                className="glass-panel rounded-3xl p-6 md:p-8 border border-slate-200 bg-white/50 backdrop-blur-xl"
-                            >
+                            <div className="glass-panel rounded-3xl p-6 md:p-8 border border-slate-200 bg-white/50 backdrop-blur-xl">
                                 <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
                                     <Globe className="w-4 h-4" />
                                     Most Read Today
@@ -257,13 +215,7 @@ export function LandingPage({ signals, events, mainStory, mainStoryEvent, gridSt
                                 <div className="space-y-6">
                                     {sideStories.map((story, i) => (
                                         <Link key={story.id} href={`/news/${story.id}`} className="block relative z-10">
-                                            <motion.div
-                                                initial={{ opacity: 0, x: 20 }}
-                                                whileInView={{ opacity: 1, x: 0 }}
-                                                viewport={{ once: true }}
-                                                transition={{ delay: 0.05 * i }}
-                                                className="group cursor-pointer mb-6 last:mb-0"
-                                            >
+                                            <div className="group cursor-pointer mb-6 last:mb-0">
                                                 <div className="flex items-center gap-3 mb-2">
                                                     <span className="text-xs font-bold text-brand-red">Global</span>
                                                     <span className="text-xs text-slate-300">•</span>
@@ -274,11 +226,11 @@ export function LandingPage({ signals, events, mainStory, mainStoryEvent, gridSt
                                                 <h4 className="font-bold text-slate-800 leading-snug group-hover:text-brand-red transition-colors line-clamp-2">
                                                     {story.headline}
                                                 </h4>
-                                            </motion.div>
+                                            </div>
                                         </Link>
                                     ))}
                                 </div>
-                            </motion.div>
+                            </div>
                         </div>
                     </div>
 
