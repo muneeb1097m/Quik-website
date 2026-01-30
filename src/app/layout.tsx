@@ -5,7 +5,14 @@ import { Navigation } from '@/components/Navigation';
 import { Footer } from '@/components/Footer';
 import { Toaster } from 'sonner';
 
-const inter = Inter({ subsets: ['latin'] });
+// Performance: Optimize font loading with swap and variable font
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+  preload: true,
+  fallback: ['system-ui', 'arial'],
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://quik.news'),

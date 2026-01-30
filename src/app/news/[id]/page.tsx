@@ -5,6 +5,17 @@ import { serialize } from '@/lib/utils';
 
 import type { Metadata } from 'next';
 
+// Performance: Enable ISR with 30-second revalidation
+export const revalidate = 30;
+
+// Performance: Generate static params for top news articles (ISR)
+export async function generateStaticParams() {
+    const signals = await db.getTrending(50);
+    return signals.map((signal: any) => ({
+        id: signal.id,
+    }));
+}
+
 // Generate Metadata for SEO
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
     const { id } = await params;
@@ -63,7 +74,7 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ id:
     // Fetch related stories
     const related = await db.getSignals(event.category, 4);
     // Filter out current and limit (simple client-side filter logic for now, DB query ideal later)
-    const filteredRelated = related.filter(s => s.id !== signal.id).slice(0, 3);
+    const filteredRelated = related.filter((s: any) => s.id !== signal.id).slice(0, 3);
 
     // JSON-LD Structured Data for Google News
     const jsonLd = {
