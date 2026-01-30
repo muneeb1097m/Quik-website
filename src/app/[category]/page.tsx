@@ -61,7 +61,7 @@ export default async function CategoryPage({ params }: PageProps) {
                 </h1>
 
                 <div className="grid lg:grid-cols-2 gap-8">
-                    {signals.map(signal => {
+                    {signals.map((signal: any) => {
                         const event = signal.event as unknown as NewsEvent;
                         if (!event) return null;
                         return <SignalCard key={signal.id} signal={signal as any} event={event} />;
