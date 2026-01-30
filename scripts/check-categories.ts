@@ -24,18 +24,18 @@ async function main() {
     const recent = await prisma.newsEvent.findMany({
         take: 10,
         orderBy: {
-            createdAt: 'desc',
+            detectedAt: 'desc',
         },
         select: {
             title: true,
             category: true,
-            createdAt: true
+            detectedAt: true
         }
     });
 
     console.log('\nMost Recent 10 Events:');
     recent.forEach((item: any) => {
-        console.log(`[${item.category}] ${item.title} (${item.createdAt.toISOString()})`);
+        console.log(`[${item.category}] ${item.title} (${item.detectedAt.toISOString()})`);
     });
 }
 
