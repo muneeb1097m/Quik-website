@@ -1,5 +1,5 @@
 
-import { generateNewsImage, POLLINATIONS_MODELS } from '../src/lib/image-gen';
+import { generateNewsImage, MODELS } from '../src/lib/image-gen';
 
 // Mock fetch for the test if needed, or use real fetch
 // We'll use real fetch to test the API
@@ -12,7 +12,7 @@ async function testImageGen() {
     const category = "Technology";
 
     console.log('\n--- Testing FLUX ---');
-    const urlFlux = generateNewsImage(title, category, POLLINATIONS_MODELS.FLUX);
+    const urlFlux = generateNewsImage(title, category, MODELS.POLLINATIONS.FLUX);
     console.log('Generated URL:', urlFlux);
 
     try {
@@ -26,7 +26,7 @@ async function testImageGen() {
 
     // Test Turbo
     console.log('\n--- Testing TURBO ---');
-    const urlTurbo = generateNewsImage(title, category, POLLINATIONS_MODELS.TURBO);
+    const urlTurbo = generateNewsImage(title, category, MODELS.POLLINATIONS.TURBO);
     console.log('Generated URL:', urlTurbo);
 
     try {
