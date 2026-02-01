@@ -4,8 +4,8 @@ import { NewsEvent, Signal } from '@/types';
 import { serialize } from '@/lib/utils';
 
 // Enable ISR (Incremental Static Regeneration)
-// Revalidate page every 10 seconds for better performance
-export const revalidate = 10;
+// Revalidate page every 1 hour (3600s) to save ISR writes
+export const revalidate = 3600;
 
 export default async function Home() {
   // Optimized: Single database call instead of 3 separate queries

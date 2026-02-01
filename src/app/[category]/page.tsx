@@ -4,7 +4,8 @@ import { notFound } from 'next/navigation';
 import { NewsEvent } from '@/types';
 
 // Performance: Enable ISR with 30-second revalidation
-export const revalidate = 30;
+// Revalidate every 1 hour
+export const revalidate = 3600;
 
 export async function generateStaticParams() {
     return [
