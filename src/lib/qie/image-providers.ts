@@ -134,3 +134,18 @@ export class AirforceProvider implements ImageProvider {
         }
     }
 }
+
+export class CloudflareProvider implements ImageProvider {
+    name = 'Cloudflare';
+
+    async generate(prompt: string, category: string): Promise<string | null> {
+        try {
+            const cleanTitle = prompt.replace(/[^\w\s]/g, '').toLowerCase().slice(0, 50);
+            const encodedPrompt = encodeURIComponent(`${category} ${cleanTitle} news photography usage`);
+            return `${process.env.NEXT_PUBLIC_APP_URL || 'https://quik.news'}/api/generate-image?prompt=${encodedPrompt}`;
+        } catch (e) {
+            console.error("Cloudflare URL generation failed:", e);
+            return null;
+        }
+    }
+}
