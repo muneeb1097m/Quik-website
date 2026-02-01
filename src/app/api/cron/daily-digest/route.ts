@@ -34,6 +34,21 @@ export async function GET(req: NextRequest) {
 
         console.log(`📧 Found ${subscribers.length} active subscribers`);
 
+        // Milestone Notification: If exactly 100 users, notify admin
+        if (subscribers.length === 100) {
+            console.log('🎉 Milestone reached: 100 active subscribers! Sending notification to admin.');
+            await sendEmail(
+                'muneebbhatti1097m@gmail.com',
+                '🎉 Milestone Alert: 100 Active Users Reached!',
+                `
+                <h1>Congratulations!</h1>
+                <p>Quik News has reached <strong>100 active subscribers</strong>.</p>
+                <p>This is a major milestone. Keep growing!</p>
+                <p>- Quik Bot</p>
+                `
+            );
+        }
+
         // 2. Fetch recent news (last 24 hours)
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
@@ -83,19 +98,29 @@ export async function GET(req: NextRequest) {
                 const relevantCategories = interests.map((int: string) => categoryMap[int] || 'Technology');
 
                 // Filter news matching subscriber's interests
-                const personalizedNews = recentNews
-                    .filter(news => relevantCategories.includes(news.event.category))
+                // Filter news matching subscriber's interests
+                let personalizedNews = recentNews
+                    .filter((news: any) => relevantCategories.includes(news.event.category))
                     .slice(0, 5); // Top 5 stories
 
+                // Fallback: If no matched news, send Top 5 recent news (General Digest)
                 if (personalizedNews.length === 0) {
-                    console.log(`⚠️ No relevant news for ${subscriber.email}, skipping`);
+                    console.log(`⚠️ No specific interest match for ${subscriber.email}, sending Top News fallback.`);
+                    personalizedNews = recentNews.slice(0, 5);
+                }
+
+                if (personalizedNews.length === 0) {
+                    console.log(`⚠️ No news available at all for digest.`);
+                    // Should break or continue? If no news at all, break loop as nobody gets email.
+                    // But we are in a loop for subscribers. If recentNews is empty we return early (line 27).
+                    // So this branch usually won't be hit unless recentNews became empty (impossible).
                     continue;
                 }
 
                 // Generate email HTML
                 const emailHtml = generateDigestEmail(
                     subscriber.name,
-                    personalizedNews.map(n => ({
+                    personalizedNews.map((n: any) => ({
                         id: n.id,
                         headline: n.headline,
                         summary: n.summary,

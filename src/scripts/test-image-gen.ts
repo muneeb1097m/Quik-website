@@ -1,22 +1,10 @@
 
-import { PollinationsProvider, HercaiProvider, POLLINATIONS_MODELS } from '../lib/qie/image-providers';
+import { HercaiProvider } from '../lib/qie/image-providers';
 
 async function testProviders() {
     console.log("Starting Image Provider Test...");
 
-    // Test Pollinations (Flux)
-    console.log("\nTesting Pollinations (Flux)...");
-    const pollProvider = new PollinationsProvider(POLLINATIONS_MODELS.FLUX);
-    try {
-        const url = await pollProvider.generate("Futuristic city skyline", "Technology");
-        console.log(`Pollinations URL: ${url}`);
-        if (url) {
-            const res = await fetch(url, { method: 'HEAD' });
-            console.log(`Pollinations Status: ${res.status}`);
-        }
-    } catch (e) {
-        console.error("Pollinations failed:", e);
-    }
+    // Pollination test removed
 
     // Test Hercai
     console.log("\nTesting Hercai...");

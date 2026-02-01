@@ -22,15 +22,19 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'image.pollinations.ai',
-      },
-      {
-        protocol: 'https',
         hostname: 'picsum.photos',
       },
       {
         protocol: 'https',
         hostname: 'anondrop.net',
+      },
+      {
+        protocol: 'https',
+        hostname: 'hercai.onrender.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'via.placeholder.com',
       },
     ],
     formats: ['image/avif', 'image/webp'],

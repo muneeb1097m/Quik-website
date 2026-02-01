@@ -5,7 +5,7 @@ import { GoogleImageSearcher } from '@/lib/qie/image_search';
 import { db } from '@/lib/qie/db';
 import { EventCategory } from '@/types';
 
-import { PollinationsProvider, HercaiProvider, AirforceProvider, HuggingFaceProvider, POLLINATIONS_MODELS } from '@/lib/qie/image-providers';
+import { HercaiProvider, AirforceProvider, HuggingFaceProvider } from '@/lib/qie/image-providers';
 import { scrapeArticleContent } from '@/lib/qie/scraper';
 import { stripHtml } from '@/lib/utils';
 
@@ -101,9 +101,7 @@ export async function GET() {
                     const providers = [
                         new AirforceProvider(), // Best Quality if Key exists
                         // new HuggingFaceProvider(), // Uncomment if we implement binary upload
-                        new PollinationsProvider(POLLINATIONS_MODELS.FLUX), // Free Primary
                         new HercaiProvider(), // Free Fallback 1
-                        new PollinationsProvider(POLLINATIONS_MODELS.TURBO) // Free Fallback 2
                     ];
 
                     for (const provider of providers) {

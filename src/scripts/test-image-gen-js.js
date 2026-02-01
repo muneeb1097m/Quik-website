@@ -4,35 +4,7 @@ const https = require('https');
 // Simple fetch polyfill or use native fetch if node 18+
 // Assuming Node 18+ which has native fetch.
 
-const POLLINATIONS_MODELS = {
-    FLUX: 'flux',
-    TURBO: 'turbo',
-};
-
-class PollinationsProvider {
-    constructor(model = POLLINATIONS_MODELS.FLUX) {
-        this.name = 'Pollinations';
-        this.model = model;
-    }
-
-    async generate(prompt, category) {
-        const seed = Math.floor(Math.random() * 1000000);
-        // Simplified cleanTitle
-        const cleanTitle = prompt
-            .replace(/[^\w\s]/g, '')
-            .toLowerCase()
-            .split(' ')
-            .filter(word => word.length > 3)
-            .slice(0, 6)
-            .join(' ');
-
-        const cleanedPrompt = `${category} ${cleanTitle} news photography style, highly detailed, 8k resolution, journalism`;
-        const encodedPrompt = encodeURIComponent(cleanedPrompt);
-
-        let url = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&model=${this.model}&seed=${seed}&nologo=true&enhance=true&private=true`;
-        return url;
-    }
-}
+// Pollination test removed
 
 class HercaiProvider {
     constructor() {

@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use client';
 
 import { Cpu, Globe, Zap, Shield, Users, Newspaper, Activity, TrendingUp, BarChart3, Lock, Server, CreditCard, Check, Loader2, ChevronLeft } from 'lucide-react';

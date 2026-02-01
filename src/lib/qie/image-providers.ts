@@ -4,48 +4,8 @@ export interface ImageProvider {
     generate(prompt: string, category: string): Promise<string | null>;
 }
 
-export const POLLINATIONS_MODELS = {
-    FLUX: 'flux',
-    TURBO: 'turbo',
-};
+// Pollination removed
 
-const POLLINATIONS_API_KEY = (process as any).env.POLLINATIONS_API_KEY;
-
-export class PollinationsProvider implements ImageProvider {
-    name = 'Pollinations';
-    private model: string;
-
-    constructor(model: string = POLLINATIONS_MODELS.FLUX) {
-        this.model = model;
-    }
-
-    async generate(prompt: string, category: string): Promise<string | null> {
-        const seed = Math.floor(Math.random() * 1000000);
-        // Use a simplified prompt logic here or call existing util if needed
-        // Recreating logic from image-gen.ts to keep it self-contained in providers or we can reuse
-        // For now, let's keep the logic similar to existing
-        const cleanedPrompt = `${category} ${this.cleanTitle(prompt)} news photography style, highly detailed, 8k resolution, journalism`;
-        const encodedPrompt = encodeURIComponent(cleanedPrompt);
-
-        let url = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&model=${this.model}&seed=${seed}&nologo=true&enhance=true&private=true`;
-
-        if (POLLINATIONS_API_KEY) {
-            url += `&token=${POLLINATIONS_API_KEY}`;
-        }
-
-        return url;
-    }
-
-    private cleanTitle(title: string): string {
-        return title
-            .replace(/[^\w\s]/g, '')
-            .toLowerCase()
-            .split(' ')
-            .filter(word => word.length > 3)
-            .slice(0, 6)
-            .join(' ');
-    }
-}
 
 export class HercaiProvider implements ImageProvider {
     name = 'Hercai';
