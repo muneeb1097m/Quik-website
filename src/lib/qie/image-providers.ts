@@ -12,7 +12,7 @@ export class HercaiProvider implements ImageProvider {
 
     async generate(prompt: string, category: string): Promise<string | null> {
         try {
-            const fullPrompt = `${category} ${prompt}, news photography style, highly detailed, 8k resolution, journalism`;
+            const fullPrompt = `${category} ${prompt}, vibrant color, news photography, ultra detailed, 8k resolution, cinematic lighting`;
             // Hercai V3 URL
             const url = `https://hercai.onrender.com/v3/text2image?prompt=${encodeURIComponent(fullPrompt)}`;
 
@@ -111,7 +111,7 @@ export class AirforceProvider implements ImageProvider {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    prompt: `${category} ${prompt}`,
+                    prompt: `${category} ${prompt}, vibrant color, news photography, 8k, cinematic lighting`,
                     size: "1024x1024",
                     model: "flux"
                 }),
@@ -140,8 +140,9 @@ export class CloudflareProvider implements ImageProvider {
 
     async generate(prompt: string, category: string): Promise<string | null> {
         try {
-            const cleanTitle = prompt.replace(/[^\w\s]/g, '').toLowerCase().slice(0, 50);
-            const encodedPrompt = encodeURIComponent(`${category} ${cleanTitle} news photography usage`);
+            // Fix: No slicing to 50 chars to preserve context
+            const cleanTitle = prompt.replace(/[^\w\s]/g, '').toLowerCase();
+            const encodedPrompt = encodeURIComponent(`${category} ${cleanTitle}, vibrant color, news photography, 8k resolution`);
             return `${process.env.NEXT_PUBLIC_APP_URL || 'https://quik.news'}/api/generate-image?prompt=${encodedPrompt}`;
         } catch (e) {
             console.error("Cloudflare URL generation failed:", e);

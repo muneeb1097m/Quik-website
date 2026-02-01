@@ -23,7 +23,7 @@ export function generateNewsImage(title: string, category: string, model: string
   const keywords = extractKeywords(title, category);
 
   // Use a more detailed news-optimized prompt
-  const prompt = `${keywords} news photography style, award winning photo journalism, highly detailed, 8k resolution, realistic lighting, in the style of Associated Press`;
+  const prompt = `${keywords}, vibrant color, news photography, award winning, highly detailed, 8k resolution, cinematic lighting`;
   const encodedPrompt = encodeURIComponent(prompt);
 
   // Always use Cloudflare API route for now as primary
@@ -65,7 +65,7 @@ function extractKeywords(title: string, category: string): string {
     .toLowerCase()
     .split(' ')
     .filter(word => word.length > 3)
-    .slice(0, 6)
+    .slice(0, 12)
     .join(' ');
 
   return `${category} ${cleanTitle}`;
