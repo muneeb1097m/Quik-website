@@ -53,16 +53,8 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
         <div className="min-h-screen bg-slate-50 font-sans selection:bg-brand-green/20 selection:text-slate-900">
             {/* Background Gradient Orbs - Optimized */}
             <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-                <motion.div
-                    animate={{ opacity: [0.3, 0.4, 0.3], scale: [1, 1.1, 1] }}
-                    transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-                    className="absolute top-[-10%] right-[-10%] w-[800px] h-[800px] bg-brand-green/5 rounded-full blur-[60px] will-change-transform translate-z-0"
-                />
-                <motion.div
-                    animate={{ opacity: [0.2, 0.3, 0.2], scale: [1, 1.2, 1] }}
-                    transition={{ duration: 15, repeat: Infinity, delay: 2, ease: "linear" }}
-                    className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-brand-blue/5 rounded-full blur-[60px] will-change-transform translate-z-0"
-                />
+                <div className="absolute top-[-10%] right-[-10%] w-[800px] h-[800px] bg-brand-green/5 rounded-full blur-[60px] animate-pulse-slow" />
+                <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-brand-blue/5 rounded-full blur-[60px] animate-pulse-slower" />
             </div>
 
             {/* Footer Navigation bar */}

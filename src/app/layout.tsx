@@ -17,10 +17,8 @@ const inter = Inter({
 });
 
 // Performance: Dynamic imports to reduce initial bundle size
-const Navigation = dynamic(() => import('@/components/Navigation').then(mod => ({ default: mod.Navigation })), {
-  ssr: true,
-  loading: () => <div className="h-16" /> // Prevent layout shift
-});
+// Navigation is critical for LCP/CLS, so we import it directly now
+import { Navigation } from '@/components/Navigation';
 
 const Footer = dynamic(() => import('@/components/Footer').then(mod => ({ default: mod.Footer })), {
   ssr: true,
@@ -107,7 +105,8 @@ export default function RootLayout({
         </Script>
 
         {/* Chatbase Chatbot - Vercel Native Integration */}
-        <Script id="chatbase-script" strategy="afterInteractive">
+        {/* Optimized: lazyOnload prevents it from blocking Interaction to Next Paint (INP) */}
+        <Script id="chatbase-script" strategy="lazyOnload">
           {`
             (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="${process.env.NEXT_PUBLIC_CHATBOT_ID}";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
           `}
