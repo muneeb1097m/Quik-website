@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateImageWithCloudflare } from '@/lib/image-gen';
+import { generateImageWithPollination } from '@/lib/image-gen';
 
 export const runtime = 'edge'; // Use Edge Runtime for speed
 
@@ -12,11 +12,12 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-        const imageBuffer = await generateImageWithCloudflare(prompt);
+        // Switch to Pollinations.ai Proxy
+        const imageBuffer = await generateImageWithPollination(prompt);
 
         return new NextResponse(imageBuffer, {
             headers: {
-                'Content-Type': 'image/png',
+                'Content-Type': 'image/jpeg', // Pollination usually returns JPEG or PNG, safest to assume binary
                 'Cache-Control': 'public, max-age=31536000, immutable',
             },
         });

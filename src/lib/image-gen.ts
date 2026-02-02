@@ -22,13 +22,51 @@ export const MODELS = {
 export function generateNewsImage(title: string, category: string, model: string = MODELS.CLOUDFLARE.FLUX_SCHNELL): string {
   const keywords = extractKeywords(title, category);
 
-  // Use a more detailed news-optimized prompt
-  const prompt = `${keywords}, vibrant color, news photography, award winning, highly detailed, 8k resolution, cinematic lighting`;
+  // Pollinations.ai simple prompt
+  const prompt = `${keywords}, vibrant, news photography, 8k, ultra detailed`;
   const encodedPrompt = encodeURIComponent(prompt);
 
-  // Always use Cloudflare API route for now as primary
+  // Return Proxy URL so we can hide API Key on server
   return `/api/generate-image?prompt=${encodedPrompt}`;
 }
+
+/**
+ * Server-side function to generate image using Pollinations.ai
+ * Supports authenticated usage via POLLINATIONS_API_KEY
+ */
+export async function generateImageWithPollination(prompt: string) {
+  const apiKey = process.env.POLLINATIONS_API_KEY;
+  const encodedPrompt = encodeURIComponent(prompt);
+  // Add nologo=true to avoid watermark if possible
+  let url = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&nologo=true`;
+
+  // Append API key if available and we are using query param method (or use header below)
+  // Research said header "Authorization: Bearer key" or "?key=value"
+  // We will use Authorization header in the fetch below if key exists
+
+  // Note: Pollination might return a redirect or the image directly.
+  // We fetch it here to proxy the binary data.
+
+  const headers: Record<string, string> = {
+    'User-Agent': 'QuikNews/1.0'
+  };
+
+  if (apiKey) {
+    headers['Authorization'] = `Bearer ${apiKey}`;
+  }
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: headers
+  });
+
+  if (!response.ok) {
+    throw new Error(`Pollination API Error: ${response.status} ${response.statusText}`);
+  }
+
+  return await response.arrayBuffer();
+}
+
 
 /**
  * Server-side function to generate image using Cloudflare
