@@ -67,7 +67,7 @@ export function SignalCard({ signal, event, onClick }: SignalCardProps) {
                                     return "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=2940&auto=format&fit=crop";
                                 })()}
                                 alt="News Fallback"
-                                className="w-full h-full object-cover opacity-50 grayscale contrast-125"
+                                className="w-full h-full object-cover"
                             />
                         </div>
                     )}

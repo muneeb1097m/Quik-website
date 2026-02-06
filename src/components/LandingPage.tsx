@@ -53,7 +53,7 @@ const GridStoryCard = ({ story, event }: { story: Signal, event: NewsEvent | und
                                 return "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=2940&auto=format&fit=crop";
                             })()}
                             alt="News Fallback"
-                            className="w-full h-full object-cover opacity-50 grayscale contrast-125"
+                            className="w-full h-full object-cover"
                             onError={(e) => {
                                 e.currentTarget.src = "https://images.unsplash.com/photo-1495020689067-958852a7765e?q=80&w=2940&auto=format&fit=crop";
                             }}
@@ -120,7 +120,7 @@ export function LandingPage({ signals, events, mainStory, mainStoryEvent, gridSt
                                                 fill
                                                 priority={true}
                                                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 70vw, 800px"
-                                                className="object-cover opacity-40 grayscale contrast-125"
+                                                className="w-full h-full object-cover"
                                             />
                                         )
                                     ) : (

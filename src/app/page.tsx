@@ -5,6 +5,7 @@ import { serialize } from '@/lib/utils';
 
 // Enable ISR (Incremental Static Regeneration)
 // Revalidate page every 1 hour (3600s) to reduce ISR writes
+// Revalidate page every 3600 seconds (1 hour)
 export const revalidate = 3600;
 
 export default async function Home() {
