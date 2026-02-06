@@ -36,24 +36,19 @@ export function generateNewsImage(title: string, category: string, model: string
  */
 export async function generateImageWithPollination(prompt: string) {
   const apiKey = process.env.POLLINATIONS_API_KEY;
+
+  if (!apiKey) {
+    throw new Error('Pollinations API Key is missing. Anonymous usage is disabled.');
+  }
+
   const encodedPrompt = encodeURIComponent(prompt);
-  // Add nologo=true to avoid watermark if possible
-  let url = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&nologo=true`;
-
-  // Append API key if available and we are using query param method (or use header below)
-  // Research said header "Authorization: Bearer key" or "?key=value"
-  // We will use Authorization header in the fetch below if key exists
-
-  // Note: Pollination might return a redirect or the image directly.
-  // We fetch it here to proxy the binary data.
+  // Enforce Flux model and use API key
+  let url = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&nologo=true&model=flux`;
 
   const headers: Record<string, string> = {
-    'User-Agent': 'QuikNews/1.0'
+    'User-Agent': 'QuikNews/1.0',
+    'Authorization': `Bearer ${apiKey}`
   };
-
-  if (apiKey) {
-    headers['Authorization'] = `Bearer ${apiKey}`;
-  }
 
   const response = await fetch(url, {
     method: 'GET',

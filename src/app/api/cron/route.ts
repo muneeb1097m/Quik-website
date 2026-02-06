@@ -5,7 +5,7 @@ import { GoogleImageSearcher } from '@/lib/qie/image_search';
 import { db } from '@/lib/qie/db';
 import { EventCategory } from '@/types';
 
-import { HercaiProvider, AirforceProvider, HuggingFaceProvider, CloudflareProvider } from '@/lib/qie/image-providers';
+import { CloudflareProvider, PollinationProvider } from '@/lib/qie/image-providers';
 import { scrapeArticleContent } from '@/lib/qie/scraper';
 import { stripHtml } from '@/lib/utils';
 
@@ -96,12 +96,9 @@ export async function GET() {
                 // We prioritize Pollinations (Flux) and use Hercai as fallback.
                 if (!finalImageUrl) {
                     // We prioritize API Keys first (Airforce), then Pollinations, then Hercai fallback.
-                    // Note: HF provider currently returns null (binary image handling needed), so we skip adding it related logic for now or add it but it will just return null.
-
                     const providers = [
-                        new AirforceProvider(), // Best Quality if Key exists
-                        new CloudflareProvider(), // Reliable & Fast
-                        new HercaiProvider(), // Free Fallback 1
+                        new CloudflareProvider(), // Cloudflare Flux (via internal API)
+                        new PollinationProvider(), // Pollinations Flux (via internal API)
                     ];
 
                     for (const provider of providers) {

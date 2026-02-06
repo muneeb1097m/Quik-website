@@ -14,27 +14,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'images.unsplash.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'upload.wikimedia.org',
-      },
-      {
-        protocol: 'https',
-        hostname: 'picsum.photos',
-      },
-      {
-        protocol: 'https',
-        hostname: 'anondrop.net',
-      },
-      {
-        protocol: 'https',
-        hostname: 'hercai.onrender.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'via.placeholder.com',
+        hostname: '**',
       },
     ],
     formats: ['image/avif', 'image/webp'],
