@@ -6,6 +6,8 @@ import { NewsEvent, Signal } from '@/types';
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { loadMoreSignals } from '@/app/actions';
+import { Loader2 } from 'lucide-react';
 
 interface LandingPageProps {
     signals: Signal[];
@@ -30,6 +32,7 @@ const GridStoryCard = ({ story, event }: { story: Signal, event: NewsEvent | und
                         src={story.imageUrl}
                         alt={story.headline}
                         fill
+                        unoptimized={true} // Vercel Free Tier Optimization
                         sizes="(max-width: 768px) 100vw, 33vw"
                         onError={() => setImageError(true)}
                         className="object-cover opacity-80 transition-transform duration-700 group-hover:scale-110"
@@ -82,6 +85,31 @@ export function LandingPage({ signals, events, mainStory, mainStoryEvent, gridSt
     const getEvent = (id: string) => events.find(e => e.id === id);
     const [mainImageError, setMainImageError] = useState(false);
 
+    // Pagination State
+    const [displayedSignals, setDisplayedSignals] = useState<Signal[]>(signals);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
+
+    const handleLoadMore = async () => {
+        if (isLoadingMore) return;
+        setIsLoadingMore(true);
+
+        try {
+            const lastSignal = displayedSignals[displayedSignals.length - 1];
+            const nextBatch = await loadMoreSignals(lastSignal?.id);
+
+            if (nextBatch.length === 0) {
+                setHasMore(false);
+            } else {
+                setDisplayedSignals(prev => [...prev, ...nextBatch as unknown as Signal[]]);
+            }
+        } catch (error) {
+            console.error("Failed to load more:", error);
+        } finally {
+            setIsLoadingMore(false);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-slate-50 relative overflow-hidden font-sans selection:bg-brand-green/20 selection:text-slate-900">
 
@@ -109,6 +137,7 @@ export function LandingPage({ signals, events, mainStory, mainStoryEvent, gridSt
                                                 alt={mainStory.headline}
                                                 fill
                                                 priority={true} // Critical for LCP
+                                                unoptimized={true} // Vercel Free Tier Optimization
                                                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 70vw, 800px"
                                                 className="object-cover opacity-90"
                                                 onError={() => setMainImageError(true)}
@@ -175,7 +204,7 @@ export function LandingPage({ signals, events, mainStory, mainStoryEvent, gridSt
                         </h3>
                         {/* Performance: Removed expensive framer-motion stagger animations */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                            {signals.map((signal, index) => {
+                            {displayedSignals.map((signal, index) => {
                                 // Use the event embedded in signal if available, otherwise look it up
                                 // If still not found, we don't hide it anymore per user request, we just fallback
                                 const event = signal.event || getEvent(signal.eventId) || {
@@ -201,6 +230,40 @@ export function LandingPage({ signals, events, mainStory, mainStoryEvent, gridSt
                                     </div>
                                 );
                             })}
+                        </div>
+
+                        {/* Pagination / Load More */}
+                        <div className="mt-12 flex justify-center">
+                            {hasMore ? (
+                                <button
+                                    onClick={handleLoadMore}
+                                    disabled={isLoadingMore}
+                                    className="group relative px-8 py-4 bg-white border border-slate-200 rounded-full font-bold text-slate-900 shadow-sm hover:shadow-xl hover:border-brand-green/30 transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
+                                >
+                                    <div className="flex items-center gap-3 relative z-10">
+                                        {isLoadingMore ? (
+                                            <>
+                                                <Loader2 className="w-5 h-5 animate-spin text-brand-green" />
+                                                <span>Loading stories...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <span>Load More Stories</span>
+                                                <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-brand-green/10 transition-colors">
+                                                    <svg className="w-3 h-3 text-slate-500 group-hover:text-brand-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                                                    </svg>
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-brand-green/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                </button>
+                            ) : (
+                                <div className="text-slate-400 text-sm font-medium py-4 px-8 bg-slate-100 rounded-full">
+                                    You've reached the end
+                                </div>
+                            )}
                         </div>
                     </div>
 

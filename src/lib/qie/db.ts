@@ -36,6 +36,31 @@ export const db = {
         });
     },
 
+    // Cursor-based pagination for infinite scroll
+    getPaginatedSignals: async (cursor: string | undefined, limit: number = 20) => {
+        const signals = await prisma.signal.findMany({
+            take: limit,
+            skip: cursor ? 1 : 0, // Skip the cursor itself if present
+            cursor: cursor ? { id: cursor } : undefined,
+            orderBy: { generatedAt: 'desc' },
+            include: {
+                event: {
+                    select: {
+                        id: true,
+                        title: true,
+                        category: true,
+                        sources: true,
+                        status: true,
+                        detectedAt: true,
+                        lastUpdatedAt: true,
+                        confidenceScore: true
+                    }
+                }
+            }
+        });
+        return signals;
+    },
+
     getSignals: async (category?: string, limit?: number) => {
         let whereClause = {};
 
