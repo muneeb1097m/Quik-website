@@ -165,7 +165,8 @@ export async function GET() {
                 if (!finalImageUrl) {
                     console.warn(`[${item.source}] All AI image generation attempts failed/limited. Using Safe Fallback.`);
                     // Picsum fallback (Guaranteed to work, never shows "limit exceeded")
-                    finalImageUrl = `https://picsum.photos/seed/${Date.now()}/1024/1024?grayscale&blur=2`;
+                    // FIX: Removed grayscale&blur, switched to Unsplash source for better quality color images
+                    finalImageUrl = `https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1024&auto=format&fit=crop`;
                 }
 
                 // 4. Save to DB

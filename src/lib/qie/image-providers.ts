@@ -14,8 +14,11 @@ export class PollinationProvider implements ImageProvider {
             // It returns the image directly, so we just return the URL
             const fullPrompt = `${category} ${prompt}, vibrant, news photography, 8k, ultra detailed`;
             const encodedPrompt = encodeURIComponent(fullPrompt);
-            // Return Proxy URL to use authenticated server-side generation
-            return `/api/generate-image?prompt=${encodedPrompt}`;
+
+            // Return Absolute Proxy URL to use authenticated server-side generation
+            // FIX: Cron job runs on server where relative URLs fail
+            const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://quik.news';
+            return `${baseUrl}/api/generate-image?prompt=${encodedPrompt}`;
         } catch (error) {
             console.error("Pollination generation failed:", error);
             return null;
@@ -36,7 +39,8 @@ export class CloudflareProvider implements ImageProvider {
             const cleanTitle = prompt.replace(/[^\w\s]/g, '').toLowerCase();
             const encodedPrompt = encodeURIComponent(`${category} ${cleanTitle}, vibrant color, news photography, 8k resolution`);
             // Use ?provider=cloudflare to trigger real Cloudflare generation
-            return `${process.env.NEXT_PUBLIC_APP_URL || 'https://quik.news'}/api/generate-image?prompt=${encodedPrompt}&provider=cloudflare`;
+            const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://quik.news';
+            return `${baseUrl}/api/generate-image?prompt=${encodedPrompt}&provider=cloudflare`;
         } catch (e) {
             console.error("Cloudflare URL generation failed:", e);
             return null;

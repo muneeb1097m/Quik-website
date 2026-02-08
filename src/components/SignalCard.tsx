@@ -56,16 +56,16 @@ export function SignalCard({ signal, event, onClick }: SignalCardProps) {
                                 src={(() => {
                                     const text = (event.title + ' ' + event.category).toLowerCase();
                                     if (text.includes('finance') || text.includes('stock') || text.includes('economy') || text.includes('market') || text.includes('bank'))
-                                        return "https://images.unsplash.com/photo-1611974765270-ca12586343bb?q=80&w=2940&auto=format&fit=crop";
+                                        return "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?q=80&w=2940&auto=format&fit=crop";
                                     if (text.includes('tech') || text.includes('ai') || text.includes('cyber') || text.includes('digital'))
-                                        return "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2940&auto=format&fit=crop";
+                                        return "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2940&auto=format&fit=crop";
                                     if (text.includes('sport') || text.includes('cricket') || text.includes('football'))
-                                        return "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?q=80&w=2940&auto=format&fit=crop";
+                                        return "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=2940&auto=format&fit=crop";
                                     if (text.includes('politics') || text.includes('govt') || text.includes('minister'))
-                                        return "https://images.unsplash.com/photo-1529101091760-61df6be34fc8?q=80&w=2940&auto=format&fit=crop";
+                                        return "https://images.unsplash.com/photo-1541872703-74c59636a226?q=80&w=2940&auto=format&fit=crop";
 
                                     // Default Abstract
-                                    return "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=2940&auto=format&fit=crop";
+                                    return "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2940&auto=format&fit=crop";
                                 })()}
                                 alt="News Fallback"
                                 className="w-full h-full object-cover"
