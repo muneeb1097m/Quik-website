@@ -98,8 +98,8 @@ export async function GET() {
                 if (!finalImageUrl) {
                     // We prioritize API Keys first (Airforce), then Pollinations, then Hercai fallback.
                     const providers = [
-                        new CloudflareProvider(), // Cloudflare Flux (via internal API)
                         new PollinationProvider(), // Pollinations Flux (via internal API)
+                        // new CloudflareProvider(), // Cloudflare Flux (via internal API) - Disabled: Missing API Token
                     ];
 
                     for (const provider of providers) {
@@ -112,11 +112,13 @@ export async function GET() {
                                 continue;
                             }
 
+                            console.log(`[${item.source}] Verifying candidate URL: ${candidateUrl}`);
+
                             // We must use GET to check content-length and content
                             const check = await fetch(candidateUrl, {
                                 method: 'GET',
                                 headers: { 'User-Agent': 'QuikNews/1.0 (Monitor)' },
-                                signal: AbortSignal.timeout(10000) // 10s timeout per attempt
+                                signal: AbortSignal.timeout(30000) // 30s timeout per attempt (Flux can be slow)
                             });
 
                             if (check.redirected) {
@@ -218,7 +220,8 @@ export async function GET() {
         // Optimization: Only revalidate the homepage if we actually added new content
         // This ensures users see new news immediately without waiting for the 1-hour ISR cycle
         if (newSignals.length > 0) {
-            revalidatePath('/');
+            // revalidatePath('/'); // Temporarily disabled to reduce ISR Writes (Over Vercel Limit)
+            console.log("Skipping revalidatePath('/') to save ISR Writes");
         }
 
         return NextResponse.json({
