@@ -99,7 +99,7 @@ export async function GET() {
                     // We prioritize API Keys first (Airforce), then Pollinations, then Hercai fallback.
                     const providers = [
                         new PollinationProvider(), // Pollinations Flux (via internal API)
-                        // new CloudflareProvider(), // Cloudflare Flux (via internal API) - Disabled: Missing API Token
+                        new CloudflareProvider(), // Cloudflare Flux (via internal API)
                     ];
 
                     for (const provider of providers) {
