@@ -22,8 +22,9 @@ export const MODELS = {
 export function generateNewsImage(title: string, category: string, model: string = MODELS.CLOUDFLARE.FLUX_SCHNELL): string {
   const keywords = extractKeywords(title, category);
 
-  // Pollinations.ai simple prompt
-  const prompt = `${keywords}, vibrant, news photography, 8k, ultra detailed`;
+  // Pollinations.ai advanced cinematic prompt
+  const basePrompt = `Generate a cinematic, hyper-realistic 4K news image representing the headline: "${keywords}". Visually depict the main subject and consequence of the event in a dramatic photojournalistic style. Ultra-detailed, natural lighting, high contrast, realistic skin tones, depth of field, professional camera photography, sharp focus, emotional intensity, documentary realism. Shot with a 50mm lens, DSLR quality, cinematic color grading, realistic shadows, atmospheric depth. 16:9 aspect ratio, ultra HD. No text, no logos, no watermark.`;
+  const prompt = basePrompt;
   const encodedPrompt = encodeURIComponent(prompt);
 
   // Return Proxy URL so we can hide API Key on server
@@ -95,11 +96,12 @@ export async function generateImageWithCloudflare(prompt: string) {
 function extractKeywords(title: string, category: string): string {
   const cleanTitle = title
     .replace(/[^\w\s]/g, '')
-    .toLowerCase()
+    // .toLowerCase() // Keep case for acronyms
     .split(' ')
-    .filter(word => word.length > 3)
-    .slice(0, 12)
+    .filter(word => word.length >= 2) // Allow 2 letter words (AI, US, UK, EU)
+    .slice(0, 15)
     .join(' ');
 
   return `${category} ${cleanTitle}`;
 }
+
