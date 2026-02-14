@@ -62,120 +62,148 @@ export async function GET() {
                 console.log(`[${item.source}] Synthesizing...`);
                 const aiResult = await synthesizer.rewriteStory(item.headline, contextToAnalyze);
 
+
                 // 3b. Image Handling
-                // Priority: Google Image Search (First 95/day) > Pollinations AI (Flux) > Safe Fallback
+                // Priority: Scraped Metadata > RSS Feed Image > Google Image Search > Pollinations AI (Flux) > Category Fallback
                 let finalImageUrl = '';
 
-                // Attempt 1: Google Image Search
-                // Limit: 100 free searches/day. We cap at 95 to be safe.
-                try {
-                    if (googleSearchUsed < 95) {
-                        // Optimistically increment local counter to distribute "slots"
-                        googleSearchUsed++;
+                // CRITICAL: Use RSS feed category, NOT Gemini's category
+                const finalCategory = item.category || 'Technology'; // Trust the RSS source
 
-                        const visualKeywords = await synthesizer.extractVisualKeyword(aiResult.headline);
-                        console.log(`[${item.source}] Google Search Keywords: ${visualKeywords}`);
-                        const googleUrl = await imageSearcher.search(visualKeywords);
-
-                        if (googleUrl) {
-                            // Quickly verify the Google image is accessible
-                            const check = await fetch(googleUrl, { method: 'HEAD', signal: AbortSignal.timeout(3000) });
-                            if (check.ok && check.headers.get('content-type')?.startsWith('image/')) {
-                                finalImageUrl = googleUrl;
-                                console.log('[${item.source}] Using Google Image:', googleUrl);
-                            }
-                        }
-                    } else {
-                        console.log(`[${item.source}] Google Search daily limit reached/skipped.`);
-                    }
-                } catch (gErr) {
-                    console.warn(`[${item.source}] Google Image Search skipped or failed:`, gErr);
+                // Attempt 0: Source Image (Best Quality & Relevance)
+                // Check Scraper result first (og:image is usually high quality)
+                if (scrapedData.imageUrl && scrapedData.imageUrl.startsWith('http')) {
+                    finalImageUrl = scrapedData.imageUrl;
+                    console.log(`[${item.source}] Using Scraped Source Image: ${finalImageUrl}`);
+                }
+                // Check RSS Feed image next
+                else if (item.imageUrl && item.imageUrl.startsWith('http')) {
+                    finalImageUrl = item.imageUrl;
+                    console.log(`[${item.source}] Using RSS Feed Image: ${finalImageUrl}`);
                 }
 
-                // Attempt 2: Load Balanced Image Generation (Pollinations vs Hercai)
-                // Note: Research showed Hercai is unstable (503). 
-                // We prioritize Pollinations (Flux) and use Hercai as fallback.
+                // If no source image, try generation/search
                 if (!finalImageUrl) {
-                    // We prioritize API Keys first (Airforce), then Pollinations, then Hercai fallback.
-                    const providers = [
-                        new PollinationProvider(), // Pollinations Flux (via internal API)
-                        new CloudflareProvider(), // Cloudflare Flux (via internal API)
-                    ];
 
-                    for (const provider of providers) {
-                        try {
-                            console.log(`[${item.source}] Trying image provider: ${provider.name}...`);
-                            const candidateUrl = await provider.generate(aiResult.headline, item.category || 'Technology');
+                    // Attempt 1: Google Image Search
+                    // Limit: 100 free searches/day. We cap at 95 to be safe.
+                    try {
+                        if (googleSearchUsed < 95) {
+                            googleSearchUsed++; // Increment
+                            const visualKeywords = await synthesizer.extractVisualKeyword(aiResult.headline);
+                            console.log(`[${item.source}] Google Search Keywords: ${visualKeywords}`);
+                            const googleUrl = await imageSearcher.search(visualKeywords);
 
-                            if (!candidateUrl) {
-                                console.warn(`[${item.source}] Provider ${provider.name} returned no URL.`);
-                                continue;
+                            if (googleUrl) {
+                                // Quickly verify
+                                const check = await fetch(googleUrl, { method: 'HEAD', signal: AbortSignal.timeout(3000) });
+                                if (check.ok && check.headers.get('content-type')?.startsWith('image/')) {
+                                    finalImageUrl = googleUrl;
+                                    console.log(`[${item.source}] Using Google Image:`, googleUrl);
+                                }
                             }
+                        } else {
+                            console.log(`[${item.source}] Google Search daily limit reached/skipped.`);
+                        }
+                    } catch (gErr) {
+                        console.warn(`[${item.source}] Google Image Search skipped or failed:`, gErr);
+                    }
 
-                            console.log(`[${item.source}] Verifying candidate URL: ${candidateUrl}`);
+                    // Attempt 2: Load Balanced Image Generation (Pollinations vs Hercai)
+                    if (!finalImageUrl) {
+                        const providers = [
+                            new PollinationProvider(), // Pollinations Flux (via internal API)
+                            new CloudflareProvider(), // Cloudflare Flux (via internal API)
+                        ];
 
-                            // We must use GET to check content-length and content
-                            const check = await fetch(candidateUrl, {
-                                method: 'GET',
-                                headers: { 'User-Agent': 'QuikNews/1.0 (Monitor)' },
-                                signal: AbortSignal.timeout(30000) // 30s timeout per attempt (Flux can be slow)
-                            });
+                        for (const provider of providers) {
+                            try {
+                                console.log(`[${item.source}] Trying image provider: ${provider.name}...`);
+                                const candidateUrl = await provider.generate(aiResult.headline, item.category || 'Technology');
 
-                            if (check.redirected) {
-                                console.warn(`[${item.source}] Image redirected (suspicious): ${check.url}`);
-                                continue;
+                                if (!candidateUrl) {
+                                    continue;
+                                }
+
+                                console.log(`[${item.source}] Verifying candidate URL: ${candidateUrl}`);
+
+                                // We must use GET to check content-length and content
+                                const check = await fetch(candidateUrl, {
+                                    method: 'GET',
+                                    headers: { 'User-Agent': 'QuikNews/1.0 (Monitor)' },
+                                    signal: AbortSignal.timeout(30000) // 30s timeout per attempt (Flux can be slow)
+                                });
+
+                                if (check.redirected) {
+                                    console.warn(`[${item.source}] Image redirected (suspicious): ${check.url}`);
+                                    continue;
+                                }
+
+                                if (!check.ok) {
+                                    console.warn(`[${item.source}] Image check failed: ${check.status}`);
+                                    continue;
+                                }
+
+                                const size = parseInt(check.headers.get('content-length') || '0');
+                                const contentType = check.headers.get('content-type') || '';
+
+                                // Buffer check for error text
+                                const buffer = await check.arrayBuffer();
+                                let hasErrorText = false;
+
+                                if (size < 150000) {
+                                    const text = new TextDecoder().decode(buffer.slice(0, 2048)).toLowerCase();
+                                    hasErrorText = text.includes('rate limit') ||
+                                        text.includes('limit reached') ||
+                                        (text.includes('error') && !text.includes('error: none'));
+                                }
+
+                                const isValidImage = contentType.startsWith('image/') &&
+                                    size > 50000 && // Lowered slightly for Hercai potentially
+                                    !hasErrorText;
+
+                                if (isValidImage) {
+                                    finalImageUrl = candidateUrl;
+                                    console.log(`[${item.source}] Image verified (${provider.name}): ${size} bytes`);
+                                    break; // Success!
+                                } else {
+                                    console.warn(`[${item.source}] Image rejected (${provider.name}): Size=${size}b, ErrorText=${hasErrorText}`);
+                                }
+
+                            } catch (err) {
+                                console.warn(`[${item.source}] Image generation failed for ${provider.name}:`, err);
                             }
-
-                            if (!check.ok) {
-                                console.warn(`[${item.source}] Image check failed: ${check.status}`);
-                                continue;
-                            }
-
-                            const size = parseInt(check.headers.get('content-length') || '0');
-                            const contentType = check.headers.get('content-type') || '';
-
-                            // Buffer check for error text
-                            const buffer = await check.arrayBuffer();
-                            let hasErrorText = false;
-
-                            if (size < 150000) {
-                                const text = new TextDecoder().decode(buffer.slice(0, 2048)).toLowerCase();
-                                hasErrorText = text.includes('rate limit') ||
-                                    text.includes('limit reached') ||
-                                    (text.includes('error') && !text.includes('error: none'));
-                            }
-
-                            const isValidImage = contentType.startsWith('image/') &&
-                                size > 50000 && // Lowered slightly for Hercai potentially
-                                !hasErrorText;
-
-                            if (isValidImage) {
-                                finalImageUrl = candidateUrl;
-                                console.log(`[${item.source}] Image verified (${provider.name}): ${size} bytes`);
-                                break; // Success!
-                            } else {
-                                console.warn(`[${item.source}] Image rejected (${provider.name}): Size=${size}b, ErrorText=${hasErrorText}`);
-                            }
-
-                        } catch (err) {
-                            console.warn(`[${item.source}] Image generation failed for ${provider.name}:`, err);
                         }
                     }
                 }
 
-                // Fallback if all AI attempts fail
+                // Fallback if all extraction & AI attempts fail
                 if (!finalImageUrl) {
-                    console.warn(`[${item.source}] All AI image generation attempts failed/limited. Using Safe Fallback.`);
-                    // Picsum fallback (Guaranteed to work, never shows "limit exceeded")
-                    // FIX: Removed grayscale&blur, switched to Unsplash source for better quality color images
-                    finalImageUrl = `https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1024&auto=format&fit=crop`;
+                    console.warn(`[${item.source}] All image attempts failed. Using Category Fallback.`);
+
+                    // Category-Specific Fallbacks (Unsplash Source)
+                    const CATEGORY_FALLBACKS: Record<string, string> = {
+                        'Pakistan': 'https://images.unsplash.com/photo-1568347877546-444654572239?q=80&w=1024&auto=format&fit=crop', // Pakistan Monument/Flag
+                        'Technology': 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1024&auto=format&fit=crop', // Circuit/Tech
+                        'AI': 'https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1024&auto=format&fit=crop', // AI Brain/Chip
+                        'Business': 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1024&auto=format&fit=crop', // Analytics/Graph
+                        'Sports': 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?q=80&w=1024&auto=format&fit=crop', // Running/Sports
+                        'Auto': 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?q=80&w=1024&auto=format&fit=crop', // Car
+                        'Startups': 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=1024&auto=format&fit=crop', // Team working
+                        'Global': 'https://images.unsplash.com/photo-1521295121783-8a321d551ad2?q=80&w=1024&auto=format&fit=crop', // World Map
+                        'Science': 'https://images.unsplash.com/photo-1507413245164-6160d8298b31?q=80&w=1024&auto=format&fit=crop', // Science/Space
+                    };
+
+                    const fallbackKey = finalCategory; // Already validated to be an EventCategory or string
+                    finalImageUrl = CATEGORY_FALLBACKS[fallbackKey] ||
+                        // Generic Fallback (Newspaper/Reading)
+                        'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1024&auto=format&fit=crop';
                 }
 
                 // 4. Save to DB
                 const eventId = `evt_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
 
-                // CRITICAL: Use RSS feed category, NOT Gemini's category
-                const finalCategory = item.category || 'Technology'; // Trust the RSS source
+
 
                 // Add Event
                 await db.addEvent({
