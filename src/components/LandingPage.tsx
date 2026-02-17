@@ -32,6 +32,7 @@ const GridStoryCard = ({ story, event }: { story: Signal, event: NewsEvent | und
                         src={story.imageUrl}
                         alt={story.headline}
                         fill
+                        unoptimized={true} // Reverted for stability
                         sizes="(max-width: 768px) 100vw, 33vw"
                         onError={() => setImageError(true)}
                         className="object-cover opacity-80 transition-transform duration-700 group-hover:scale-110"
