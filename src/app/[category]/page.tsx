@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function CategoryPage({ params }: PageProps) {
     const { category } = await params;
-    const signals = await db.getSignals(category);
+    const signals = await db.getSignals(category, 50);
 
     if (!signals.length) {
         // Ideally duplicate mock data for demo if empty, 

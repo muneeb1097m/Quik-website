@@ -91,10 +91,23 @@ export const db = {
         // Fetch signals with filter applied at DB level
         const signals = await prisma.signal.findMany({
             where: whereClause,
-            include: {
+            select: {
+                id: true,
+                headline: true,
+                summary: true,
+                imageUrl: true,
+                generatedAt: true,
+                eventId: true,
                 event: {
-                    include: {
-                        sources: true
+                    select: {
+                        id: true,
+                        title: true,
+                        category: true,
+                        sources: true,
+                        status: true,
+                        detectedAt: true,
+                        lastUpdatedAt: true,
+                        confidenceScore: true
                     }
                 }
             },
