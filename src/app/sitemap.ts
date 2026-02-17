@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { db } from '@/lib/qie/db';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const baseUrl = 'https://quik.news';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://quik.news';
 
     // Static routes
     const routes = [
