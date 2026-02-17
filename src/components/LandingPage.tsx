@@ -137,6 +137,7 @@ export function LandingPage({ signals, events, mainStory, mainStoryEvent, gridSt
                                                 alt={mainStory.headline}
                                                 fill
                                                 priority={true} // Critical for LCP
+                                                unoptimized={true} // Reverted for stability
                                                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 70vw, 800px"
                                                 className="object-cover opacity-90"
                                                 onError={() => setMainImageError(true)}
