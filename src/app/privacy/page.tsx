@@ -3,6 +3,9 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
     title: 'Privacy Policy | Quik News',
     description: 'Privacy Policy for Quik News. Learn how we collect, use, and protect your data.',
+    alternates: {
+        canonical: '/privacy',
+    },
 };
 
 export default function PrivacyPage() {

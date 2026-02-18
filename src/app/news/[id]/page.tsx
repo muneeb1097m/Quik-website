@@ -52,6 +52,9 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
             description: signal.summary.slice(0, 200),
             images: [signal.imageUrl || ''],
         },
+        alternates: {
+            canonical: `/news/${signal.id}`,
+        },
     };
 }
 

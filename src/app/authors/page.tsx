@@ -4,6 +4,9 @@ import Image from 'next/image';
 export const metadata: Metadata = {
     title: 'Our Team | Quik',
     description: 'Meet the team and AI behind Quik News.',
+    alternates: {
+        canonical: '/authors',
+    },
 };
 
 export default function AuthorsPage() {

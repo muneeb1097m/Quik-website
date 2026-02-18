@@ -3,6 +3,9 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
     title: 'Editorial Policy | Quik',
     description: 'Our commitment to accuracy, transparency, and ethical AI journalism.',
+    alternates: {
+        canonical: '/editorial-policy',
+    },
 };
 
 export default function EditorialPolicyPage() {

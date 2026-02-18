@@ -26,9 +26,6 @@ const Footer = dynamic(() => import('@/components/Footer').then(mod => ({ defaul
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://quiknews.online'),
-  alternates: {
-    canonical: '/',
-  },
   title: {
     default: 'Quik | AI-Powered Global News & Breaking Headlines',
     template: '%s | Quik'

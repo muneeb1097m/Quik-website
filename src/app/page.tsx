@@ -8,6 +8,14 @@ import { serialize } from '@/lib/utils';
 // Revalidate page every 3600 seconds (1 hour)
 export const revalidate = 3600;
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: '/',
+  },
+};
+
 export default async function Home() {
   // Optimized: Single database call instead of 3 separate queries
   // This significantly reduces TTFB by minimizing database round trips
