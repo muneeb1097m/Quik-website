@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
             publishedTime: signal.generatedAt.toISOString(),
             images: [
                 {
-                    url: signal.imageUrl || 'https://quik.news/og-default.png', // Fallback image needed
+                    url: signal.imageUrl || 'https://quiknews.online/og-default.png', // Fallback image needed
                     width: 1200,
                     height: 630,
                     alt: signal.headline,
@@ -82,7 +82,7 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ id:
         '@type': 'NewsArticle',
         headline: signal.headline,
         description: signal.summary,
-        image: signal.imageUrl || 'https://quik.news/og-default.png',
+        image: signal.imageUrl || 'https://quiknews.online/og-default.png',
         datePublished: signal.generatedAt.toISOString(),
         dateModified: signal.generatedAt.toISOString(),
         author: {
@@ -96,12 +96,12 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ id:
             url: 'https://quik.news',
             logo: {
                 '@type': 'ImageObject',
-                url: 'https://quik.news/logo.png',
+                url: 'https://quiknews.online/logo.png',
             },
         },
         mainEntityOfPage: {
             '@type': 'WebPage',
-            '@id': `https://quik.news/news/${signal.id}`,
+            '@id': `https://quiknews.online/news/${signal.id}`,
         },
         articleSection: event.category,
         keywords: [event.category, 'AI News', 'Technology', 'Breaking News'].join(', '),

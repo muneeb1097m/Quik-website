@@ -20,7 +20,7 @@ const category = "Technology";
     async generate(prompt: string, category: string): Promise<string | null> {
         try {
             // ...
-            const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://quik.news';
+            const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://quiknews.online';
             return `${baseUrl}/api/generate-image?prompt=${encodedPrompt}`;
         }
 */

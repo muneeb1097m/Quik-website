@@ -86,7 +86,7 @@ export default function TermsPage() {
                     <section>
                         <h2 className="text-2xl font-bold text-slate-900 mb-4">8. Contact Us</h2>
                         <p className="text-slate-600 leading-relaxed">
-                            In order to resolve a complaint regarding the Site or to receive further information regarding use of the Site, please contact us at: <a href="mailto:support@quik.news" className="text-brand-blue hover:text-brand-red underline">support@quik.news</a>
+                            In order to resolve a complaint regarding the Site or to receive further information regarding use of the Site, please contact us at: <a href="mailto:support@quiknews.online" className="text-brand-blue hover:text-brand-red underline">support@quiknews.online</a>
                         </p>
                     </section>
 

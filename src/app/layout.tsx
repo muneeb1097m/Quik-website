@@ -25,7 +25,10 @@ const Footer = dynamic(() => import('@/components/Footer').then(mod => ({ defaul
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://quik.news'),
+  metadataBase: new URL('https://quiknews.online'),
+  alternates: {
+    canonical: '/',
+  },
   title: {
     default: 'Quik | AI-Powered Global News & Breaking Headlines',
     template: '%s | Quik'
@@ -52,7 +55,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://quik.news',
+    url: 'https://quiknews.online',
     title: 'Quik | AI-Powered Global News',
     description: 'Real-time intelligence from around the world, synthesized by AI.',
     siteName: 'Quik',

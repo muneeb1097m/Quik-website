@@ -16,7 +16,7 @@ class PollinationProvider {
             const encodedPrompt = encodeURIComponent(fullPrompt);
 
             // Logic copied from src/lib/qie/image-providers.ts
-            const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://quik.news';
+            const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://quiknews.online';
             console.log('Base URL used:', baseUrl);
 
             return `${baseUrl}/api/generate-image?prompt=${encodedPrompt}`;

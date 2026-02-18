@@ -17,7 +17,7 @@ export default function PrivacyPage() {
                     <section className="mb-10">
                         <h2 className="text-2xl font-bold text-slate-900 mb-4">1. Introduction</h2>
                         <p className="text-slate-600 mb-4 leading-relaxed">
-                            Welcome to Quik News ("we," "our," or "us"). We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website quik.news (the "Site"). Please read this privacy policy carefully. If you do not agree with the terms of this privacy policy, please do not access the site.
+                            Welcome to Quik News ("we," "our," or "us"). We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website quiknews.online (the "Site"). Please read this privacy policy carefully. If you do not agree with the terms of this privacy policy, please do not access the site.
                         </p>
                     </section>
 
@@ -81,7 +81,7 @@ export default function PrivacyPage() {
                     <section>
                         <h2 className="text-2xl font-bold text-slate-900 mb-4">7. Contact Us</h2>
                         <p className="text-slate-600 leading-relaxed">
-                            If you have questions or comments about this privacy policy, please contact us at: <a href="mailto:support@quik.news" className="text-brand-blue hover:text-brand-red underline">support@quik.news</a>
+                            If you have questions or comments about this privacy policy, please contact us at: <a href="mailto:support@quiknews.online" className="text-brand-blue hover:text-brand-red underline">support@quiknews.online</a>
                         </p>
                     </section>
 

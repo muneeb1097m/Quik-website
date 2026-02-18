@@ -41,7 +41,7 @@ export default function EditorialPolicyPage() {
                             Accuracy is paramount. Our system cross-references claims across multiple sources before publication. If a story is flagged as unverified or disputed, it is either withheld or clearly labeled.
                         </p>
                         <p className="mt-4">
-                            <strong>Corrections:</strong> If we make a mistake, we correct it immediately. Significant corrections are noted at the bottom of the article. You can report errors to <a href="mailto:corrections@quik.news" className="text-blue-600 hover:underline">corrections@quik.news</a>.
+                            <strong>Corrections:</strong> If we make a mistake, we correct it immediately. Significant corrections are noted at the bottom of the article. You can report errors to <a href="mailto:corrections@quiknews.online" className="text-blue-600 hover:underline">corrections@quiknews.online</a>.
                         </p>
                     </section>
 
