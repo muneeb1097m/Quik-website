@@ -32,7 +32,7 @@ const GridStoryCard = ({ story, event }: { story: Signal, event: NewsEvent | und
                         src={story.imageUrl}
                         alt={story.headline}
                         fill
-                        quality={90}
+                        unoptimized={true}
                         sizes="(max-width: 768px) 100vw, 33vw"
                         onError={() => setImageError(true)}
                         className="object-cover opacity-80 transition-transform duration-700 group-hover:scale-110"
@@ -137,7 +137,7 @@ export function LandingPage({ signals, events, mainStory, mainStoryEvent, gridSt
                                                 alt={mainStory.headline}
                                                 fill
                                                 priority={true} // Critical for LCP
-                                                quality={90}
+                                                unoptimized={true}
                                                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 70vw, 800px"
                                                 className="object-cover opacity-90"
                                                 onError={() => setMainImageError(true)}
