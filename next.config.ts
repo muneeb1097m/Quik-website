@@ -23,8 +23,6 @@ const nextConfig: NextConfig = {
     // Performance: Minimize external requests
     minimumCacheTTL: 60,
     dangerouslyAllowSVG: true,
-    contentDispositionType: 'attachment',
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 
   compress: true,
