@@ -5,8 +5,8 @@ import { serialize } from '@/lib/utils';
 
 import type { Metadata } from 'next';
 
-// Performance: Enable ISR with 24-hour revalidation (static content)
-export const revalidate = 86400;
+// Performance: Enable ISR with 1-year revalidation (static content)
+export const revalidate = 31536000;
 
 // Performance: Generate static params for top news articles (ISR)
 export async function generateStaticParams() {
