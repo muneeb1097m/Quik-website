@@ -5,6 +5,7 @@ import { Toaster } from 'sonner';
 import Script from 'next/script';
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from '@vercel/analytics/react';
+import { GoogleAnalytics } from '@next/third-parties/google';
 import dynamic from 'next/dynamic';
 
 // Performance: Optimize font loading with swap and variable font
@@ -92,17 +93,8 @@ export default function RootLayout({
         <SpeedInsights />
         <Analytics />
 
-        {/* Google Analytics */}
-        <Script src="https://www.googletagmanager.com/gtag/js?id=G-VDRE507J76" strategy="lazyOnload" />
-        <Script id="google-analytics" strategy="lazyOnload">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-
-            gtag('config', 'G-VDRE507J76');
-          `}
-        </Script>
+        {/* Google Analytics - Native Next.js Third Party for max performance off main-thread */}
+        <GoogleAnalytics gaId="G-VDRE507J76" />
 
         {/* Chatbase Chatbot - Vercel Native Integration */}
         {/* Optimized: lazyOnload prevents it from blocking Interaction to Next Paint (INP) */}

@@ -5,7 +5,6 @@ import { useRef, useState } from 'react';
 import { ArrowLeft, Clock, Share2, Shield, Calendar, Globe, Sparkles, Check } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion, useScroll, useTransform, Variants } from 'framer-motion';
 
 // Define Props - using 'any' to speed up migration, ideal would be full types
 interface NewsDetailViewProps {
@@ -18,33 +17,11 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
 
     // --- CLIENT SIDE LOGIC ---
     const [copied, setCopied] = useState(false);
-    const containerRef = useRef(null);
-    const { scrollYProgress } = useScroll({ target: containerRef });
-    const headerOpacity = useTransform(scrollYProgress, [0, 0.2], [0, 1]);
 
     const handleShare = () => {
         navigator.clipboard.writeText(window.location.href);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
-    };
-
-    // Animation Variants
-    // Animation Variants
-    // Animation Variants
-    const fadeInUp: Variants = {
-        hidden: { opacity: 0, y: 20 },
-        visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" as const } }
-    };
-
-    const staggerContainer: Variants = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: {
-                staggerChildren: 0.1,
-                delayChildren: 0.2
-            }
-        }
     };
 
     if (!signal || !event) return null; // Safety check
@@ -58,8 +35,7 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
             </div>
 
             {/* Footer Navigation bar */}
-            <motion.div
-                style={{ opacity: headerOpacity }}
+            <div
                 className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md border-b border-slate-200 z-50 px-6 py-4 flex items-center justify-between"
             >
                 <Link href="/" className="font-bold text-slate-900 flex items-center gap-2">
@@ -68,32 +44,22 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
                 </Link>
                 <div className="font-bold text-slate-900 truncate max-w-md">{signal.headline}</div>
                 <div className="w-20" /> {/* Spacer */}
-            </motion.div>
+            </div>
 
-            <main ref={containerRef} className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-24 lg:pt-32 pb-20 relative z-10">
+            <main className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-24 lg:pt-32 pb-20 relative z-10">
 
                 {/* Back Link */}
-                <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="mb-8"
-                >
+                <div className="mb-8">
                     <Link href="/" className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors font-medium group">
                         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                         Back to Intelligence Feed
                     </Link>
-                </motion.div>
+                </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
 
                     {/* Left Column: Context & Metadata */}
-                    <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.3, duration: 0.6 }}
-                        className="lg:col-span-4 space-y-6 lg:space-y-8 order-2 lg:order-1"
-                    >
+                    <div className="lg:col-span-4 space-y-6 lg:space-y-8 order-2 lg:order-1">
                         {/* Status Card - Sticky only on Desktop */}
                         <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm lg:sticky lg:top-8 relative z-20">
                             <div className="flex items-center gap-3 mb-6">
@@ -134,7 +100,7 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
                                 {copied ? 'Link Copied' : 'Share Intelligence'}
                             </button>
                         </div>
-                    </motion.div>
+                    </div>
 
                     {/* Right Column: Content */}
                     <div className="lg:col-span-8 order-1 lg:order-2">
@@ -172,7 +138,6 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
                                         src={signal.imageUrl}
                                         alt={signal.headline}
                                         fill
-                                        unoptimized={true}
                                         priority={true}
                                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 70vw, 800px"
                                         className="object-cover"
@@ -220,29 +185,18 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
 
                         {/* Related Stories */}
                         {related.length > 0 && (
-                            <motion.div
-                                initial="hidden"
-                                whileInView="visible"
-                                viewport={{ once: true, margin: "-50px" }}
-                                variants={staggerContainer}
-                                className="mt-20"
-                            >
-                                <motion.h3 variants={fadeInUp} className="text-2xl font-bold text-slate-900 mb-8">Related Intelligence</motion.h3>
+                            <div className="mt-20">
+                                <h3 className="text-2xl font-bold text-slate-900 mb-8">Related Intelligence</h3>
                                 <div className="grid md:grid-cols-2 gap-6">
                                     {related.map((item: any) => (
                                         <Link key={item.id} href={`/news/${item.id}`} className="block h-full">
-                                            <motion.div
-                                                variants={fadeInUp}
-                                                whileHover={{ y: -5 }}
-                                                className="group h-full bg-white rounded-2xl border border-slate-200 hover:border-slate-300 hover:shadow-xl transition-all overflow-hidden flex flex-col"
-                                            >
+                                            <div className="group h-full bg-white rounded-2xl border border-slate-200 hover:border-slate-300 hover:shadow-xl transition-all overflow-hidden flex flex-col hover:-translate-y-1">
                                                 {item.imageUrl && (
                                                     <div className="h-48 overflow-hidden relative">
                                                         <Image
                                                             src={item.imageUrl}
                                                             alt={item.headline}
                                                             fill
-                                                            unoptimized={true}
                                                             sizes="(max-width: 768px) 100vw, 33vw"
                                                             className="object-cover transition-transform duration-700 group-hover:scale-110"
                                                             onError={(e) => {
@@ -259,11 +213,11 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
                                                         {new Date(item.generatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} • {new Date(item.generatedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                                                     </div>
                                                 </div>
-                                            </motion.div>
+                                            </div>
                                         </Link>
                                     ))}
                                 </div>
-                            </motion.div>
+                            </div>
                         )}
                     </div>
                 </div>
