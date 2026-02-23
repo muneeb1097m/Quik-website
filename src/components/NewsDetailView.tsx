@@ -138,6 +138,7 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
                                         src={signal.imageUrl}
                                         alt={signal.headline}
                                         fill
+                                        unoptimized={true}
                                         priority={true}
                                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 70vw, 800px"
                                         className="object-cover"
@@ -197,6 +198,7 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
                                                             src={item.imageUrl}
                                                             alt={item.headline}
                                                             fill
+                                                            unoptimized={true}
                                                             sizes="(max-width: 768px) 100vw, 33vw"
                                                             className="object-cover transition-transform duration-700 group-hover:scale-110"
                                                             onError={(e) => {
