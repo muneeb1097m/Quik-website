@@ -41,7 +41,6 @@ export function SignalCard({ signal, event, onClick }: SignalCardProps) {
                                 src={signal.imageUrl || ''}
                                 alt={signal.headline}
                                 fill
-                                unoptimized={true}
                                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                 onError={() => setImageError(true)}
                                 className="object-cover transition-transform duration-700 group-hover:scale-105"
@@ -78,7 +77,7 @@ export function SignalCard({ signal, event, onClick }: SignalCardProps) {
                     <span className={`px-4 py-1.5 rounded-full text-xs font-bold border ${getCategoryColor(event.category)}`}>
                         {event.category}
                     </span>
-                    <div className="flex items-center gap-2 text-slate-400 text-xs font-medium">
+                    <div className="flex items-center gap-2 text-slate-500 text-xs font-medium">
                         <Clock className="w-3.5 h-3.5" />
                         <span suppressHydrationWarning>{new Date(signal.generatedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
                     </div>

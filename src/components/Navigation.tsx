@@ -37,7 +37,7 @@ export function Navigation() {
 
             {/* Logo (Left) */}
             <div className="pointer-events-auto flex-shrink-0 relative z-50">
-                <Link href="/">
+                <Link href="/" aria-label="Home">
                     <Image
                         src="/logo.png"
                         alt="Quik News"
@@ -83,6 +83,8 @@ export function Navigation() {
             <div className="pointer-events-auto lg:hidden relative z-50">
                 <button
                     onClick={() => setIsOpen(!isOpen)}
+                    aria-label={isOpen ? "Close menu" : "Open menu"}
+                    aria-expanded={isOpen}
                     className="w-12 h-12 rounded-full bg-white/80 backdrop-blur-md border border-white/40 shadow-lg flex items-center justify-center text-slate-900"
                 >
                     {isOpen ? (

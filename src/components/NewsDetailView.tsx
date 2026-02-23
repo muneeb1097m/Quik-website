@@ -101,7 +101,7 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
                                     <Shield className="w-6 h-6 text-brand-green fill-brand-green/20" />
                                 </div>
                                 <div>
-                                    <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Verification Status</div>
+                                    <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Verification Status</div>
                                     <div className="font-bold text-slate-900 flex items-center gap-2">
                                         Verified Signal
                                         <span className="w-2 h-2 rounded-full bg-brand-green animate-pulse" />
@@ -127,6 +127,7 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
                             {/* Share Button logic reused */}
                             <button
                                 onClick={handleShare}
+                                aria-label="Share Article"
                                 className="w-full mt-6 flex items-center justify-center gap-2 bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-slate-800 transition-all active:scale-[0.98]"
                             >
                                 {copied ? <Check className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
