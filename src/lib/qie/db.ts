@@ -61,7 +61,7 @@ export const db = {
         return signals;
     },
 
-    getSignals: async (category?: string, limit?: number) => {
+    getSignals: async (category?: string, limit?: number, skip?: number) => {
         let whereClause = {};
 
         if (category) {
@@ -112,7 +112,8 @@ export const db = {
                 }
             },
             orderBy: { generatedAt: 'desc' },
-            take: limit
+            take: limit,
+            skip: skip
         });
 
         return signals;

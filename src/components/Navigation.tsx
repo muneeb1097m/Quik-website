@@ -24,7 +24,7 @@ function CurrentDate() {
 
 export function Navigation() {
     const pathname = usePathname();
-    const navItems = ['About', 'Tech', 'Business', 'AI', 'Global', 'Auto', 'Pakistan', 'Sports'];
+    const navItems = ['Archive', 'About', 'Tech', 'Business', 'AI', 'Global', 'Auto', 'Pakistan', 'Sports'];
     const [isOpen, setIsOpen] = useState(false);
 
     // Close menu when route changes

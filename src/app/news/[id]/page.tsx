@@ -91,12 +91,12 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ id:
         author: {
             '@type': 'Organization',
             name: 'Quik AI',
-            url: 'https://quik.news',
+            url: 'https://quiknews.online',
         },
         publisher: {
             '@type': 'Organization',
             name: 'Quik',
-            url: 'https://quik.news',
+            url: 'https://quiknews.online',
             logo: {
                 '@type': 'ImageObject',
                 url: 'https://quiknews.online/logo.png',
