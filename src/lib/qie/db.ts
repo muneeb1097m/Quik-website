@@ -1,5 +1,6 @@
 import { PrismaClient, NewsEvent, Signal, Brief, Source } from '@prisma/client';
 import { generateNewsImage } from '../image-gen';
+import { triggerIndexNow } from '../indexnow';
 
 // Singleton pattern for Prisma Client in Next.js dev environment
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
@@ -242,6 +243,9 @@ export const db = {
                     fullReport: data.fullReport
                 }
             });
+
+            // Trigger IndexNow ping in the background
+            triggerIndexNow(`https://quiknews.online/news/${data.id}`);
         } catch (e) {
             console.error("DB Add Signal Error", e);
         }
