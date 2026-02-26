@@ -9,6 +9,7 @@ import { EventCategory } from '@/types';
 import { CloudflareProvider, PollinationProvider } from '@/lib/qie/image-providers';
 import { scrapeArticleContent } from '@/lib/qie/scraper';
 import { stripHtml } from '@/lib/utils';
+import stringSimilarity from 'string-similarity';
 
 // Prevent vercel time out
 export const maxDuration = 60;
@@ -30,7 +31,26 @@ export async function GET() {
         const allUrls = rawItems.map(i => i.url);
         const existingUrls = await db.getExistingUrls(allUrls);
 
-        const newItems = rawItems.filter(item => !existingUrls.has(item.url));
+        // Fetch recent headlines to check string similarity
+        const recentHeadlines = await db.getRecentHeadlines(500);
+
+        const newItems = rawItems.filter(item => {
+            // First pass: Direct URL deduplication
+            if (existingUrls.has(item.url)) return false;
+
+            // Second pass: String similarity deduplication (Threshold: 0.65)
+            // If the item headline is highly similar to any recent headline, skip it
+            if (recentHeadlines.length > 0 && item.headline) {
+                const bestMatch = stringSimilarity.findBestMatch(item.headline, recentHeadlines);
+                if (bestMatch.bestMatch.rating > 0.65) {
+                    console.log(`[Duplicate Prevented] Skipping "${item.headline}" - similar to "${bestMatch.bestMatch.target}" (Rating: ${bestMatch.bestMatch.rating.toFixed(2)})`);
+                    return false;
+                }
+            }
+
+            return true;
+        });
+
         console.log(`Found ${newItems.length} new items to process (after dedupe).`);
 
         if (newItems.length === 0) {

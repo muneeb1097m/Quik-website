@@ -19,6 +19,15 @@ export const db = {
         });
     },
 
+    getRecentHeadlines: async (limit: number = 200) => {
+        const events = await prisma.newsEvent.findMany({
+            select: { title: true },
+            orderBy: { detectedAt: 'desc' },
+            take: limit
+        });
+        return events.map(e => e.title);
+    },
+
     getEvent: async (id: string) => {
         return await prisma.newsEvent.findUnique({
             where: { id },
