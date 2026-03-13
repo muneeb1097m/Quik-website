@@ -23,6 +23,7 @@ export function cn(...inputs: ClassValue[]) {
  * Given the current usage, let's keep it simple wrapper first to centralize it.
  */
 export function serialize<T>(data: T): T {
+    if (data === undefined || data === null) return data;
     // For now, centralizing this allows us to swap implementation later.
     return JSON.parse(JSON.stringify(data));
 }

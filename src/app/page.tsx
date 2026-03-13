@@ -20,13 +20,13 @@ export const metadata: Metadata = {
 export default async function Home() {
   // Optimized: Single database call instead of 3 separate queries
   // This significantly reduces TTFB by minimizing database round trips
-  const { trending: rawTrending, signals: rawSignals, events: allEvents } = await db.getHomePageData();
+  const { trending: rawTrending = [], signals: rawSignals = [], events: allEvents = [] } = await db.getHomePageData();
 
   const validTrending = rawTrending;
   const validSignals = rawSignals;
 
   // 2. Derive view data
-  const mainStory = validTrending[0];
+  const mainStory = validTrending?.[0];
   const gridStories = validTrending.slice(1, 3); // 2 items
   const sideStories = validTrending.slice(3, 7); // Max 4 side stories
 

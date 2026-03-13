@@ -125,6 +125,10 @@ export const db = {
                     supabase.from('NewsEvent').select('id, title, category, sources:Source(*)').order('detectedAt', { ascending: false }).limit(20)
                 ]);
 
+                if (trendingReq.error) console.error("getHomePageData trending error:", trendingReq.error);
+                if (signalsReq.error) console.error("getHomePageData signals error:", signalsReq.error);
+                if (eventsReq.error) console.error("getHomePageData events error:", eventsReq.error);
+
                 return {
                     trending: trendingReq.data || [],
                     signals: signalsReq.data || [],
@@ -133,7 +137,10 @@ export const db = {
             },
             ['home-page-data'],
             { revalidate: 14400 } // Cache DB call for 4 hours
-        )();
+        )().catch(err => {
+            console.error("getHomePageData caught error:", err);
+            return { trending: [], signals: [], events: [] };
+        });
     },
 
     getTrending: async (limit: number = 3) => {
