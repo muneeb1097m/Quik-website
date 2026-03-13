@@ -28,16 +28,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: route === '' ? 1 : 0.8,
     }));
 
-    // Fetch recent signals for news pages
-    // Increased to 500 for better search engine coverage
-    const signals = await db.getSignals(undefined, 500);
-
-    const newsRoutes = signals.map((signal) => ({
-        url: `${baseUrl}/news/${signal.id}`,
-        lastModified: new Date(signal.generatedAt),
-        changeFrequency: 'weekly' as const,
-        priority: 0.6,
-    }));
-
-    return [...routes, ...newsRoutes];
+    // Performance: Removed DB call for all signal URLs to prevent build-time DB pool exhaustion
+    // Dynamic routes handled natively via search console or indexnow
+    return [...routes];
 }

@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/qie/db';
+import { supabase } from '@/lib/qie/db';
 import { sendEmail } from '@/lib/email';
 import { generateDigestEmail } from '@/lib/email-template';
+
+export const runtime = 'edge';
 
 export async function GET(req: NextRequest) {
     try {
@@ -14,15 +16,12 @@ export async function GET(req: NextRequest) {
         console.log('🚀 Starting daily news digest...');
 
         // 1. Fetch all active subscribers
-        const subscribers = await prisma.subscription.findMany({
-            where: { status: 'active' },
-            select: {
-                id: true,
-                name: true,
-                email: true,
-                interests: true
-            }
-        });
+        const { data: subscribersData, error: subError } = await supabase.from('Subscription')
+            .select('id, name, email, interests')
+            .eq('status', 'active');
+
+        if (subError) throw subError;
+        const subscribers = subscribersData || [];
 
         if (subscribers.length === 0) {
             return NextResponse.json({
@@ -53,20 +52,14 @@ export async function GET(req: NextRequest) {
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
 
-        const recentNews = await prisma.signal.findMany({
-            where: {
-                generatedAt: {
-                    gte: yesterday
-                }
-            },
-            include: {
-                event: true
-            },
-            orderBy: {
-                generatedAt: 'desc'
-            },
-            take: 50 // Get top 50 recent stories
-        });
+        const { data: recentNewsData, error: newsError } = await supabase.from('Signal')
+            .select('*, event:NewsEvent(*)')
+            .gte('generatedAt', yesterday.toISOString())
+            .order('generatedAt', { ascending: false })
+            .limit(50); // Get top 50 recent stories
+
+        if (newsError) throw newsError;
+        const recentNews = recentNewsData || [];
 
         console.log(`📰 Found ${recentNews.length} recent news items`);
 

@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/qie/db';
+import { supabase } from '@/lib/qie/db';
 import { sendEmail } from '@/lib/email';
 import { validateEmail } from '@/lib/email-validator';
 import { generateWelcomeEmail } from '@/lib/email-template';
+
+export const runtime = 'edge';
 
 export async function POST(request: Request) {
     try {
@@ -35,15 +37,24 @@ export async function POST(request: Request) {
 
         // 2. Save to Database
         try {
-            const subscription = await prisma.subscription.create({
-                data: {
-                    name,
-                    email,
-                    interests: JSON.stringify(interests), // Store array as JSON string
-                    status: 'active',
-                    paymentMethod: paymentMethod || 'free'
+            const { data: subscription, error: insertError } = await supabase.from('Subscription').insert({
+                name,
+                email,
+                interests: JSON.stringify(interests),
+                status: 'active',
+                paymentMethod: paymentMethod || 'free'
+            }).select('id').single();
+
+            if (insertError) {
+                // Handle duplicate email unique constraint (Supabase typically returns 23505)
+                if (insertError.code === '23505') {
+                    return NextResponse.json(
+                        { status: 'error', error: 'This email is already subscribed to our newsletter' },
+                        { status: 409 }
+                    );
                 }
-            });
+                throw insertError;
+            }
 
             // 2b. Send Welcome Email
             try {
@@ -59,8 +70,7 @@ export async function POST(request: Request) {
                 // Don't fail the request, just log it
             }
 
-            // 3. Check total subscriber count
-            const totalSubscribers = await prisma.subscription.count();
+            const { count: totalSubscribers, error: countError } = await supabase.from('Subscription').select('*', { count: 'exact', head: true });
 
             // 4. Send admin notification if exactly 100 users
             if (totalSubscribers === 100) {
@@ -83,21 +93,13 @@ export async function POST(request: Request) {
 
             console.log(`✅ New subscriber #${totalSubscribers}: ${email}`);
 
-            // 5. Return Success
             return NextResponse.json({
                 status: 'success',
                 message: 'Subscription active',
-                subscriptionId: subscription.id
+                subscriptionId: subscription?.id
             });
 
         } catch (dbError: any) {
-            // Handle duplicate email unique constraint
-            if (dbError.code === 'P2002') {
-                return NextResponse.json(
-                    { status: 'error', error: 'This email is already subscribed to our newsletter' },
-                    { status: 409 }
-                );
-            }
             throw dbError; // Re-throw for generic handler
         }
 

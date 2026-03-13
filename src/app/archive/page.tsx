@@ -1,10 +1,12 @@
 import { db } from '@/lib/qie/db';
 import { SignalCard } from '@/components/SignalCard';
+
+export const runtime = 'edge';
 import { NewsEvent, Signal } from '@/types';
 import { serialize } from '@/lib/utils';
 import Link from 'next/link';
 
-export const revalidate = 3600; // Revalidate every hour
+export const revalidate = 43200; // Revalidate every 12 hours
 
 export default async function ArchivePage({
     searchParams,

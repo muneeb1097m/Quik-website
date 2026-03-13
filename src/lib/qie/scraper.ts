@@ -1,4 +1,40 @@
-import * as cheerio from 'cheerio';
+// Edge-compatible scraper using regex (no cheerio/stream needed)
+
+function extractMetaTag(html: string, property: string, attr: 'content' | 'href' = 'content'): string | undefined {
+    // Match both property="" and name="" attributes, and content/href value
+    const escaped = property.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(
+        `<meta[^>]+(?:property|name)=["']${escaped}["'][^>]+${attr}=["']([^"']+)["']|` +
+        `<meta[^>]+${attr}=["']([^"']+)["'][^>]+(?:property|name)=["']${escaped}["']`,
+        'i'
+    );
+    const match = html.match(regex);
+    return match ? (match[1] || match[2]) : undefined;
+}
+
+function extractLinkTag(html: string, rel: string): string | undefined {
+    const escaped = rel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`<link[^>]+rel=["']${escaped}["'][^>]+href=["']([^"']+)["']`, 'i');
+    const match = html.match(regex);
+    return match ? match[1] : undefined;
+}
+
+function extractParagraphs(html: string): string {
+    // Remove script/style blocks first
+    const cleaned = html
+        .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+        .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+        .replace(/<nav[^>]*>[\s\S]*?<\/nav>/gi, '')
+        .replace(/<footer[^>]*>[\s\S]*?<\/footer>/gi, '')
+        .replace(/<header[^>]*>[\s\S]*?<\/header>/gi, '');
+
+    // Extract <p> tag content and strip inner tags
+    const paragraphs = [...cleaned.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi)]
+        .map(m => m[1].replace(/<[^>]+>/g, '').trim())
+        .filter(p => p.length > 30); // skip short/empty paragraphs
+
+    return paragraphs.join('\n\n');
+}
 
 export async function scrapeArticleContent(url: string): Promise<{ content: string, imageUrl?: string }> {
     try {
@@ -19,43 +55,15 @@ export async function scrapeArticleContent(url: string): Promise<{ content: stri
         }
 
         const html = await response.text();
-        const $ = cheerio.load(html);
 
-        // Extract og:image
-        let imageUrl = $('meta[property="og:image"]').attr('content');
-        if (!imageUrl) imageUrl = $('meta[name="twitter:image"]').attr('content');
-        if (!imageUrl) imageUrl = $('link[rel="image_src"]').attr('href');
+        // Extract og:image / twitter:image
+        const imageUrl =
+            extractMetaTag(html, 'og:image') ||
+            extractMetaTag(html, 'twitter:image') ||
+            extractLinkTag(html, 'image_src');
 
-        // Remove unwanted elements
-        $('script, style, nav, footer, header, aside, .advertisement, .ads, .social-share').remove();
-
-        // Try to find the main content container
-        // Common selectors for article bodies
-        const selectors = [
-            'article',
-            'main',
-            '.post-content',
-            '.article-body',
-            '.entry-content',
-            '.story-body',
-            '#content'
-        ];
-
-        let content = '';
-
-        for (const selector of selectors) {
-            const element = $(selector);
-            if (element.length > 0) {
-                // Get text from paragraphs to maintain structure
-                content = element.find('p').map((_, el) => $(el).text().trim()).get().join('\n\n');
-                if (content.length > 500) break; // Found substantial content
-            }
-        }
-
-        // Fallback: simple p tag extraction from body if specific selectors fail
-        if (content.length < 200) {
-            content = $('body').find('p').map((_, el) => $(el).text().trim()).get().join('\n\n');
-        }
+        // Extract article text from paragraphs
+        const content = extractParagraphs(html);
 
         return { content: content.trim(), imageUrl };
 
@@ -64,3 +72,4 @@ export async function scrapeArticleContent(url: string): Promise<{ content: stri
         return { content: '' };
     }
 }
+

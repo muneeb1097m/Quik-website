@@ -1,5 +1,7 @@
 import { db } from '@/lib/qie/db';
 import { notFound } from 'next/navigation';
+
+export const runtime = 'edge';
 import NewsDetailView from '@/components/NewsDetailView';
 import { serialize } from '@/lib/utils';
 
@@ -8,13 +10,7 @@ import type { Metadata } from 'next';
 // Performance: Enable ISR with 1-year revalidation (static content)
 export const revalidate = 31536000;
 
-// Performance: Generate static params for top news articles (ISR)
-export async function generateStaticParams() {
-    const signals = await db.getTrending(50);
-    return signals.map((signal: any) => ({
-        id: signal.id,
-    }));
-}
+// Performance: Defer static generation to runtime to prevent DB pool exhaustion at build time
 
 // Generate Metadata for SEO
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {

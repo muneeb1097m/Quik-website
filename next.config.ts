@@ -3,6 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
+  staticPageGenerationTimeout: 120, // Give it more time, but might still timeout
 
   // Performance: Enable experimental features
   experimental: {

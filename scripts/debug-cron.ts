@@ -36,7 +36,7 @@ async function runDebug() {
 
             // DB Check
             const allEvents = await db.getEvents();
-            const exists = allEvents.find(e => e.sources.some(s => s.url === item.url));
+            const exists = allEvents.find((e: any) => e.sources.some((s: any) => s.url === item.url));
             if (exists) {
                 console.log('DEBUG: Duplicate found, skipping.');
                 continue;

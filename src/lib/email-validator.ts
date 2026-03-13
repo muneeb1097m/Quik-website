@@ -1,5 +1,3 @@
-import { promises as dns } from 'dns';
-
 /**
  * Validates email format using regex
  */
@@ -10,34 +8,18 @@ export function isValidEmailFormat(email: string): boolean {
 
 /**
  * Verifies if the email domain has valid MX records (can receive emails)
+ * Note: DNS checking is disabled in Edge runtime (Cloudflare)
  */
 export async function verifyEmailDomain(email: string): Promise<{ valid: boolean; error?: string }> {
-    try {
-        const domain = email.split('@')[1];
+    const domain = email.split('@')[1];
 
-        if (!domain) {
-            return { valid: false, error: 'Invalid email format' };
-        }
-
-        // Check MX records
-        const mxRecords = await dns.resolveMx(domain);
-
-        if (mxRecords && mxRecords.length > 0) {
-            return { valid: true };
-        } else {
-            return { valid: false, error: 'Email domain does not exist or cannot receive emails' };
-        }
-    } catch (error: any) {
-        // DNS lookup failed - domain doesn't exist or has no MX records
-        if (error.code === 'ENOTFOUND' || error.code === 'ENODATA') {
-            return { valid: false, error: 'Email domain does not exist' };
-        }
-
-        // For other errors (timeouts, network issues), we should probably ALLOW it
-        // to avoid blocking legitimate users during transient network issues
-        console.warn('DNS verification skipped due to error:', error);
-        return { valid: true };
+    if (!domain) {
+        return { valid: false, error: 'Invalid email format' };
     }
+
+    // Edge runtime does not support Node.js 'dns' module natively.
+    // Proceeding with just regex validation.
+    return { valid: true };
 }
 
 /**
@@ -52,7 +34,7 @@ export async function validateEmail(email: string): Promise<{
         return { valid: false, error: 'Invalid email format' };
     }
 
-    // Step 2: Verify domain (MX records)
+    // Step 2: Verify domain (MX records disabled for edge compatibility)
     const domainCheck = await verifyEmailDomain(email);
 
     return domainCheck;

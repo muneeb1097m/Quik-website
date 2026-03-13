@@ -1,4 +1,4 @@
-import Parser from 'rss-parser';
+import { XMLParser } from 'fast-xml-parser';
 
 // RSS Feeds - Category-Specific Sources
 const RSS_FEEDS = [
@@ -61,16 +61,12 @@ export interface ExternalNewsItem {
 }
 
 export class NewsMonitor {
-    private parser: Parser;
+    private parser: XMLParser;
 
     constructor() {
-        this.parser = new Parser({
-            customFields: {
-                item: [
-                    ['media:content', 'media:content', { keepArray: false }],
-                    ['media:thumbnail', 'media:thumbnail', { keepArray: false }],
-                ]
-            }
+        this.parser = new XMLParser({
+            ignoreAttributes: false,
+            attributeNamePrefix: '@_',
         });
     }
 
@@ -80,21 +76,44 @@ export class NewsMonitor {
 
         const feedPromises = RSS_FEEDS.map(async (feed) => {
             try {
-                const parsed = await this.parser.parseURL(feed.url);
+                // Fetch RSS raw text
+                const response = await fetch(feed.url, {
+                    headers: { 'User-Agent': 'QuikNews/1.0' },
+                    next: { revalidate: 3600 }
+                });
+                const xmlData = await response.text();
+
+                // Parse it
+                const result = this.parser.parse(xmlData);
+
+                // Handle both RSS/Atom feeds conditionally
+                let itemsList = [];
+                if (result.rss?.channel?.item) {
+                    itemsList = Array.isArray(result.rss.channel.item) ? result.rss.channel.item : [result.rss.channel.item];
+                } else if (result.feed?.entry) {
+                    itemsList = Array.isArray(result.feed.entry) ? result.feed.entry : [result.feed.entry];
+                }
+
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                return parsed.items.slice(0, 3).map((item: any) => {
-                    // Extract Image Logic
+                return itemsList.slice(0, 3).map((item: any) => {
+                    // Extract Image Logic (Custom property traversing for fast-xml-parser)
                     let img = '';
-                    if (item.enclosure?.url) img = item.enclosure.url;
-                    else if (item['media:content']?.$.url) img = item['media:content'].$.url;
-                    else if (item['media:thumbnail']?.$.url) img = item['media:thumbnail'].$.url;
+                    if (item.enclosure && item.enclosure['@_url']) img = item.enclosure['@_url'];
+                    else if (item['media:content'] && item['media:content']['@_url']) img = item['media:content']['@_url'];
+                    else if (item['media:thumbnail'] && item['media:thumbnail']['@_url']) img = item['media:thumbnail']['@_url'];
+
+                    // RSS title vs Atom title
+                    const headline = item.title?.['#text'] || item.title || 'No Title';
+                    const link = item.link?.['@_href'] || item.link || '';
+                    const content = item.description || item.content || item.summary || item['content:encoded'] || '';
+                    const timestamp = item.pubDate || item.published || item.updated || new Date().toISOString();
 
                     return {
-                        headline: item.title || 'No Title',
-                        url: item.link || '',
+                        headline,
+                        url: link,
                         source: feed.name,
-                        timestamp: item.pubDate || new Date().toISOString(),
-                        contentSnippet: item.contentSnippet || item.content || '',
+                        timestamp,
+                        contentSnippet: content,
                         category: feed.category,
                         imageUrl: img
                     };

@@ -1,23 +1,15 @@
 import { db } from '@/lib/qie/db';
 import { SignalCard } from '@/components/SignalCard';
+
+export const runtime = 'edge';
 import { notFound } from 'next/navigation';
 import { NewsEvent } from '@/types';
 
 // Performance: Enable ISR with 30-second revalidation
-// Revalidate every 1 hour
-export const revalidate = 3600;
+// Revalidate every 4 hours
+export const revalidate = 14400;
 
-export async function generateStaticParams() {
-    return [
-        { category: 'tech' },
-        { category: 'business' },
-        { category: 'ai' },
-        { category: 'global' },
-        { category: 'auto' },
-        { category: 'pakistan' },
-        { category: 'sports' },
-    ];
-}
+// Performance: Defer static generation to runtime to prevent build errors and DB timeouts
 
 interface PageProps {
     params: Promise<{ category: string }>;

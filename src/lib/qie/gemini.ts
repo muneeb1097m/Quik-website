@@ -61,6 +61,36 @@ export class GeminiSynthesizer {
         }
     }
 
+    async selectTrendingStory(items: { headline: string, contentSnippet: string }[]): Promise<number> {
+        if (!API_KEY || items.length === 0) return 0;
+        if (items.length === 1) return 0;
+
+        try {
+            const list = items.map((item, index) => `${index}: ${item.headline} - ${item.contentSnippet.slice(0, 100)}`).join('\n');
+            const prompt = `From the following list of news articles, identify the SINGLE most "trending", high-impact, or significant story for a Pakistan-based tech/business audience. 
+            Consider urgency, global/national importance, and relevance to technology/startups.
+            
+            ARTICLES:
+            ${list}
+            
+            Return ONLY the index number (0, 1, 2, etc.) of the selected article. No text, just the number.`;
+
+            const result = await model.generateContent(prompt);
+            const text = result.response.text().trim();
+            const index = parseInt(text);
+
+            if (isNaN(index) || index < 0 || index >= items.length) {
+                console.warn(`Gemini returned invalid index: ${text}. Defaulting to 0.`);
+                return 0;
+            }
+
+            return index;
+        } catch (error) {
+            console.error('Gemini Selection Error:', error);
+            return 0;
+        }
+    }
+
     async extractVisualKeyword(headline: string): Promise<string> {
         if (!API_KEY) return 'Technology';
 

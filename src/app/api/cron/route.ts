@@ -1,19 +1,18 @@
 import { NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
 import { NewsMonitor } from '@/lib/qie/monitor';
 import { GeminiSynthesizer } from '@/lib/qie/gemini';
 import { GoogleImageSearcher } from '@/lib/qie/image_search';
 import { db } from '@/lib/qie/db';
-import { EventCategory } from '@/types';
 
 import { CloudflareProvider, PollinationProvider } from '@/lib/qie/image-providers';
 import { scrapeArticleContent } from '@/lib/qie/scraper';
 import { stripHtml } from '@/lib/utils';
-import stringSimilarity from 'string-similarity';
+// import stringSimilarity from 'string-similarity'; // Removed to avoid edge compatibility issues
 
 // Prevent vercel time out
 export const maxDuration = 60;
 export const dynamic = 'force-dynamic';
+export const runtime = 'edge';
 
 export async function GET() {
     console.log('Cron Job Started: fetching news...');
@@ -34,17 +33,27 @@ export async function GET() {
         // Fetch recent headlines to check string similarity
         const recentHeadlines = await db.getRecentHeadlines(500);
 
-        const newItems = rawItems.filter(item => {
-            // First pass: Direct URL deduplication
-            if (existingUrls.has(item.url)) return false;
+        const seenUrls = new Set<string>();
+        const seenHeadlines = new Set<string>();
 
-            // Second pass: String similarity deduplication (Threshold: 0.65)
-            // If the item headline is highly similar to any recent headline, skip it
+        const newItems = rawItems.filter(item => {
+            // First pass: Direct URL deduplication against DB and current batch
+            if (existingUrls.has(item.url) || seenUrls.has(item.url)) return false;
+            seenUrls.add(item.url);
+
+            // Exact match headline deduplication in current batch
+            if (seenHeadlines.has(item.headline)) return false;
+            seenHeadlines.add(item.headline);
+
+            // Second pass: Deduplication
             if (recentHeadlines.length > 0 && item.headline) {
-                const bestMatch = stringSimilarity.findBestMatch(item.headline, recentHeadlines);
-                if (bestMatch.bestMatch.rating > 0.65) {
-                    console.log(`[Duplicate Prevented] Skipping "${item.headline}" - similar to "${bestMatch.bestMatch.target}" (Rating: ${bestMatch.bestMatch.rating.toFixed(2)})`);
-                    return false;
+                const targetMatch = item.headline.toLowerCase().replace(/[^a-z0-9]/gi, '');
+                for (const recent of recentHeadlines) {
+                    const rMatch = recent.toLowerCase().replace(/[^a-z0-9]/gi, '');
+                    if (targetMatch.includes(rMatch) || rMatch.includes(targetMatch)) {
+                        console.log(`[Duplicate Prevented PRE-AI] Skipping "${item.headline}"`);
+                        return false;
+                    }
                 }
             }
 
@@ -57,19 +66,24 @@ export async function GET() {
             return NextResponse.json({ success: true, message: 'No new items to process.' });
         }
 
-        // 3. Process the batch (Top 15 new items)
-        // User requested 500+ images/day. 
-        // 15 items * 24h * 4 (15min runs) = 1440 items/day capacity
-        const batch = newItems.slice(0, 15);
+        // 3. Process the best item (1 trending story)
+        // User requested 1 article per 15 min run = 96 articles/day
+        console.log(`Analyzing ${newItems.length} new items to find the most trending story...`);
+        const trendingIndex = await synthesizer.selectTrendingStory(newItems.map(i => ({
+            headline: i.headline,
+            contentSnippet: i.contentSnippet || ''
+        })));
+        
+        const selectedItem = newItems[trendingIndex];
+        const batch = [selectedItem];
 
-        console.log(`Processing batch of ${batch.length} items in parallel...`);
+        console.log(`Processing selected trending item: ${selectedItem.headline}`);
 
         // Check daily limit ONCE for the whole batch to save DB calls
-        // It's okay if we go slightly over 95 for Google Images due to concurrency
         const todayCount = await db.getTodayCount();
         let googleSearchUsed = todayCount;
 
-        // Process in parallel
+        // Process in parallel (though it's only 1 item now)
         const results = await Promise.all(batch.map(async (item) => {
             try {
                 // 3. Scrape Full Content
@@ -81,6 +95,24 @@ export async function GET() {
                 // 4. Synthesize with Gemini (NO CATEGORIZATION - we use RSS feed category)
                 console.log(`[${item.source}] Synthesizing...`);
                 const aiResult = await synthesizer.rewriteStory(item.headline, contextToAnalyze);
+
+                // POST-AI Similarity Check
+                // AI titles should not highly match recent AI titles
+                if (recentHeadlines.length > 0) {
+                    const targetMatchAI = aiResult.headline.toLowerCase().replace(/[^a-z0-9]/gi, '');
+                    const isSimilar = recentHeadlines.some((recent: string) => {
+                        const rMatch = recent.toLowerCase().replace(/[^a-z0-9]/gi, '');
+                        return targetMatchAI === rMatch;
+                    });
+
+                    if (isSimilar) {
+                        console.log(`[Duplicate Prevented POST-AI] Skipping "${aiResult.headline}"`);
+                        return null; // Don't save this item
+                    }
+                }
+
+                // Add to recentHeadlines to prevent same-batch duplicated stories being saved
+                recentHeadlines.push(aiResult.headline);
 
 
                 // 3b. Image Handling
@@ -229,7 +261,7 @@ export async function GET() {
                 await db.addEvent({
                     id: eventId,
                     title: aiResult.headline,
-                    category: finalCategory as EventCategory, // Use RSS category directly!
+                    category: finalCategory, // Use RSS category directly!
                     status: 'Live',
                     detectedAt: new Date().toISOString(),
                     lastUpdatedAt: new Date().toISOString(),

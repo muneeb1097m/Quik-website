@@ -1,0 +1,1 @@
+{ "extends": [ "standard", "plugin:next/core-web-vitals" ], "plugins": ["react"], "parserOptions": { "ecmaVersion": 2020 }, "rules": { "react/no-unescaped-entities": "off", "@next/next/no-img-element": "off", "semi": [2, "always"] }, "ignorePatterns": ["build", "node_modules", "out"] }

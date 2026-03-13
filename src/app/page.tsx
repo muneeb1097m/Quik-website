@@ -3,10 +3,11 @@ import { LandingPage } from '@/components/LandingPage';
 import { NewsEvent, Signal } from '@/types';
 import { serialize } from '@/lib/utils';
 
-// Enable ISR (Incremental Static Regeneration)
-// Revalidate page every 1 hour (3600s) to reduce ISR writes
-// Revalidate page every 3600 seconds (1 hour)
-export const revalidate = 3600;
+export const runtime = 'edge';
+
+// Performance: Force dynamic at build time to prevent DB pool exhaustion
+// We rely on unstable_cache in db.ts for performance instead of full page ISR
+export const dynamic = 'force-dynamic';
 
 import type { Metadata } from 'next';
 

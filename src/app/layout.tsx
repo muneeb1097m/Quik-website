@@ -3,8 +3,6 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { Toaster } from 'sonner';
 import Script from 'next/script';
-import { SpeedInsights } from "@vercel/speed-insights/next"
-import { Analytics } from '@vercel/analytics/react';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import dynamic from 'next/dynamic';
 
@@ -20,10 +18,12 @@ const inter = Inter({
 // Performance: Dynamic imports to reduce initial bundle size
 // Navigation is critical for LCP/CLS, so we import it directly now
 import { Navigation } from '@/components/Navigation';
+import { Chatbot } from '@/components/Chatbot';
 
 const Footer = dynamic(() => import('@/components/Footer').then(mod => ({ default: mod.Footer })), {
   ssr: true,
 });
+
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://quiknews.online'),
@@ -90,19 +90,8 @@ export default function RootLayout({
         {children}
         <Footer />
 
-        <SpeedInsights />
-        <Analytics />
-
-        {/* Google Analytics - Native Next.js Third Party for max performance off main-thread */}
         <GoogleAnalytics gaId="G-VDRE507J76" />
-
-        {/* Chatbase Chatbot - Vercel Native Integration */}
-        {/* Optimized: lazyOnload prevents it from blocking Interaction to Next Paint (INP) */}
-        <Script id="chatbase-script" strategy="lazyOnload">
-          {`
-            (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="${process.env.NEXT_PUBLIC_CHATBOT_ID}";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
-          `}
-        </Script>
+        <Chatbot />
       </body>
     </html>
   );
