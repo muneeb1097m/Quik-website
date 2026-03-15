@@ -123,13 +123,15 @@ export const db = {
                 if (signalsReq.error) console.error("getHomePageData signals error:", signalsReq.error);
                 if (eventsReq.error) console.error("getHomePageData events error:", eventsReq.error);
 
+                console.log(`[DB] getHomePageData v9: trending=${trendingReq.data?.length}, signals=${signalsReq.data?.length}`);
+
                 return {
                     trending: trendingReq.data || [],
                     signals: signalsReq.data || [],
                     events: eventsReq.data || []
                 };
             },
-            ['home-page-data-v8'],
+            ['home-page-data-v9'],
             { revalidate: 3600 }
         )().catch(err => {
             console.error("getHomePageData caught error:", err);
