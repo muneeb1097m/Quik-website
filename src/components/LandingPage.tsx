@@ -74,7 +74,12 @@ const GridStoryCard = ({ story, event }: { story: Signal, event: NewsEvent | und
                 {story.headline}
             </h3>
             <div className="relative z-10 mt-3 flex items-center gap-2 text-slate-300 text-xs font-medium">
-                <span suppressHydrationWarning>{new Date(story.generatedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
+                <span suppressHydrationWarning>
+                    {(() => {
+                        const d = new Date(story.generatedAt || Date.now());
+                        return isNaN(d.getTime()) ? 'Recently' : d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+                    })()}
+                </span>
             </div>
         </Link>
     );
@@ -173,7 +178,12 @@ export function LandingPage({ signals, events, mainStory, mainStoryEvent, gridSt
                                         <div className="flex items-center gap-4 text-slate-300 font-medium text-sm md:text-base">
                                             <span>{mainStoryEvent?.sources[0]?.name || 'N/A'}</span>
                                             <span className="w-1 h-1 rounded-full bg-slate-400" />
-                                            <span suppressHydrationWarning>{new Date(mainStory.generatedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
+                                            <span suppressHydrationWarning>
+                                                {(() => {
+                                                    const d = new Date(mainStory.generatedAt || Date.now());
+                                                    return isNaN(d.getTime()) ? 'Recently' : d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+                                                })()}
+                                            </span>
                                         </div>
                                     </div>
                                 )}
@@ -283,7 +293,10 @@ export function LandingPage({ signals, events, mainStory, mainStoryEvent, gridSt
                                                     <span className="text-xs font-bold text-brand-red">Global</span>
                                                     <span className="text-xs text-slate-300">•</span>
                                                     <span className="text-xs text-slate-500" suppressHydrationWarning>
-                                                        {new Date(story.generatedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
+                                                        {(() => {
+                                                            const d = new Date(story.generatedAt || Date.now());
+                                                            return isNaN(d.getTime()) ? 'Recently' : d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+                                                        })()}
                                                     </span>
                                                 </div>
                                                 <h4 className="font-bold text-slate-800 leading-snug group-hover:text-brand-red transition-colors line-clamp-2">

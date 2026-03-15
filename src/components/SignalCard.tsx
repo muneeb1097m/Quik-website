@@ -18,10 +18,11 @@ export function SignalCard({ signal, event, onClick }: SignalCardProps) {
     const getCategoryColor = (cat: string) => {
         switch (cat) {
             case 'International': return 'text-brand-red bg-brand-red/10 border-brand-red/30 hover:bg-brand-red/20';
-            case 'Politics': // Mapping Politics to local Green for demo
-            case 'Technology': return 'text-slate-900 bg-brand-green/20 border-brand-green/50 hover:bg-brand-green/30';
-            case 'Sports': return 'text-slate-900 bg-brand-green/20 border-brand-green/50 hover:bg-brand-green/30';
-            default: return 'text-slate-900 bg-brand-green/20 border-brand-green/50 hover:bg-brand-green/30';
+            case 'Pakistan': return 'text-slate-900 bg-emerald-50 border-emerald-200 hover:bg-emerald-100';
+            case 'Auto': return 'text-slate-900 bg-sky-50 border-sky-200 hover:bg-sky-100';
+            case 'AI': return 'text-purple-600 bg-purple-50 border-purple-200 hover:bg-purple-100';
+            case 'Business': return 'text-slate-900 bg-amber-50 border-amber-200 hover:bg-amber-100';
+            default: return 'text-slate-900 bg-slate-50 border-slate-200 hover:bg-slate-100';
         }
     };
 
@@ -80,7 +81,12 @@ export function SignalCard({ signal, event, onClick }: SignalCardProps) {
                     </span>
                     <div className="flex items-center gap-2 text-slate-500 text-xs font-medium">
                         <Clock className="w-3.5 h-3.5" />
-                        <span suppressHydrationWarning>{new Date(signal.generatedAt || Date.now()).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
+                        <span suppressHydrationWarning>
+                            {(() => {
+                                const d = new Date(signal.generatedAt || Date.now());
+                                return isNaN(d.getTime()) ? 'Recently' : d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+                            })()}
+                        </span>
                     </div>
                 </div>
 

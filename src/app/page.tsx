@@ -30,10 +30,15 @@ export default async function Home() {
   const allEvents = data.events || [];
 
   // Derive view data with fallback for thin feeds
-  const combinedSignals = [...rawTrending];
+  // trending and signals are currently queried similarly, but trending might be filtered in future
+  const trendingSignals = data.trending || [];
+  const allSignals = data.signals || [];
+  
+  // Combine them to ensure we have enough to fill the page
+  const combinedSignals = [...trendingSignals];
   const seenIds = new Set(combinedSignals.map(s => s.id));
   
-  for (const s of rawSignals) {
+  for (const s of allSignals) {
     if (!seenIds.has(s.id)) {
       combinedSignals.push(s);
       seenIds.add(s.id);
@@ -43,16 +48,19 @@ export default async function Home() {
 
   // Handle completely empty state
   if (combinedSignals.length === 0) {
-      console.warn('CRITICAL: combinedSignals is empty');
+      console.warn('CRITICAL: combinedSignals is empty (No news found in DB)');
+  } else {
+      console.log('Final Combined Signals Count:', combinedSignals.length);
   }
 
   const mainStory = combinedSignals[0];
   const gridStories = combinedSignals.slice(1, 3);
   const sideStories = combinedSignals.slice(3, 7);
+  // Important: Extract the event from the main signal if it exists
   const mainStoryEvent = mainStory ? (mainStory as any).event : undefined;
 
-  const serializedSignals = serialize(rawSignals as any).slice(0, 20);
-  const serializedEvents = serialize(allEvents as any);
+  const serializedSignals = serialize(allSignals as any).slice(0, 20);
+  const serializedEvents = serialize(data.events as any);
 
   return (
     <LandingPage

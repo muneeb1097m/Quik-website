@@ -109,15 +109,23 @@ export const db = {
     },
 
     getHomePageData: async () => {
-        return unstable_cache(
-            async () => {
+        // [BYPASS CACHE FOR DIAGNOSTICS]
+        // return unstable_cache(
+        //     async () => {
                 const commonSignalSelect = `id, headline, summary, imageUrl, generatedAt, eventId, event:NewsEvent(id, title, category, sources:Source(*))`;
 
+                console.log("[DB] Fetching home page data directly from Supabase...");
                 const [trendingReq, signalsReq, eventsReq] = await Promise.all([
                     supabase.from('Signal').select(commonSignalSelect).order('generatedAt', { ascending: false }).limit(10),
                     supabase.from('Signal').select(commonSignalSelect).order('generatedAt', { ascending: false }).limit(20),
                     supabase.from('NewsEvent').select('id, title, category, sources:Source(*)').order('detectedAt', { ascending: false }).limit(20)
                 ]);
+
+                console.log("[DB] Trending count:", trendingReq.data?.length || 0);
+                console.log("[DB] Signals count:", signalsReq.data?.length || 0);
+                if (signalsReq.data?.[0]) {
+                    console.log("[DB] Sample Signal joined event:", !!signalsReq.data[0].event);
+                }
 
                 if (trendingReq.error) console.error("getHomePageData trending error:", trendingReq.error);
                 if (signalsReq.error) console.error("getHomePageData signals error:", signalsReq.error);
@@ -128,13 +136,13 @@ export const db = {
                     signals: signalsReq.data || [],
                     events: eventsReq.data || []
                 };
-            },
-            ['home-page-data-v6'],
-            { revalidate: 3600 }
-        )().catch(err => {
-            console.error("getHomePageData caught error:", err);
-            return { trending: [], signals: [], events: [] };
-        });
+        //     },
+        //     ['home-page-data-v7'],
+        //     { revalidate: 3600 }
+        // )().catch(err => {
+        //     console.error("getHomePageData caught error:", err);
+        //     return { trending: [], signals: [], events: [] };
+        // });
     },
 
     getTrending: async (limit: number = 3) => {
