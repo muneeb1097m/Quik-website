@@ -80,7 +80,7 @@ export function SignalCard({ signal, event, onClick }: SignalCardProps) {
                     </span>
                     <div className="flex items-center gap-2 text-slate-500 text-xs font-medium">
                         <Clock className="w-3.5 h-3.5" />
-                        <span suppressHydrationWarning>{new Date(signal.generatedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
+                        <span suppressHydrationWarning>{new Date(signal.generatedAt || Date.now()).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
                     </div>
                 </div>
 

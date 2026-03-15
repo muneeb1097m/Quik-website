@@ -25,20 +25,29 @@ export default async function Home() {
   const validTrending = rawTrending;
   const validSignals = rawSignals;
 
-  // 2. Derive view data
-  const mainStory = validTrending?.[0];
-  const gridStories = validTrending.slice(1, 3); // 2 items
-  const sideStories = validTrending.slice(3, 7); // Max 4 side stories
+  // 2. Derive view data with fallback for thin feeds
+  // If trending is thin (e.g. only 1 item), we pull from generic signals to fill the grid/side sections
+  const combinedSignals = [...rawTrending];
+  const seenIds = new Set(combinedSignals.map(s => s.id));
+  
+  for (const s of rawSignals) {
+    if (!seenIds.has(s.id)) {
+      combinedSignals.push(s);
+      seenIds.add(s.id);
+    }
+    if (combinedSignals.length >= 10) break;
+  }
 
-  const mainStoryEvent = mainStory ? mainStory.event : undefined;
+  const mainStory = combinedSignals[0];
+  const gridStories = combinedSignals.slice(1, 3);
+  const sideStories = combinedSignals.slice(3, 7);
+  const mainStoryEvent = mainStory ? (mainStory as any).event : undefined;
 
-  // 3. Serialize Data (Fixes "Date object" error)
-  // We must serialize because Prisma returns Date objects, which cannot be passed directly to Client Components
-  // Casting to any to bypass strict type definition of full DB objects vs selected partials
-  const serializedSignals = serialize(validSignals as any).slice(0, 20);
+  // 3. Serialize Data
+  const serializedSignals = serialize(rawSignals as any).slice(0, 20);
   const serializedEvents = serialize(allEvents as any);
 
-  // 4. Render Client Component with Serialized Data
+  // 4. Render Client Component
   return (
     <LandingPage
       signals={serializedSignals}

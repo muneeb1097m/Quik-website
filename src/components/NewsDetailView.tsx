@@ -212,7 +212,7 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
                                                         {item.headline}
                                                     </h4>
                                                     <div className="mt-auto pt-2 text-xs text-slate-500 font-medium" suppressHydrationWarning>
-                                                        {new Date(item.generatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} • {new Date(item.generatedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                                                        {new Date(item.generatedAt || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} • {new Date(item.generatedAt || Date.now()).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                                                     </div>
                                                 </div>
                                             </div>

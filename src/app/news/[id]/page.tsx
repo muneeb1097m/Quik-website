@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
             title: signal.headline,
             description: signal.summary,
             type: 'article',
-            publishedTime: signal.generatedAt.toISOString(),
+            publishedTime: new Date(signal.generatedAt).toISOString(),
             images: [
                 {
                     url: signal.imageUrl || 'https://quiknews.online/og-default.png', // Fallback image needed
@@ -82,8 +82,8 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ id:
         headline: signal.headline,
         description: signal.summary,
         image: signal.imageUrl || 'https://quiknews.online/og-default.png',
-        datePublished: signal.generatedAt.toISOString(),
-        dateModified: signal.generatedAt.toISOString(),
+        datePublished: new Date(signal.generatedAt).toISOString(),
+        dateModified: new Date(signal.generatedAt).toISOString(),
         author: {
             '@type': 'Organization',
             name: 'Quik AI',

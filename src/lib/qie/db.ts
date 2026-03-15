@@ -56,10 +56,6 @@ export const db = {
     },
 
     getPaginatedSignals: async (cursor: string | undefined, limit: number = 20) => {
-        // Supabase doesn't easily support cursor pagination natively without custom RPCs for UUIDs, 
-        // so we'll fallback to simple offset or just order by generatedAt.
-        // For infinite scroll, passing `offset=N` instead of cursor ID is simpler in REST.
-        // Here we'll just try to fetch the latest.
         const { data, error } = await supabase.from('Signal')
             .select(`
                 *,
@@ -67,8 +63,6 @@ export const db = {
             `)
             .order('generatedAt', { ascending: false })
             .limit(limit);
-        // Note: For true cursor pagination, you'd add a filter `.lt('id', cursor)` but id is a uuid, so `.lt('generatedAt', cursorDate)` is better.
-        // Doing basic for now to mimic previous behavior without cursor logic.
         if (error) { console.error(error); return []; }
         return data || [];
     },
@@ -135,7 +129,7 @@ export const db = {
                     events: eventsReq.data || []
                 };
             },
-            ['home-page-data-v3'],
+            ['home-page-data-v6'],
             { revalidate: 3600 }
         )().catch(err => {
             console.error("getHomePageData caught error:", err);
@@ -153,7 +147,6 @@ export const db = {
     },
 
     getExistingUrls: async (urls: string[]) => {
-        // Supabase `in` filter works perfectly here
         const { data, error } = await supabase.from('Source')
             .select('url')
             .in('url', urls);
@@ -163,7 +156,7 @@ export const db = {
 
     addEvent: async (data: any) => {
         try {
-            let { id, title, category, status, detectedAt, sources, signals, imageUrl } = data;
+            let { id, title, category, status, detectedAt, sources, imageUrl } = data;
 
             if (!imageUrl) {
                 imageUrl = generateNewsImage(title, category);
@@ -200,7 +193,6 @@ export const db = {
                     console.error("DB Add Event Sources Error:", sourceError);
                 }
             }
-
         } catch (e) {
             console.error("DB Add Event Error", e);
         }
