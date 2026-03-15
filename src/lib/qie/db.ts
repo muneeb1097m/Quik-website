@@ -135,8 +135,8 @@ export const db = {
                     events: eventsReq.data || []
                 };
             },
-            ['home-page-data'],
-            { revalidate: 14400 } // Cache DB call for 4 hours
+            ['home-page-data-v3'],
+            { revalidate: 3600 }
         )().catch(err => {
             console.error("getHomePageData caught error:", err);
             return { trending: [], signals: [], events: [] };
@@ -188,6 +188,7 @@ export const db = {
             // Insert Sources
             if (sources && sources.length > 0) {
                 const sourcesData = sources.map((s: any) => ({
+                    id: `src_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
                     eventId: id,
                     name: s.name,
                     url: s.url,
