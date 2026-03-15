@@ -4,9 +4,23 @@ import { unstable_cache } from 'next/cache';
 import { createClient } from '@supabase/supabase-js';
 
 // Initialize Supabase client
-// Use a fallback URL/Key during build if env var is missing to prevent build failures
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || 'https://dummy-build.supabase.co';
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || 'dummy_key';
+const getSupabaseConfig = () => {
+    const projectId = process.env.SUPABASE_PROJECT_ID;
+    const url = projectId 
+        ? `https://${projectId}.supabase.co` 
+        : (process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL);
+    
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY || 
+                process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 
+                process.env.SUPABASE_ANON_KEY;
+
+    return { 
+        url: url || 'https://dummy-build.supabase.co', 
+        key: key || 'dummy_key' 
+    };
+};
+
+const { url: supabaseUrl, key: supabaseKey } = getSupabaseConfig();
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Helper accessor for Supabase Events

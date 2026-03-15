@@ -8,6 +8,7 @@ export async function GET() {
     try {
         const envs = {
             hasUrl: !!(process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL),
+            hasProjectId: !!process.env.SUPABASE_PROJECT_ID,
             hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
             hasAnonKey: !!(process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
             nodeEnv: process.env.NODE_ENV,
