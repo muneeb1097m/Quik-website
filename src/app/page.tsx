@@ -1,12 +1,11 @@
-import { db } from '@/lib/qie/db';
+import { db, supabase } from '@/lib/qie/db';
 import { LandingPage } from '@/components/LandingPage';
 import { NewsEvent, Signal } from '@/types';
 import { serialize } from '@/lib/utils';
 
 export const runtime = 'edge';
 
-// Performance: Force dynamic at build time to prevent DB pool exhaustion
-// We rely on unstable_cache in db.ts for performance instead of full page ISR
+// Force dynamic to bypass any build-time state capture
 export const dynamic = 'force-dynamic';
 
 import type { Metadata } from 'next';
@@ -18,15 +17,19 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  // Optimized: Single database call instead of 3 separate queries
-  // This significantly reduces TTFB by minimizing database round trips
-  const { trending: rawTrending = [], signals: rawSignals = [], events: allEvents = [] } = await db.getHomePageData();
+  const data = await db.getHomePageData();
+  
+  // LOGGING: This will show up in Vercel logs
+  console.log('--- HOME PAGE DATA DEBUG ---');
+  console.log('Object Keys:', Object.keys(data));
+  console.log('Trending Count:', data.trending?.length || 0);
+  console.log('Signals Count:', data.signals?.length || 0);
+  
+  const rawTrending = data.trending || [];
+  const rawSignals = data.signals || [];
+  const allEvents = data.events || [];
 
-  const validTrending = rawTrending;
-  const validSignals = rawSignals;
-
-  // 2. Derive view data with fallback for thin feeds
-  // If trending is thin (e.g. only 1 item), we pull from generic signals to fill the grid/side sections
+  // Derive view data with fallback for thin feeds
   const combinedSignals = [...rawTrending];
   const seenIds = new Set(combinedSignals.map(s => s.id));
   
@@ -35,7 +38,12 @@ export default async function Home() {
       combinedSignals.push(s);
       seenIds.add(s.id);
     }
-    if (combinedSignals.length >= 10) break;
+    if (combinedSignals.length >= 20) break;
+  }
+
+  // Handle completely empty state
+  if (combinedSignals.length === 0) {
+      console.warn('CRITICAL: combinedSignals is empty');
   }
 
   const mainStory = combinedSignals[0];
@@ -43,11 +51,9 @@ export default async function Home() {
   const sideStories = combinedSignals.slice(3, 7);
   const mainStoryEvent = mainStory ? (mainStory as any).event : undefined;
 
-  // 3. Serialize Data
   const serializedSignals = serialize(rawSignals as any).slice(0, 20);
   const serializedEvents = serialize(allEvents as any);
 
-  // 4. Render Client Component
   return (
     <LandingPage
       signals={serializedSignals}
