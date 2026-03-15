@@ -19,26 +19,15 @@ export const metadata: Metadata = {
 export default async function Home() {
   const data = await db.getHomePageData();
   
-  // LOGGING: This will show up in Vercel logs
-  console.log('--- HOME PAGE DATA DEBUG ---');
-  console.log('Object Keys:', Object.keys(data));
-  console.log('Trending Count:', data.trending?.length || 0);
-  console.log('Signals Count:', data.signals?.length || 0);
-  
-  const rawTrending = data.trending || [];
-  const rawSignals = data.signals || [];
-  const allEvents = data.events || [];
+  const trendingSignals = data.trending || [];
+  const allSignalsFromDb = data.signals || [];
 
   // Derive view data with fallback for thin feeds
-  // trending and signals are currently queried similarly, but trending might be filtered in future
-  const trendingSignals = data.trending || [];
-  const allSignals = data.signals || [];
-  
   // Combine them to ensure we have enough to fill the page
   const combinedSignals = [...trendingSignals];
   const seenIds = new Set(combinedSignals.map(s => s.id));
   
-  for (const s of allSignals) {
+  for (const s of allSignalsFromDb) {
     if (!seenIds.has(s.id)) {
       combinedSignals.push(s);
       seenIds.add(s.id);
@@ -49,8 +38,6 @@ export default async function Home() {
   // Handle completely empty state
   if (combinedSignals.length === 0) {
       console.warn('CRITICAL: combinedSignals is empty (No news found in DB)');
-  } else {
-      console.log('Final Combined Signals Count:', combinedSignals.length);
   }
 
   const mainStory = combinedSignals[0];
@@ -59,7 +46,7 @@ export default async function Home() {
   // Important: Extract the event from the main signal if it exists
   const mainStoryEvent = mainStory ? (mainStory as any).event : undefined;
 
-  const serializedSignals = serialize(allSignals as any).slice(0, 20);
+  const serializedSignals = serialize(allSignalsFromDb as any).slice(0, 20);
   const serializedEvents = serialize(data.events as any);
 
   return (
