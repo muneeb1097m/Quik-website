@@ -115,6 +115,9 @@ export const db = {
 
                 const { data, error } = await query;
                 if (error) { console.error("getSignals Error:", error); return []; }
+                
+                console.log(`[DB] getSignals(${category}): found ${data?.length || 0} signals`);
+                
                 return data || [];
             },
             [`signals-${category || 'all'}-${limit || 0}-${skip || 0}-v10`],
