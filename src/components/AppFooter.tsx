@@ -1,11 +1,10 @@
 'use client';
 
-import { Github, Twitter, Linkedin } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
-export function Footer() {
+export default function AppFooter() {
     return (
         <footer className="w-full bg-slate-50 border-t border-slate-200 mt-20">
             <div className="max-w-[1600px] mx-auto px-8 py-16">
@@ -31,23 +30,37 @@ export function Footer() {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
                     <div className="md:col-span-1">
                         <Link href="/" className="flex items-center gap-2 mb-6 group">
-                            {/* Logo Text Requirement: "Quik News" */}
                             <span className="text-2xl font-extrabold text-slate-900 tracking-tight">Quik News</span>
                         </Link>
                         <p className="text-slate-500 text-sm leading-relaxed mb-6">
                             Real-time global intelligence, synthesized by AI. Delivered with precision and speed from reliable sources.
                         </p>
                         <div className="flex gap-4">
-                            <SocialLink href="#" icon={<Twitter size={18} />} />
-                            <SocialLink href="#" icon={<Github size={18} />} />
-                            <SocialLink href="#" icon={<Linkedin size={18} />} />
+                            {/* Static SVG for X (Twitter) */}
+                            <SocialLink href="https://x.com/quik_news">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                            </SocialLink>
+                            
+                            {/* Static SVG for Instagram */}
+                            <SocialLink href="https://www.instagram.com/quikn.ews/">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                            </SocialLink>
+
+                            {/* Static SVG for Facebook */}
+                            <SocialLink href="https://www.facebook.com/people/Quik-News/61586617626892/">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                            </SocialLink>
+
+                            {/* Static SVG for LinkedIn */}
+                            <SocialLink href="https://www.linkedin.com/company/quik-official">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+                            </SocialLink>
                         </div>
                     </div>
 
                     <div>
                         <h4 className="font-bold text-slate-900 mb-6">News</h4>
                         <ul className="space-y-4 text-sm text-slate-500">
-                            {/* Major Categories from Nav */}
                             <li><FooterLink href="/pakistan">Pakistan</FooterLink></li>
                             <li><FooterLink href="/global">Global</FooterLink></li>
                             <li><FooterLink href="/business">Business</FooterLink></li>
@@ -58,8 +71,6 @@ export function Footer() {
                     <div>
                         <h4 className="font-bold text-slate-900 mb-6">Topics</h4>
                         <ul className="space-y-4 text-sm text-slate-500">
-                            {/* Niche Categories from Nav */}
-                            {/* <li><FooterLink href="/telecom">Telecom</FooterLink></li> */}
                             <li><FooterLink href="/auto">Automotive</FooterLink></li>
                             <li><FooterLink href="/sports">Sports</FooterLink></li>
                         </ul>
@@ -83,7 +94,6 @@ export function Footer() {
                         © {new Date().getFullYear()} Quik Inc. All rights reserved.
                     </p>
                     <div className="flex gap-8 text-sm text-slate-500">
-                        {/* Repeated legal links for standard footer conventions, or keep minimal */}
                         <FooterLink href="/privacy">Privacy</FooterLink>
                         <FooterLink href="/terms">Terms</FooterLink>
                         <FooterLink href="#">Cookies</FooterLink>
@@ -94,19 +104,15 @@ export function Footer() {
     );
 }
 
-
-
 function NewsletterForm() {
     const [email, setEmail] = useState('');
     const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-    const [message, setMessage] = useState('');
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!email) return;
 
         setStatus('loading');
-        // setMessage(''); // No longer using message state
 
         try {
             const res = await fetch('/api/subscribe', {
@@ -120,20 +126,17 @@ function NewsletterForm() {
                 })
             });
 
-            const data = await res.json();
-
             if (res.ok) {
                 setStatus('success');
                 toast.success('Welcome aboard! You have successfully subscribed.');
                 setEmail('');
-                // Reset success state after a delay or keep it
                 setTimeout(() => setStatus('idle'), 3000);
             } else {
-                setStatus('idle'); // Allow retrying
+                setStatus('idle');
                 if (res.status === 409) {
                     toast.error('This email is already subscribed to our newsletter.');
                 } else {
-                    toast.error(data.error || 'Something went wrong. Please try again.');
+                    toast.error('Something went wrong. Please try again.');
                 }
             }
         } catch (error) {
@@ -141,16 +144,6 @@ function NewsletterForm() {
             toast.error('Network error. Please try again later.');
         }
     };
-
-    // Check if status is success, but we handled UI via toast mostly. 
-    // We can show a checkmark button state or something, but the original UI returned early.
-    // Let's keep the button loading state but remove the big message block logic that replaces the form.
-    // Actually, user might prefer to see the form again to add another email?
-    // The original code replaced the form with a success message.
-    // "Also if the email is good ... add them in news letter and send an email ... successfully subscribed"
-    // "If the email already exist then simply show a pop-up ... UI."
-    // So ONLY for duplicates show popup. For success, the original UI was fine, but let's add toast there too.
-
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
@@ -176,31 +169,27 @@ function NewsletterForm() {
                     'Subscribe Now'
                 )}
             </button>
-            {status === 'error' && (
-                <div className="absolute -bottom-8 left-0 text-red-400 text-xs text-left w-full pl-2">
-                    {message}
-                </div>
-            )}
         </form>
     );
 }
 
-function SocialLink({ href, icon }: { href: string; icon: React.ReactNode }) {
-    // ... existing SocialLink code ...
+function SocialLink({ href, children }: { href: string; children: React.ReactNode }) {
     return (
         <a
             href={href}
+            target="_blank"
+            rel="noopener noreferrer"
             className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-900 hover:border-brand-green/30 hover:bg-brand-green/5 transition-all duration-300"
         >
-            {icon}
+            {children}
         </a>
     );
 }
 
 function FooterLink({ href, children }: { href: string; children: React.ReactNode }) {
     return (
-        <a href={href} className="hover:text-slate-900 transition-colors duration-200 block w-fit">
+        <Link href={href} className="hover:text-slate-900 transition-colors duration-200 block w-fit">
             {children}
-        </a>
+        </Link>
     );
 }

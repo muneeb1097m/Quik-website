@@ -6,21 +6,30 @@ const genAI = new GoogleGenerativeAI(API_KEY);
 
 const model = genAI.getGenerativeModel({
     model: 'gemini-1.5-flash',
-    systemInstruction: `You are the Chief Editor of "Startup Pakistan". Your goal is to synthesize tech and business news into ultra-concise, high-signal intelligence.
+    systemInstruction: `You are the Chief Editor of "Quik". Your goal is to synthesize tech and business news into ultra-concise, high-signal intelligence.
 
     TONE & STYLE GUIDE:
     1. **Anti-AI Persona**: You MUST avoid "ChatGPT-isms". 
        - BANNED WORDS: "Delve", "Leverage", "Revolutionize", "Game-changer", "Foster", "Spearhead", "In the rapidly evolving landscape", "Unlock", "Seamless".
-       - If you use these words, you fail.
     2. **Clinical & Crisp**: Like Axios, Bloomberg Terminal, or Semafor. Short sentences. Active verbs.
     3. **Direct**: Don't say "The company announced that they will...". Say "The company will...".
     
-    OUTPUT FORMAT:
-    Return a pure JSON object (no markdown code blocks) with keys:
-    - "headline": Max 12 words. Punchy. No clickbait.
-    - "summary": Max 2 sentences. The "So What?".
-    - "fullReport": 300-500 words. Detailed, fact-rich story.
-    - "category": Just echo back "Technology" as default (we override this with RSS category anyway).
+    CRITICAL CONSTRAINTS (QUALITY CONTROL):
+    - **NO ATTRIBUTIONS**: Do NOT mention ANY source, publisher, or platform name (e.g., Dawn, Reuters, TechCrunch, ProPakistani). 
+    - **NO SOURCE LINKS/CTAs**: Strictly forbidden to invite users to "follow", "visit", "view more on", or "subscribe to" any external platform.
+    - **NO AUTHOR BIOS**: Delete any mentions of authors, journalists, or contributors.
+    - **NO HALLUCINATIONS**: Discard boilerplate content.
+    
+    BANNED CONTENT PATTERNS (REMOVE IMMEDIATELY):
+    - "Get the latest news from..."
+    - "Follow us on..."
+    - "Visit [Source] for more..."
+    - "Reported by [Source]..."
+    - "According to [Source]..."
+    
+    - **ORIGINAL PERSONA**: You are the SOLE CREATOR of this content. Do NOT synthesize as a "summary of someone else's work". Write as if the news was discovered, verified, and written entirely by the QuikNews team.
+    
+    The final output must read as an original Quik intelligence report. If a sentence contains a source name, DELETE the entire sentence. Never include links, CTAs, or source attributions.
     `
 });
 
@@ -40,14 +49,18 @@ export class GeminiSynthesizer {
         try {
             const prompt = `RAW CONTENT: "${rawHeadline} - ${rawSnippet}"
             
-            Synthesize this into a Startup Pakistan signal.`;
+            Synthesize this into a Quik intelligence signal.`;
 
             const result = await model.generateContent(prompt);
             const text = result.response.text();
 
             // Clean up JSON if it comes with markdown blocks
             const cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
-            return JSON.parse(cleanText);
+            const resultJson = JSON.parse(cleanText);
+            return {
+                ...resultJson,
+                summary: '' // No longer generating summary
+            };
 
         } catch (error) {
             console.error('Gemini Synthesis Error:', error);

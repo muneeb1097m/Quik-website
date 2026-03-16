@@ -10,13 +10,10 @@ import { loadMoreSignals } from '@/app/actions';
 import { Loader2 } from 'lucide-react';
 
 interface LandingPageProps {
-    signals: Signal[];
-    events: NewsEvent[]; // Passing all events for lookup
-    // trending: Signal[]; // Not used in the UI directly, derived data passed as `mainStory` etc.
     mainStory: Signal | undefined;
     mainStoryEvent: NewsEvent | undefined;
     gridStories: Signal[];
-    sideStories: Signal[];
+    children: React.ReactNode;
 }
 
 // Internal component for Grid Stories to handle their own image error state
@@ -85,35 +82,8 @@ const GridStoryCard = ({ story, event }: { story: Signal, event: NewsEvent | und
     );
 };
 
-export function LandingPage({ signals, events, mainStory, mainStoryEvent, gridStories, sideStories }: LandingPageProps) {
-
-    const getEvent = (id: string) => events.find(e => e.id === id);
+export function LandingPage({ mainStory, mainStoryEvent, gridStories, children }: LandingPageProps) {
     const [mainImageError, setMainImageError] = useState(false);
-
-    // Pagination State
-    const [displayedSignals, setDisplayedSignals] = useState<Signal[]>(signals);
-    const [isLoadingMore, setIsLoadingMore] = useState(false);
-    const [hasMore, setHasMore] = useState(true);
-
-    const handleLoadMore = async () => {
-        if (isLoadingMore) return;
-        setIsLoadingMore(true);
-
-        try {
-            const lastSignal = displayedSignals[displayedSignals.length - 1];
-            const nextBatch = await loadMoreSignals(lastSignal?.id);
-
-            if (nextBatch.length === 0) {
-                setHasMore(false);
-            } else {
-                setDisplayedSignals(prev => [...prev, ...nextBatch as unknown as Signal[]]);
-            }
-        } catch (error) {
-            console.error("Failed to load more:", error);
-        } finally {
-            setIsLoadingMore(false);
-        }
-    };
 
     return (
         <div className="min-h-screen bg-slate-50 relative overflow-hidden font-sans selection:bg-brand-green/20 selection:text-slate-900">
@@ -194,7 +164,7 @@ export function LandingPage({ signals, events, mainStory, mainStoryEvent, gridSt
                     {/* Sub Grid (Right) */}
                     <div className="lg:col-span-4 flex flex-col md:flex-row lg:flex-col gap-4 md:gap-6 h-auto lg:h-full">
                         {gridStories.map((story) => {
-                            const evt = story.event || getEvent(story.eventId);
+                            const evt = (story as any).event;
                             return (
                                 <div key={story.id} className="flex-1 min-h-[260px]">
                                     <GridStoryCard story={story} event={evt} />
@@ -204,113 +174,8 @@ export function LandingPage({ signals, events, mainStory, mainStoryEvent, gridSt
                     </div>
                 </div>
 
-                {/* Lower Section Feed */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
-
-                    <div className="lg:col-span-8">
-                        <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-6 md:mb-8 flex items-center gap-3">
-                            <Cpu className="w-6 h-6 text-slate-400" />
-                            Raw Feed
-                        </h3>
-                        {/* Performance: Removed expensive framer-motion stagger animations */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                            {displayedSignals.map((signal, index) => {
-                                // Use the event embedded in signal if available, otherwise look it up
-                                // If still not found, we don't hide it anymore per user request, we just fallback
-                                const event = signal.event || getEvent(signal.eventId) || {
-                                    id: 'unknown',
-                                    title: 'News',
-                                    category: 'Technology', // Default generic
-                                    status: 'Live',
-                                    detectedAt: new Date(),
-                                    lastUpdatedAt: new Date(),
-                                    confidenceScore: 0,
-                                    sources: []
-                                } as any as NewsEvent;
-
-                                // Make every 5th card span full width for variety
-                                const isWide = (index + 1) % 5 === 0;
-
-                                return (
-                                    <div
-                                        key={signal.id}
-                                        className={isWide ? 'md:col-span-2' : ''}
-                                    >
-                                        <SignalCard signal={signal} event={event} />
-                                    </div>
-                                );
-                            })}
-                        </div>
-
-                        {/* Pagination / Load More */}
-                        <div className="mt-12 flex justify-center">
-                            {hasMore ? (
-                                <button
-                                    onClick={handleLoadMore}
-                                    disabled={isLoadingMore}
-                                    className="group relative px-8 py-4 bg-white border border-slate-200 rounded-full font-bold text-slate-900 shadow-sm hover:shadow-xl hover:border-brand-green/30 transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
-                                >
-                                    <div className="flex items-center gap-3 relative z-10">
-                                        {isLoadingMore ? (
-                                            <>
-                                                <Loader2 className="w-5 h-5 animate-spin text-brand-green" />
-                                                <span>Loading stories...</span>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <span>Load More Stories</span>
-                                                <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-brand-green/10 transition-colors">
-                                                    <svg className="w-3 h-3 text-slate-500 group-hover:text-brand-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-                                                    </svg>
-                                                </div>
-                                            </>
-                                        )}
-                                    </div>
-                                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-brand-green/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                </button>
-                            ) : (
-                                <div className="text-slate-400 text-sm font-medium py-4 px-8 bg-slate-100 rounded-full">
-                                    You've reached the end
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Right Sidebar */}
-                    <div className="lg:col-span-4">
-                        <div className="sticky top-28 space-y-8">
-                            <div className="glass-panel rounded-3xl p-6 md:p-8 border border-slate-200 bg-white/50 backdrop-blur-xl">
-                                <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
-                                    <Globe className="w-4 h-4" />
-                                    Most Read Today
-                                </h3>
-                                <div className="space-y-6">
-                                    {sideStories.map((story, i) => (
-                                        <Link key={story.id} href={`/news/${story.id}`} className="block relative z-10">
-                                            <div className="group cursor-pointer mb-6 last:mb-0">
-                                                <div className="flex items-center gap-3 mb-2">
-                                                    <span className="text-xs font-bold text-brand-red">Global</span>
-                                                    <span className="text-xs text-slate-300">•</span>
-                                                    <span className="text-xs text-slate-500" suppressHydrationWarning>
-                                                        {(() => {
-                                                            const d = new Date(story.generatedAt || Date.now());
-                                                            return isNaN(d.getTime()) ? 'Recently' : d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-                                                        })()}
-                                                    </span>
-                                                </div>
-                                                <h4 className="font-bold text-slate-800 leading-snug group-hover:text-brand-red transition-colors line-clamp-2">
-                                                    {story.headline}
-                                                </h4>
-                                            </div>
-                                        </Link>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
+                {/* Content injected via Streaming Server Components */}
+                {children}
 
             </main>
         </div>

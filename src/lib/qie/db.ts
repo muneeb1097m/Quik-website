@@ -97,8 +97,8 @@ export const db = {
         }
 
         // TEMPORARY: Bypass cache for category debugging
-        // return unstable_cache(
-        //     async () => {
+        return unstable_cache(
+            async () => {
                 let query = supabase.from('Signal')
                     .select(`
                         id, headline, summary, imageUrl, generatedAt, eventId,
@@ -120,10 +120,10 @@ export const db = {
                 console.log(`[DB] getSignals(${category}): found ${data?.length || 0} signals`);
                 
                 return data || [];
-        //     },
-        //     [`signals-${category || 'all'}-${limit || 0}-${skip || 0}-v10`],
-        //     { revalidate: 3600 }
-        // )();
+            },
+            [`signals-${category || 'all'}-${limit || 0}-${skip || 0}-v10`],
+            { revalidate: 300 } // Cache for 5 minutes
+        )();
     },
 
     getHomePageData: async () => {
@@ -137,9 +137,9 @@ export const db = {
                     supabase.from('NewsEvent').select('id, title, category, sources:Source(*)').order('detectedAt', { ascending: false }).limit(20)
                 ]);
 
-                if (trendingReq.error) console.error("getHomePageData trending error:", trendingReq.error);
-                if (signalsReq.error) console.error("getHomePageData signals error:", signalsReq.error);
-                if (eventsReq.error) console.error("getHomePageData events error:", eventsReq.error);
+                if (trendingReq.error) console.error("getHomePageData trending error:", trendingReq.error.message, trendingReq.error.code, trendingReq.error.details);
+                if (signalsReq.error) console.error("getHomePageData signals error:", signalsReq.error.message, signalsReq.error.code, signalsReq.error.details);
+                if (eventsReq.error) console.error("getHomePageData events error:", eventsReq.error.message, eventsReq.error.code, eventsReq.error.details);
 
                 console.log(`[DB] getHomePageData v10: trending=${trendingReq.data?.length}, signals=${signalsReq.data?.length}`);
 

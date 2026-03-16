@@ -68,7 +68,7 @@ export function SignalCard({ signal, event, onClick }: SignalCardProps) {
                                     // Default Abstract
                                     return "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2940&auto=format&fit=crop";
                                 })()}
-                                alt="News Fallback"
+                                alt={`${signal.headline} - ${event.category} News`}
                                 className="w-full h-full object-cover"
                             />
                         </div>
@@ -94,9 +94,6 @@ export function SignalCard({ signal, event, onClick }: SignalCardProps) {
                     {signal.headline}
                 </h3>
 
-                <p className="text-slate-500 text-base leading-relaxed line-clamp-2 font-medium">
-                    {signal.summary}
-                </p>
             </div>
         </Link>
     );

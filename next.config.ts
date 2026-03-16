@@ -5,11 +5,13 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
   staticPageGenerationTimeout: 120, // Give it more time, but might still timeout
 
-  // Performance: Enable experimental features
+  // Performance: Enable experimental features (Disabled for stability during HMR)
+  /*
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
     webpackMemoryOptimizations: true,
   },
+  */
 
   images: {
     unoptimized: true,

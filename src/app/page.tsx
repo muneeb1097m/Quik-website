@@ -1,7 +1,9 @@
-import { db, supabase } from '@/lib/qie/db';
+import { db } from '@/lib/qie/db';
 import { LandingPage } from '@/components/LandingPage';
-import { NewsEvent, Signal } from '@/types';
 import { serialize } from '@/lib/utils';
+import { Suspense } from 'react';
+import { RawFeedSection, SidebarSection } from '@/components/HomeStreaming';
+import { SignalCardSkeleton, SidebarSkeleton } from '@/components/Skeletons';
 
 export const runtime = 'edge';
 
@@ -17,46 +19,41 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  const data = await db.getHomePageData();
+  // Fetch only Hero data (Trending) for fast LCP
+  const trendingData = await db.getSignals(undefined, 3);
   
-  const trendingSignals = data.trending || [];
-  const allSignalsFromDb = data.signals || [];
-
-  // Derive view data with fallback for thin feeds
-  // Combine them to ensure we have enough to fill the page
-  const combinedSignals = [...trendingSignals];
-  const seenIds = new Set(combinedSignals.map(s => s.id));
-  
-  for (const s of allSignalsFromDb) {
-    if (!seenIds.has(s.id)) {
-      combinedSignals.push(s);
-      seenIds.add(s.id);
-    }
-    if (combinedSignals.length >= 20) break;
+  if (!trendingData || trendingData.length === 0) {
+      console.warn('CRITICAL: trendingData is empty');
   }
 
-  // Handle completely empty state
-  if (combinedSignals.length === 0) {
-      console.warn('CRITICAL: combinedSignals is empty (No news found in DB)');
-  }
-
-  const mainStory = combinedSignals[0];
-  const gridStories = combinedSignals.slice(1, 3);
-  const sideStories = combinedSignals.slice(3, 7);
-  // Important: Extract the event from the main signal if it exists
+  const mainStory = trendingData[0];
+  const gridStories = trendingData.slice(1, 3);
+  
+  // Note: mainStory.event is already included if using the updated db.ts logic
   const mainStoryEvent = mainStory ? (mainStory as any).event : undefined;
-
-  const serializedSignals = serialize(allSignalsFromDb as any).slice(0, 20);
-  const serializedEvents = serialize(data.events as any);
 
   return (
     <LandingPage
-      signals={serializedSignals}
-      events={serializedEvents}
       mainStory={serialize(mainStory as any)}
       mainStoryEvent={serialize(mainStoryEvent as any)}
       gridStories={serialize(gridStories as any)}
-      sideStories={serialize(sideStories as any)}
-    />
+    >
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+        <Suspense fallback={
+          <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+            <SignalCardSkeleton />
+            <SignalCardSkeleton />
+            <SignalCardSkeleton />
+            <SignalCardSkeleton />
+          </div>
+        }>
+          <RawFeedSection />
+        </Suspense>
+
+        <Suspense fallback={<SidebarSkeleton />}>
+          <SidebarSection />
+        </Suspense>
+      </div>
+    </LandingPage>
   );
 }

@@ -1,12 +1,12 @@
+// Version: 1.0.3 - Cache Breach
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { Toaster } from 'sonner';
-import Script from 'next/script';
 import { GoogleAnalytics } from '@next/third-parties/google';
-import dynamic from 'next/dynamic';
+import { Navigation } from '@/components/Navigation';
+import AppFooter from '@/components/AppFooter';
 
-// Performance: Optimize font loading with swap and variable font
 const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
@@ -14,16 +14,6 @@ const inter = Inter({
   preload: true,
   fallback: ['system-ui', 'arial'],
 });
-
-// Performance: Dynamic imports to reduce initial bundle size
-// Navigation is critical for LCP/CLS, so we import it directly now
-import { Navigation } from '@/components/Navigation';
-import { Chatbot } from '@/components/Chatbot';
-
-const Footer = dynamic(() => import('@/components/Footer').then(mod => ({ default: mod.Footer })), {
-  ssr: true,
-});
-
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://quiknews.online'),
@@ -85,13 +75,48 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'WebSite',
+              name: 'Quik News',
+              url: 'https://quiknews.online',
+              potentialAction: {
+                '@type': 'SearchAction',
+                target: 'https://quiknews.online/search?q={search_term_string}',
+                'query-input': 'required name=search_term_string',
+              },
+            }),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'Organization',
+              name: 'Quik',
+              url: 'https://quiknews.online',
+              logo: 'https://quiknews.online/logo.png',
+              sameAs: [
+                'https://x.com/quik_news',
+                'https://www.instagram.com/quikn.ews/',
+                'https://www.facebook.com/people/Quik-News/61586617626892/',
+                'https://www.linkedin.com/company/quik-official',
+                'https://www.linkedin.com/showcase/quik-sports1'
+              ],
+            }),
+          }}
+        />
+
         <Navigation />
         <Toaster position="top-center" richColors />
         {children}
-        <Footer />
+        <AppFooter />
 
         <GoogleAnalytics gaId="G-VDRE507J76" />
-        <Chatbot />
       </body>
     </html>
   );
