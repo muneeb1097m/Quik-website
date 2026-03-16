@@ -96,17 +96,18 @@ export const db = {
             else targetCategories = [category, c, c.charAt(0).toUpperCase() + c.slice(1)];
         }
 
-        return unstable_cache(
-            async () => {
+        // TEMPORARY: Bypass cache for category debugging
+        // return unstable_cache(
+        //     async () => {
                 let query = supabase.from('Signal')
                     .select(`
                         id, headline, summary, imageUrl, generatedAt, eventId,
-                        event!inner(id, title, category, status, detectedAt, lastUpdatedAt, confidenceScore, sources:Source(*))
+                        event:NewsEvent!inner(id, title, category, status, detectedAt, lastUpdatedAt, confidenceScore, sources:Source(*))
                     `)
                     .order('generatedAt', { ascending: false });
 
                 if (targetCategories.length > 0) {
-                    query = query.in('event.category', targetCategories);
+                    query = query.in('NewsEvent.category', targetCategories);
                 }
 
                 if (limit) {
@@ -119,10 +120,10 @@ export const db = {
                 console.log(`[DB] getSignals(${category}): found ${data?.length || 0} signals`);
                 
                 return data || [];
-            },
-            [`signals-${category || 'all'}-${limit || 0}-${skip || 0}-v10`],
-            { revalidate: 3600 }
-        )();
+        //     },
+        //     [`signals-${category || 'all'}-${limit || 0}-${skip || 0}-v10`],
+        //     { revalidate: 3600 }
+        // )();
     },
 
     getHomePageData: async () => {
