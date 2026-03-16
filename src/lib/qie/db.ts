@@ -49,7 +49,7 @@ export const db = {
                 if (error) { console.error(error); return null; }
                 return data;
             },
-            [`event-${id}`],
+            [`event-${id}-v10`],
             { revalidate: 3600 }
         )();
     },
@@ -64,7 +64,7 @@ export const db = {
                 if (error) { console.error(error); return null; }
                 return data;
             },
-            [`signal-${id}`],
+            [`signal-${id}-v10`],
             { revalidate: 3600 }
         )();
     },
@@ -114,10 +114,10 @@ export const db = {
                 }
 
                 const { data, error } = await query;
-                if (error) { console.error(error); return []; }
+                if (error) { console.error("getSignals Error:", error); return []; }
                 return data || [];
             },
-            [`signals-${category || 'all'}-${limit || 0}-${skip || 0}`],
+            [`signals-${category || 'all'}-${limit || 0}-${skip || 0}-v10`],
             { revalidate: 3600 }
         )();
     },
@@ -137,7 +137,7 @@ export const db = {
                 if (signalsReq.error) console.error("getHomePageData signals error:", signalsReq.error);
                 if (eventsReq.error) console.error("getHomePageData events error:", eventsReq.error);
 
-                console.log(`[DB] getHomePageData v9: trending=${trendingReq.data?.length}, signals=${signalsReq.data?.length}`);
+                console.log(`[DB] getHomePageData v10: trending=${trendingReq.data?.length}, signals=${signalsReq.data?.length}`);
 
                 return {
                     trending: trendingReq.data || [],
@@ -145,7 +145,7 @@ export const db = {
                     events: eventsReq.data || []
                 };
             },
-            ['home-page-data-v9'],
+            ['home-page-data-v10'],
             { revalidate: 3600 }
         )().catch(err => {
             console.error("getHomePageData caught error:", err);
