@@ -1,0 +1,47 @@
+
+> web-app@0.1.0 pages:build
+> npx @cloudflare/next-on-pages
+
+⚡️ @cloudflare/next-on-pages CLI v.1.13.16
+⚡️ Detected Package Manager: npm (10.8.2)
+⚡️ Preparing project...
+⚡️ Project is ready
+⚡️ Building project...
+▲  Vercel CLI 47.0.4
+▲  WARN! Build not running on Vercel. System environment variables will not be available.
+▲  WARNING: You should not upload the `.next` directory.
+▲  Installing dependencies...
+▲  up to date in 2s
+▲  196 packages are looking for funding
+▲  run `npm fund` for details
+▲  Detected Next.js version: 16.1.1
+▲  Running "npm run build"
+▲  > web-app@0.1.0 build
+▲  > next build
+▲  ▲ Next.js 16.1.1 (Turbopack)
+▲  - Environments: .env.local, .env
+▲  - Experiments (use with caution):
+▲  · optimizePackageImports
+▲  ✓ webpackMemoryOptimizations
+▲  Creating an optimized production build ...
+▲  ✓ Compiled successfully in 15.7s
+▲  Running TypeScript ...
+▲  Collecting page data using 7 workers ...
+▲  ⚠ Using edge runtime on a page currently disables static generation for that page
+▲  Error: The edge runtime does not support Node.js 'stream' module.
+▲  Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+▲  at Object.get (.next/server/edge/chunks/[root-of-the-server]__44114eea._.js:2:317)
+▲  at <unknown> (.next/server/edge/chunks/[root-of-the-server]__ec928448._.js:1:82363)
+▲  at module evaluation (.next/server/edge/chunks/[root-of-the-server]__ec928448._.js:1:91660)
+▲  at Object.<anonymous> (.next/server/edge/chunks/[root-of-the-server]__ec928448._.js:1:92667)
+▲  at module evaluation (.next/server/edge/chunks/[root-of-the-server]__ec928448._.js:1:98601)
+▲  > Build error occurred
+▲  Error: Failed to collect page data for /api/cron
+▲    at ignore-listed frames {
+▲  type: 'Error'
+▲  }
+▲  Error: Command "npm run build" exited with 1
+
+⚡️ The Vercel build (`npx vercel build`) command failed. For more details see the Vercel logs above.
+⚡️ If you need help solving the issue, refer to the Vercel or Next.js documentation or their repositories.
+

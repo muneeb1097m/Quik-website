@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+:root {
+  /* Spatial Glass - Light Theme Variables */
+  --background: #f8fafc;
+  /* Slate-50 */
+  --foreground: #0f172a;
+  /* Slate-900 */
+
+  /* Startup Pakistan Brand Colors - Refactored for "Beige + B&W" Theme */
+  --brand-green: #ffecd7;
+  /* The User's Beige Accent */
+  --brand-red: #0f172a;
+  /* Mapped to Dark Slate (Black-ish) for B&W theme */
+  --brand-yellow: #94a3b8;
+  /* Mapped to Slate-400 (Grey) for B&W theme */
+}
+
+
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Glassmorphism Utilities - Light Mode */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+.glass-panel-hover:hover {
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 10px 15px -3px rgba(147, 51, 234, 0.1), 0 4px 6px -2px rgba(147, 51, 234, 0.05);
+  /* Purple shadow hint */
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+/* Pulse Animation for Orbs - Optimized */
+@keyframes pulse-slow {
+
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.4;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes pulse-slower {
+
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.3;
+    transform: scale(1.1);
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 10s infinite linear;
+}
+
+.animate-pulse-slower {
+  animation: pulse-slower 12s infinite linear;
+}
