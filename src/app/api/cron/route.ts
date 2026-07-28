@@ -13,7 +13,6 @@ import { stripHtml } from '@/lib/utils';
 // Prevent vercel time out
 export const maxDuration = 60;
 export const dynamic = 'force-dynamic';
-export const runtime = 'edge';
 
 export async function GET() {
     console.log('Cron Job Started: fetching news...');

@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { db, supabase } from '@/lib/qie/db';
 
 export const dynamic = 'force-dynamic';
-export const runtime = 'edge';
 
 export async function GET() {
     try {

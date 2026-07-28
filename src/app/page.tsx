@@ -5,8 +5,6 @@ import { Suspense } from 'react';
 import { RawFeedSection, SidebarSection } from '@/components/HomeStreaming';
 import { SignalCardSkeleton, SidebarSkeleton } from '@/components/Skeletons';
 
-export const runtime = 'edge';
-
 // Instant Live Updates: Set revalidate to 0 so new news signals appear immediately when fetched
 export const revalidate = 0;
 export const dynamic = 'force-dynamic';

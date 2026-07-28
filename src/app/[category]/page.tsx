@@ -1,7 +1,5 @@
 import { db } from '@/lib/qie/db';
 import { SignalCard } from '@/components/SignalCard';
-
-export const runtime = 'edge';
 import { notFound } from 'next/navigation';
 import { NewsEvent } from '@/types';
 

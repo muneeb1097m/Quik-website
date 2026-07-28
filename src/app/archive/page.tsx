@@ -1,7 +1,5 @@
 import { db } from '@/lib/qie/db';
 import { SignalCard } from '@/components/SignalCard';
-
-export const runtime = 'edge';
 import { NewsEvent, Signal } from '@/types';
 import { serialize } from '@/lib/utils';
 import Link from 'next/link';

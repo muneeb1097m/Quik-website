@@ -1,7 +1,5 @@
 import { db } from '@/lib/qie/db';
 import { notFound } from 'next/navigation';
-
-export const runtime = 'edge';
 import NewsDetailView from '@/components/NewsDetailView';
 import { serialize } from '@/lib/utils';
 
