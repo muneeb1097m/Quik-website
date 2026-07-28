@@ -21,7 +21,16 @@ const getSupabaseConfig = () => {
 };
 
 const { url: supabaseUrl, key: supabaseKey } = getSupabaseConfig();
-export const supabase = createClient(supabaseUrl, supabaseKey);
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+    auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+    },
+    global: {
+        fetch: (url, options) => fetch(url, options),
+    },
+});
 
 // Helper accessor for Supabase Events
 export const db = {
