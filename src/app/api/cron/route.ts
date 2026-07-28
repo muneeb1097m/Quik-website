@@ -46,13 +46,13 @@ export async function GET() {
             if (seenHeadlines.has(item.headline)) return false;
             seenHeadlines.add(item.headline);
 
-            // Second pass: Deduplication
+            // Second pass: Deduplication against DB recent headlines (Exact match)
             if (recentHeadlines.length > 0 && item.headline) {
                 const targetMatch = item.headline.toLowerCase().replace(/[^a-z0-9]/gi, '');
                 for (const recent of recentHeadlines) {
                     const rMatch = recent.toLowerCase().replace(/[^a-z0-9]/gi, '');
-                    if (targetMatch.includes(rMatch) || rMatch.includes(targetMatch)) {
-                        console.log(`[Duplicate Prevented PRE-AI] Skipping "${item.headline}"`);
+                    if (targetMatch === rMatch) {
+                        console.log(`[Duplicate Prevented PRE-AI] Skipping exact duplicate "${item.headline}"`);
                         return false;
                     }
                 }
