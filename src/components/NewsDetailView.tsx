@@ -13,6 +13,66 @@ interface NewsDetailViewProps {
     related: any[];
 }
 
+const FormattedReport = ({ content }: { content: string }) => {
+    if (!content) return null;
+
+    // Split content into blocks by double newlines or single newlines with Markdown markers
+    const rawParagraphs = content.split(/\n\s*\n/).filter(p => p.trim().length > 0);
+
+    return (
+        <div className="space-y-6 text-base md:text-lg text-slate-700 leading-relaxed font-sans">
+            {rawParagraphs.map((block, index) => {
+                const trimmed = block.trim();
+
+                // 1. Heading (### or ##)
+                if (trimmed.startsWith('#') || trimmed.startsWith('###') || trimmed.startsWith('##')) {
+                    const headingText = trimmed.replace(/^#+\s*/, '');
+                    return (
+                        <div key={index} className="pt-6 pb-2 border-b border-slate-100 flex items-center gap-3">
+                            <div className="w-1.5 h-6 bg-slate-900 rounded-full flex-shrink-0" />
+                            <h4 className="text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight">
+                                {headingText}
+                            </h4>
+                        </div>
+                    );
+                }
+
+                // 2. Bullet List (- or *)
+                if (trimmed.startsWith('- ') || trimmed.startsWith('* ') || trimmed.includes('\n- ')) {
+                    const items = trimmed.split('\n').filter(line => line.trim().startsWith('- ') || line.trim().startsWith('* '));
+                    return (
+                        <ul key={index} className="space-y-3 my-4 pl-1">
+                            {items.map((item, itemIdx) => (
+                                <li key={itemIdx} className="flex items-start gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200/60 text-slate-800 font-medium text-base md:text-lg shadow-2xs">
+                                    <span className="w-2.5 h-2.5 rounded-full bg-slate-900 mt-2 flex-shrink-0" />
+                                    <span>{item.replace(/^[-*]\s*/, '')}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    );
+                }
+
+                // 3. Blockquote (> )
+                if (trimmed.startsWith('>')) {
+                    const quoteText = trimmed.replace(/^>\s*/, '');
+                    return (
+                        <blockquote key={index} className="my-6 p-6 rounded-2xl bg-slate-900 text-white font-medium text-lg md:text-xl leading-relaxed shadow-sm border-l-4 border-emerald-400 italic">
+                            "{quoteText}"
+                        </blockquote>
+                    );
+                }
+
+                // 4. Regular Paragraphs
+                return (
+                    <p key={index} className="text-slate-700 text-base md:text-lg leading-relaxed font-normal">
+                        {trimmed}
+                    </p>
+                );
+            })}
+        </div>
+    );
+};
+
 export default function NewsDetailView({ signal, event, related }: NewsDetailViewProps) {
 
     // --- CLIENT SIDE LOGIC ---
@@ -144,15 +204,9 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
                                     Intelligence report synthesized for precision. Verified source updates below.
                                 </p>
                                 {signal.fullReport && (
-                                    <div
-                                        className="mt-12 pt-12 border-t border-slate-200"
-                                    >
-                                        <h3 className="text-2xl font-bold text-slate-900 mb-6">Detailed Report</h3>
-                                        <div className="space-y-6 text-base md:text-lg text-slate-700 leading-relaxed font-serif">
-                                            {signal.fullReport.split('\n\n').map((para: string, i: number) => (
-                                                <p key={i}>{para}</p>
-                                            ))}
-                                        </div>
+                                    <div className="mt-12 pt-12 border-t border-slate-200">
+                                        <h3 className="text-2xl font-bold text-slate-900 mb-8 tracking-tight">Detailed Report</h3>
+                                        <FormattedReport content={signal.fullReport} />
                                     </div>
                                 )}
                             </div>

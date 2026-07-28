@@ -34,18 +34,19 @@ export class GeminiSynthesizer {
             const prompt = `RAW HEADLINE: "${rawHeadline}"
 RAW CONTENT: "${rawSnippet}"
 
-TASK: Synthesize this into a detailed, comprehensive Quik intelligence report.
-Write an in-depth, multi-paragraph report (at least 250-400 words across 3-4 structured paragraphs separated by double newlines).
-Include:
-1. Main Event & Key Highlights (What happened in detail)
-2. Critical Facts, Numbers, & Background Context
-3. Strategic Impact / Why it matters for the industry or region
+TASK: Synthesize this into a beautifully structured, comprehensive Quik intelligence report (300-500 words).
+
+STRUCTURE INSTRUCTIONS FOR fullReport:
+Use clean Markdown formatting with clear section headings and bullet points:
+- Use "### Section Name" for section headings (e.g. ### Key Developments, ### Background & Critical Context, ### Strategic Impact).
+- Use bullet points ("- Fact") for key numbers, quotes, or highlights.
+- Keep paragraphs separated by double newlines (\n\n).
 
 Format your output STRICTLY as a JSON object:
 {
   "headline": "Punchy, accurate headline",
   "category": "Technology | Business | Pakistan | Global | Sports | AI | Auto | Startups",
-  "fullReport": "Paragraph 1...\n\nParagraph 2...\n\nParagraph 3...\n\nParagraph 4..."
+  "fullReport": "### Key Developments\n\nDetailed introduction paragraph...\n\n- Key fact 1\n- Key fact 2\n\n### Background & Context\n\nDetailed background paragraph...\n\n### Strategic Impact\n\nConcluding analysis paragraph..."
 }`;
 
             const result = await model.generateContent(prompt);
