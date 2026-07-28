@@ -301,8 +301,8 @@ export async function GET() {
         // Optimization: Only revalidate the homepage if we actually added new content
         // This ensures users see new news immediately without waiting for the 1-hour ISR cycle
         if (newSignals.length > 0) {
-            revalidatePath('/');
-            revalidateTag('signals');
+            revalidatePath('/', 'page');
+            (revalidateTag as any)('signals');
             console.log("Revalidated '/' path and 'signals' cache tag.");
         }
 
