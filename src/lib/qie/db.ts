@@ -102,7 +102,7 @@ export const db = {
                 let query = supabase.from('Signal')
                     .select(`
                         id, headline, summary, imageUrl, generatedAt, eventId,
-                        event:NewsEvent!inner(id, title, category, status, detectedAt, lastUpdatedAt, confidenceScore, sources:Source(*))
+                        event:NewsEvent(id, title, category, status, detectedAt, lastUpdatedAt, confidenceScore, sources:Source(*))
                     `)
                     .order('generatedAt', { ascending: false });
 
@@ -121,8 +121,8 @@ export const db = {
                 
                 return data || [];
             },
-            [`signals-${category || 'all'}-${limit || 0}-${skip || 0}-v10`],
-            { revalidate: 300 } // Cache for 5 minutes
+            [`signals-${category || 'all'}-${limit || 0}-${skip || 0}-v11`],
+            { revalidate: 60, tags: ['signals'] } // Cache for 60 seconds
         )();
     },
 

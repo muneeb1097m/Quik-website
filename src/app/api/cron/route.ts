@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { NewsMonitor } from '@/lib/qie/monitor';
 import { GeminiSynthesizer } from '@/lib/qie/gemini';
 import { GoogleImageSearcher } from '@/lib/qie/image_search';
@@ -302,7 +302,8 @@ export async function GET() {
         // This ensures users see new news immediately without waiting for the 1-hour ISR cycle
         if (newSignals.length > 0) {
             revalidatePath('/');
-            console.log("Revalidated '/' path.");
+            revalidateTag('signals');
+            console.log("Revalidated '/' path and 'signals' cache tag.");
         }
 
         return NextResponse.json({
