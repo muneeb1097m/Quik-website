@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { stripHtml } from '@/lib/utils';
+import { stripHtml, decodeHtmlEntities } from '@/lib/utils';
 
 const API_KEY = process.env.GEMINI_API_KEY || '';
 const genAI = new GoogleGenerativeAI(API_KEY);
@@ -56,10 +56,10 @@ Format your output STRICTLY as a JSON object:
             const cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
             const resultJson = JSON.parse(cleanText);
             return {
-                headline: resultJson.headline || rawHeadline,
+                headline: decodeHtmlEntities(resultJson.headline || rawHeadline),
                 summary: '',
                 category: resultJson.category || 'Technology',
-                fullReport: resultJson.fullReport || stripHtml(rawSnippet)
+                fullReport: decodeHtmlEntities(resultJson.fullReport || stripHtml(rawSnippet))
             };
 
         } catch (error) {

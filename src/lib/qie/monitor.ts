@@ -1,4 +1,5 @@
 import { XMLParser } from 'fast-xml-parser';
+import { decodeHtmlEntities, stripHtml } from '@/lib/utils';
 
 // RSS Feeds - Category-Specific Sources
 const RSS_FEEDS = [
@@ -103,9 +104,11 @@ export class NewsMonitor {
                     else if (item['media:thumbnail'] && item['media:thumbnail']['@_url']) img = item['media:thumbnail']['@_url'];
 
                     // RSS title vs Atom title
-                    const headline = item.title?.['#text'] || item.title || 'No Title';
+                    const rawHeadline = item.title?.['#text'] || item.title || 'No Title';
+                    const headline = decodeHtmlEntities(stripHtml(String(rawHeadline)));
                     const link = item.link?.['@_href'] || item.link || '';
-                    const content = item.description || item.content || item.summary || item['content:encoded'] || '';
+                    const rawContent = item.description || item.content || item.summary || item['content:encoded'] || '';
+                    const content = decodeHtmlEntities(stripHtml(String(rawContent)));
                     const timestamp = item.pubDate || item.published || item.updated || new Date().toISOString();
 
                     return {

@@ -1,6 +1,6 @@
 import { db } from '@/lib/qie/db';
 import { SignalCard } from './SignalCard';
-import { serialize } from '@/lib/utils';
+import { serialize, decodeHtmlEntities } from '@/lib/utils';
 import { Cpu, Globe } from 'lucide-react';
 import Link from 'next/link';
 
@@ -58,7 +58,7 @@ export async function SidebarSection() {
                                         </span>
                                     </div>
                                     <h4 className="font-bold text-slate-800 leading-snug group-hover:text-brand-red transition-colors line-clamp-2">
-                                        {story.headline}
+                                        {decodeHtmlEntities(story.headline)}
                                     </h4>
                                 </div>
                             </Link>

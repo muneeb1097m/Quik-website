@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Clock } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { decodeHtmlEntities } from '@/lib/utils';
 
 interface SignalCardProps {
     signal: Signal;
@@ -91,7 +92,7 @@ export function SignalCard({ signal, event, onClick }: SignalCardProps) {
                 </div>
 
                 <h3 className="text-2xl font-extrabold text-slate-900 mb-3 leading-snug tracking-tight group-hover:text-slate-600 transition-colors">
-                    {signal.headline}
+                    {decodeHtmlEntities(signal.headline)}
                 </h3>
 
             </div>

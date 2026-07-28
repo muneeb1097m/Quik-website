@@ -9,29 +9,71 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
+ * Decodes numeric and named HTML entities (e.g. &#8217; -> ', &amp; -> &, &quot; -> ")
+ */
+export function decodeHtmlEntities(text: string): string {
+    if (!text) return '';
+
+    return text
+        // Named entities
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&apos;/g, "'")
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&copy;/g, '©')
+        .replace(/&reg;/g, '®')
+        .replace(/&trade;/g, '™')
+        .replace(/&mdash;/g, '—')
+        .replace(/&ndash;/g, '–')
+
+        // Common numeric smart quotes, apostrophes, dashes
+        .replace(/&#8216;/g, "'")
+        .replace(/&#8217;/g, "'")
+        .replace(/&#8218;/g, ",")
+        .replace(/&#8220;/g, '"')
+        .replace(/&#8221;/g, '"')
+        .replace(/&#8222;/g, '"')
+        .replace(/&#8211;/g, '–')
+        .replace(/&#8212;/g, '—')
+        .replace(/&#8230;/g, '...')
+        .replace(/&#39;/g, "'")
+        .replace(/&#039;/g, "'")
+        .replace(/&#x27;/g, "'")
+        .replace(/&#x2F;/g, '/')
+
+        // Generic decimal entity regex: &#1234; -> String.fromCharCode(1234)
+        .replace(/&#(\d+);/g, (_, dec) => {
+            try {
+                return String.fromCharCode(parseInt(dec, 10));
+            } catch {
+                return _;
+            }
+        })
+        // Generic hex entity regex: &#x1f4a9; -> String.fromCodePoint(0x1f4a9)
+        .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => {
+            try {
+                return String.fromCodePoint(parseInt(hex, 16));
+            } catch {
+                return _;
+            }
+        });
+}
+
+/**
  * Efficiently serializes data to be passed to Client Components.
- * This replaces the expensive JSON.parse(JSON.stringify(data)) pattern.
- * It primarily handles converting Date objects to ISO strings or preserving them if possible,
- * but for Next.js Client props, simple JSON cloning is often what's needed to strip non-serializables.
- * However, a custom traverser is better if we only need to specific fields, but strictly 
- * for "JSON-serializable" check, the native JSON methods are robust if slow.
- * 
- * Ideally, we should manually map DTOs, but for speed, we'll implement a slightly
- * lighter deep clone if needed, OR just wrap the JSON hack in a typed helper 
- * if we can't easily refactor everything to DTOs right now.
- * 
- * Given the current usage, let's keep it simple wrapper first to centralize it.
  */
 export function serialize<T>(data: T): T {
     if (data === undefined || data === null) return data;
-    // For now, centralizing this allows us to swap implementation later.
     return JSON.parse(JSON.stringify(data));
 }
 
 /**
- * Removes HTML tags from a string.
+ * Removes HTML tags and decodes HTML entities from a string.
  */
 export function stripHtml(html: string): string {
     if (!html) return '';
-    return html.replace(/<[^>]*>?/gm, '');
+    const cleaned = html.replace(/<[^>]*>?/gm, '');
+    return decodeHtmlEntities(cleaned).trim();
 }

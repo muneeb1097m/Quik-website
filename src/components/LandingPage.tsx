@@ -8,6 +8,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { loadMoreSignals } from '@/app/actions';
 import { Loader2 } from 'lucide-react';
+import { decodeHtmlEntities } from '@/lib/utils';
 
 interface LandingPageProps {
     mainStory: Signal | undefined;
@@ -68,7 +69,7 @@ const GridStoryCard = ({ story, event }: { story: Signal, event: NewsEvent | und
             </div>
 
             <h3 className="relative z-10 text-2xl font-extrabold text-white leading-tight drop-shadow-lg line-clamp-3">
-                {story.headline}
+                {decodeHtmlEntities(story.headline)}
             </h3>
             <div className="relative z-10 mt-3 flex items-center gap-2 text-slate-300 text-xs font-medium">
                 <span suppressHydrationWarning>
@@ -142,7 +143,7 @@ export function LandingPage({ mainStory, mainStoryEvent, gridStories, children }
                                         </div>
                                         <div className="overflow-hidden">
                                             <h2 className="text-3xl md:text-5xl lg:text-7xl font-extrabold text-white leading-[1.1] md:leading-[1] max-w-4xl tracking-tight mb-4 md:mb-6 drop-shadow-xl">
-                                                {mainStory.headline}
+                                                {decodeHtmlEntities(mainStory.headline)}
                                             </h2>
                                         </div>
                                         <div className="flex items-center gap-4 text-slate-300 font-medium text-sm md:text-base">
