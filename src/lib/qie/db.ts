@@ -151,7 +151,7 @@ export const db = {
             },
             ['home-page-data-v10'],
             { revalidate: 3600 }
-        )().catch(err => {
+        )().catch((err: any) => {
             console.error("getHomePageData caught error:", err);
             return { trending: [], signals: [], events: [] };
         });

@@ -7,8 +7,9 @@ import { SignalCardSkeleton, SidebarSkeleton } from '@/components/Skeletons';
 
 export const runtime = 'edge';
 
-// Performance: Cache the homepage using ISR to eliminate Vercel Fluid Active CPU consumption
-export const revalidate = 300;
+// Instant Live Updates: Set revalidate to 0 so new news signals appear immediately when fetched
+export const revalidate = 0;
+export const dynamic = 'force-dynamic';
 
 import type { Metadata } from 'next';
 
