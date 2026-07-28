@@ -97,11 +97,7 @@ export function Navigation() {
                     onClick={() => setIsOpen(!isOpen)}
                     aria-label={isOpen ? "Close menu" : "Open menu"}
                     aria-expanded={isOpen}
-                    className={`w-12 h-12 rounded-full border shadow-lg flex items-center justify-center transition-all ${
-                        isOpen 
-                            ? 'bg-slate-900 text-white border-slate-800' 
-                            : 'bg-white/90 text-slate-900 border-white/40 backdrop-blur-md'
-                    }`}
+                    className="w-12 h-12 rounded-full bg-white/90 text-slate-900 border border-slate-200/80 shadow-lg backdrop-blur-md flex items-center justify-center transition-all active:scale-95"
                 >
                     {isOpen ? (
                         <X className="w-6 h-6 stroke-[2.5]" />
@@ -111,11 +107,11 @@ export function Navigation() {
                 </button>
             </div>
 
-            {/* Mobile Menu Fullscreen Drawer Overlay */}
+            {/* Mobile Menu Fullscreen Drawer (White Background & Black Text) */}
             {isOpen && (
-                <div className="fixed inset-0 z-50 bg-slate-900/95 backdrop-blur-2xl flex flex-col pointer-events-auto lg:hidden">
+                <div className="fixed inset-0 z-50 bg-white/98 backdrop-blur-2xl flex flex-col pointer-events-auto lg:hidden shadow-2xl">
                     {/* Drawer Top Header with Logo & Prominent Close (X) Button */}
-                    <div className="px-6 py-5 flex items-center justify-between border-b border-slate-800">
+                    <div className="px-6 py-5 flex items-center justify-between border-b border-slate-100 bg-white">
                         <Link href="/" onClick={() => setIsOpen(false)} aria-label="Home">
                             <Image
                                 src="/logo.png"
@@ -130,20 +126,23 @@ export function Navigation() {
                         <button
                             onClick={() => setIsOpen(false)}
                             aria-label="Close menu"
-                            className="w-12 h-12 rounded-full bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 shadow-xl flex items-center justify-center active:scale-95 transition-all"
+                            className="w-11 h-11 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-900 border border-slate-200 shadow-sm flex items-center justify-center active:scale-95 transition-all"
                         >
                             <X className="w-6 h-6 stroke-[2.5]" />
                         </button>
                     </div>
 
                     {/* Nav Links List */}
-                    <nav className="flex-1 overflow-y-auto px-8 py-8 flex flex-col gap-5">
+                    <nav className="flex-1 overflow-y-auto px-8 py-8 flex flex-col gap-4 bg-white">
                         <Link
                             href="/"
                             onClick={() => setIsOpen(false)}
-                            className={`text-2xl font-extrabold pb-3 border-b border-slate-800/60 ${pathname === '/' ? 'text-white' : 'text-slate-400 hover:text-white'}`}
+                            className={`text-2xl font-extrabold pb-3 border-b border-slate-100 flex items-center justify-between ${
+                                pathname === '/' ? 'text-slate-900' : 'text-slate-600 hover:text-slate-900'
+                            }`}
                         >
-                            Home
+                            <span>Home</span>
+                            {pathname === '/' && <span className="w-2.5 h-2.5 rounded-full bg-brand-green" />}
                         </Link>
                         {navItems.map((item) => {
                             const href = `/${item.toLowerCase()}`;
@@ -153,8 +152,8 @@ export function Navigation() {
                                     key={item}
                                     href={href}
                                     onClick={() => setIsOpen(false)}
-                                    className={`text-2xl font-bold pb-3 border-b border-slate-800/60 flex items-center justify-between ${
-                                        isActive ? 'text-white' : 'text-slate-400 hover:text-white'
+                                    className={`text-2xl font-bold pb-3 border-b border-slate-100 flex items-center justify-between ${
+                                        isActive ? 'text-slate-900 font-extrabold' : 'text-slate-600 hover:text-slate-900'
                                     }`}
                                 >
                                     <span>{item}</span>
