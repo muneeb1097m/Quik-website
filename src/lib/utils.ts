@@ -62,6 +62,66 @@ export function decodeHtmlEntities(text: string): string {
 }
 
 /**
+ * Calculates word similarity between two headlines.
+ * Returns true if they are >60% similar or share 75%+ of words.
+ */
+export function isSimilarHeadline(h1: string, h2: string, threshold = 0.60): boolean {
+    if (!h1 || !h2) return false;
+
+    const normalize = (text: string) =>
+        text
+            .toLowerCase()
+            .replace(/[^a-z0-9\s]/gi, '')
+            .split(/\s+/)
+            .filter(w => w.length > 2); // Ignore short 1-2 letter stop words
+
+    const words1 = normalize(h1);
+    const words2 = normalize(h2);
+
+    if (words1.length === 0 || words2.length === 0) return false;
+
+    const set1 = new Set(words1);
+    const set2 = new Set(words2);
+
+    // Calculate intersection (shared words)
+    let sharedCount = 0;
+    for (const w of set2) {
+        if (set1.has(w)) sharedCount++;
+    }
+
+    // Jaccard similarity: shared / total_unique
+    const unionSize = new Set([...words1, ...words2]).size;
+    const jaccardScore = sharedCount / unionSize;
+
+    // Inclusion ratio: shared / min_length (catches shortened versions of titles)
+    const minLength = Math.min(set1.size, set2.size);
+    const inclusionScore = minLength > 0 ? sharedCount / minLength : 0;
+
+    return jaccardScore >= threshold || (minLength >= 3 && inclusionScore >= 0.75);
+}
+
+/**
+ * Filters out duplicate or near-duplicate signal objects from an array.
+ */
+export function deduplicateSignals<T extends { headline?: string; title?: string }>(signals: T[]): T[] {
+    if (!signals || signals.length === 0) return [];
+
+    const unique: T[] = [];
+    for (const item of signals) {
+        const itemTitle = item.headline || item.title || '';
+        const isDup = unique.some(existing => {
+            const existingTitle = existing.headline || existing.title || '';
+            return isSimilarHeadline(itemTitle, existingTitle);
+        });
+
+        if (!isDup) {
+            unique.push(item);
+        }
+    }
+    return unique;
+}
+
+/**
  * Efficiently serializes data to be passed to Client Components.
  */
 export function serialize<T>(data: T): T {

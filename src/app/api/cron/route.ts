@@ -7,7 +7,7 @@ import { db } from '@/lib/qie/db';
 
 import { CloudflareProvider, PollinationProvider } from '@/lib/qie/image-providers';
 import { scrapeArticleContent } from '@/lib/qie/scraper';
-import { stripHtml } from '@/lib/utils';
+import { stripHtml, isSimilarHeadline } from '@/lib/utils';
 // import stringSimilarity from 'string-similarity'; // Removed to avoid edge compatibility issues
 
 // Prevent vercel time out
@@ -45,13 +45,11 @@ export async function GET() {
             if (seenHeadlines.has(item.headline)) return false;
             seenHeadlines.add(item.headline);
 
-            // Second pass: Deduplication against DB recent headlines (Exact match)
+            // Second pass: Deduplication against DB recent headlines (Smart similarity match)
             if (recentHeadlines.length > 0 && item.headline) {
-                const targetMatch = item.headline.toLowerCase().replace(/[^a-z0-9]/gi, '');
                 for (const recent of recentHeadlines) {
-                    const rMatch = recent.toLowerCase().replace(/[^a-z0-9]/gi, '');
-                    if (targetMatch === rMatch) {
-                        console.log(`[Duplicate Prevented PRE-AI] Skipping exact duplicate "${item.headline}"`);
+                    if (isSimilarHeadline(item.headline, recent)) {
+                        console.log(`[Duplicate Prevented PRE-AI] Skipping similar duplicate "${item.headline}" ~ "${recent}"`);
                         return false;
                     }
                 }
@@ -66,15 +64,32 @@ export async function GET() {
             return NextResponse.json({ success: true, message: 'No new items to process.' });
         }
 
+        // Category Balancing: Check recent 5 signals to maintain healthy ~20% Pakistan vs ~80% Global/Tech/Business ratio
+        let candidateItems = newItems;
+        try {
+            const recentSignals = await db.getSignals(undefined, 5);
+            const pakistanCount = recentSignals.filter((s: any) => s.event?.category === 'Pakistan').length;
+            
+            // If 2 or more of the last 5 articles were Pakistan, prioritize international & tech categories
+            if (pakistanCount >= 2) {
+                const nonPakistanItems = newItems.filter(i => i.category !== 'Pakistan');
+                if (nonPakistanItems.length > 0) {
+                    console.log(`[Category Balancing] Recent Pakistan stories=${pakistanCount}/5. Prioritizing ${nonPakistanItems.length} international/tech candidates.`);
+                    candidateItems = nonPakistanItems;
+                }
+            }
+        } catch (e) {
+            console.warn('[Category Balancing Error]:', e);
+        }
+
         // 3. Process the best item (1 trending story)
-        // User requested 1 article per 15 min run = 96 articles/day
-        console.log(`Analyzing ${newItems.length} new items to find the most trending story...`);
-        const trendingIndex = await synthesizer.selectTrendingStory(newItems.map(i => ({
+        console.log(`Analyzing ${candidateItems.length} candidate items to find the most trending story...`);
+        const trendingIndex = await synthesizer.selectTrendingStory(candidateItems.map(i => ({
             headline: i.headline,
             contentSnippet: i.contentSnippet || ''
         })));
-        
-        const selectedItem = newItems[trendingIndex];
+
+        const selectedItem = candidateItems[trendingIndex];
         const batch = [selectedItem];
 
         console.log(`Processing selected trending item: ${selectedItem.headline}`);
@@ -97,16 +112,12 @@ export async function GET() {
                 const aiResult = await synthesizer.rewriteStory(item.headline, contextToAnalyze);
 
                 // POST-AI Similarity Check
-                // AI titles should not highly match recent AI titles
+                // AI titles should not match recent AI titles (>60% similarity threshold)
                 if (recentHeadlines.length > 0) {
-                    const targetMatchAI = aiResult.headline.toLowerCase().replace(/[^a-z0-9]/gi, '');
-                    const isSimilar = recentHeadlines.some((recent: string) => {
-                        const rMatch = recent.toLowerCase().replace(/[^a-z0-9]/gi, '');
-                        return targetMatchAI === rMatch;
-                    });
+                    const isSimilar = recentHeadlines.some((recent: string) => isSimilarHeadline(aiResult.headline, recent));
 
                     if (isSimilar) {
-                        console.log(`[Duplicate Prevented POST-AI] Skipping "${aiResult.headline}"`);
+                        console.log(`[Duplicate Prevented POST-AI] Skipping similar AI title "${aiResult.headline}"`);
                         return null; // Don't save this item
                     }
                 }

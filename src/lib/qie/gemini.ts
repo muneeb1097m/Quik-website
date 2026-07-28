@@ -79,8 +79,8 @@ Format your output STRICTLY as a JSON object:
 
         try {
             const list = items.map((item, index) => `${index}: ${item.headline} - ${item.contentSnippet.slice(0, 100)}`).join('\n');
-            const prompt = `From the following list of news articles, identify the SINGLE most "trending", high-impact, or significant story for a Pakistan-based tech/business audience. 
-            Consider urgency, global/national importance, and relevance to technology/startups.
+            const prompt = `From the following list of news articles, identify the SINGLE most high-impact, trending, or significant story for an international audience interested in Global Affairs, Technology, AI, Innovation, and Business. 
+            Prioritize global breaking news, major tech advancements, and world business trends. Regional/local stories should only be selected if they represent major historic events.
             
             ARTICLES:
             ${list}

@@ -2,6 +2,7 @@ import { generateNewsImage } from '../image-gen';
 import { triggerIndexNow } from '../indexnow';
 import { unstable_cache } from 'next/cache';
 import { createClient } from '@supabase/supabase-js';
+import { deduplicateSignals } from '@/lib/utils';
 
 // Initialize Supabase client
 const getSupabaseConfig = () => {
@@ -126,9 +127,10 @@ export const db = {
                 const { data, error } = await query;
                 if (error) { console.error("getSignals Error:", error); return []; }
                 
-                console.log(`[DB] getSignals(${category}): found ${data?.length || 0} signals`);
+                const cleanData = deduplicateSignals(data || []);
+                console.log(`[DB] getSignals(${category}): found ${cleanData.length} unique signals (out of ${data?.length || 0})`);
                 
-                return data || [];
+                return cleanData;
             },
             [`signals-${category || 'all'}-${limit || 0}-${skip || 0}-v11`],
             { revalidate: 60, tags: ['signals'] } // Cache for 60 seconds
@@ -153,8 +155,8 @@ export const db = {
                 console.log(`[DB] getHomePageData v10: trending=${trendingReq.data?.length}, signals=${signalsReq.data?.length}`);
 
                 return {
-                    trending: trendingReq.data || [],
-                    signals: signalsReq.data || [],
+                    trending: deduplicateSignals(trendingReq.data || []),
+                    signals: deduplicateSignals(signalsReq.data || []),
                     events: eventsReq.data || []
                 };
             },
