@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import { Menu, X } from 'lucide-react';
 
 function CurrentDate() {
     const [dateStr, setDateStr] = useState('');
@@ -18,7 +19,6 @@ function CurrentDate() {
         setDateStr(now.toLocaleDateString('en-US', options));
     }, []);
     if (!dateStr) return null;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     return <span className="text-sm font-mono text-slate-500 font-medium">{dateStr}</span>;
 }
 
@@ -32,6 +32,18 @@ export function Navigation() {
         setIsOpen(false);
     }, [pathname]);
 
+    // Prevent body scrolling when mobile menu is open
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [isOpen]);
+
     return (
         <header className="absolute top-0 left-0 right-0 z-50 px-4 md:px-8 py-4 flex items-center justify-between pointer-events-none">
 
@@ -42,7 +54,7 @@ export function Navigation() {
                         src="/logo.png"
                         alt="Quik News"
                         height={80}
-                        width={120} // Approximating based on ratio, better to set explicit
+                        width={120}
                         className="h-20 md:h-32 w-auto object-contain"
                         priority
                     />
@@ -79,31 +91,57 @@ export function Navigation() {
                 </div>
             </nav>
 
-            {/* Mobile Menu Toggle (Right) */}
+            {/* Mobile Menu Toggle Button (Header Right) */}
             <div className="pointer-events-auto lg:hidden relative z-50">
                 <button
                     onClick={() => setIsOpen(!isOpen)}
                     aria-label={isOpen ? "Close menu" : "Open menu"}
                     aria-expanded={isOpen}
-                    className="w-12 h-12 rounded-full bg-white/80 backdrop-blur-md border border-white/40 shadow-lg flex items-center justify-center text-slate-900"
+                    className={`w-12 h-12 rounded-full border shadow-lg flex items-center justify-center transition-all ${
+                        isOpen 
+                            ? 'bg-slate-900 text-white border-slate-800' 
+                            : 'bg-white/90 text-slate-900 border-white/40 backdrop-blur-md'
+                    }`}
                 >
                     {isOpen ? (
-                        // Close Icon
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                        <X className="w-6 h-6 stroke-[2.5]" />
                     ) : (
-                        // Menu Icon
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" x2="20" y1="12" y2="12" /><line x1="4" x2="20" y1="6" y2="6" /><line x1="4" x2="20" y1="18" y2="18" /></svg>
+                        <Menu className="w-6 h-6 stroke-[2.5]" />
                     )}
                 </button>
             </div>
 
-            {/* Mobile Menu Drawer */}
+            {/* Mobile Menu Fullscreen Drawer Overlay */}
             {isOpen && (
-                <div className="fixed inset-0 bg-slate-50 z-40 flex flex-col pt-32 px-8 pointer-events-auto lg:hidden">
-                    <nav className="flex flex-col gap-6">
+                <div className="fixed inset-0 z-50 bg-slate-900/95 backdrop-blur-2xl flex flex-col pointer-events-auto lg:hidden">
+                    {/* Drawer Top Header with Logo & Prominent Close (X) Button */}
+                    <div className="px-6 py-5 flex items-center justify-between border-b border-slate-800">
+                        <Link href="/" onClick={() => setIsOpen(false)} aria-label="Home">
+                            <Image
+                                src="/logo.png"
+                                alt="Quik News"
+                                height={60}
+                                width={100}
+                                className="h-14 w-auto object-contain"
+                            />
+                        </Link>
+
+                        {/* Prominent Cross (X) Close Button */}
+                        <button
+                            onClick={() => setIsOpen(false)}
+                            aria-label="Close menu"
+                            className="w-12 h-12 rounded-full bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 shadow-xl flex items-center justify-center active:scale-95 transition-all"
+                        >
+                            <X className="w-6 h-6 stroke-[2.5]" />
+                        </button>
+                    </div>
+
+                    {/* Nav Links List */}
+                    <nav className="flex-1 overflow-y-auto px-8 py-8 flex flex-col gap-5">
                         <Link
                             href="/"
-                            className={`text-2xl font-bold ${pathname === '/' ? 'text-slate-900' : 'text-slate-500'}`}
+                            onClick={() => setIsOpen(false)}
+                            className={`text-2xl font-extrabold pb-3 border-b border-slate-800/60 ${pathname === '/' ? 'text-white' : 'text-slate-400 hover:text-white'}`}
                         >
                             Home
                         </Link>
@@ -114,9 +152,13 @@ export function Navigation() {
                                 <Link
                                     key={item}
                                     href={href}
-                                    className={`text-2xl font-medium ${isActive ? 'text-slate-900' : 'text-slate-500'}`}
+                                    onClick={() => setIsOpen(false)}
+                                    className={`text-2xl font-bold pb-3 border-b border-slate-800/60 flex items-center justify-between ${
+                                        isActive ? 'text-white' : 'text-slate-400 hover:text-white'
+                                    }`}
                                 >
-                                    {item}
+                                    <span>{item}</span>
+                                    {isActive && <span className="w-2.5 h-2.5 rounded-full bg-brand-green" />}
                                 </Link>
                             );
                         })}
