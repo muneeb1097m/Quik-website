@@ -20,6 +20,10 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
         return {
             title: 'News Not Found | Quik',
             description: 'The requested news article could not be found.',
+            robots: {
+                index: false,
+                follow: false,
+            },
         };
     }
 
@@ -30,10 +34,11 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
             title: signal.headline,
             description: signal.summary,
             type: 'article',
+            url: `https://quiknews.online/news/${signal.id}`,
             publishedTime: new Date(signal.generatedAt).toISOString(),
             images: [
                 {
-                    url: signal.imageUrl || 'https://quiknews.online/og-default.png', // Fallback image needed
+                    url: signal.imageUrl || 'https://quiknews.online/og-default.png',
                     width: 1200,
                     height: 630,
                     alt: signal.headline,
@@ -47,7 +52,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
             images: [signal.imageUrl || ''],
         },
         alternates: {
-            canonical: `/news/${signal.id}`,
+            canonical: `https://quiknews.online/news/${signal.id}`,
         },
     };
 }

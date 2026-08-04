@@ -5,7 +5,7 @@ export const metadata: Metadata = {
     title: 'Our Team | Quik',
     description: 'Meet the team and AI behind Quik News.',
     alternates: {
-        canonical: '/authors',
+        canonical: 'https://quiknews.online/authors',
     },
 };
 

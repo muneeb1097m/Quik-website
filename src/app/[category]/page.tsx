@@ -2,21 +2,32 @@ import { db } from '@/lib/qie/db';
 import { SignalCard } from '@/components/SignalCard';
 import { notFound } from 'next/navigation';
 import { NewsEvent } from '@/types';
+import type { Metadata } from 'next';
 
-// Performance: Enable ISR with 30-second revalidation
-// Revalidate every 4 hours
+// Performance: Enable ISR with 4-hour revalidation
 export const revalidate = 14400;
 
-// Performance: Defer static generation to runtime to prevent build errors and DB timeouts
+const VALID_CATEGORIES = ['tech', 'business', 'global', 'ai', 'auto', 'pakistan', 'sports'];
 
 interface PageProps {
     params: Promise<{ category: string }>;
 }
 
-import type { Metadata } from 'next';
-
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { category } = await params;
+    const lowerCategory = category.toLowerCase();
+
+    if (!VALID_CATEGORIES.includes(lowerCategory)) {
+        return {
+            title: 'Category Not Found | Quik',
+            description: 'The requested category could not be found.',
+            robots: {
+                index: false,
+                follow: false,
+            },
+        };
+    }
+
     const title = category.charAt(0).toUpperCase() + category.slice(1);
 
     return {
@@ -25,18 +36,23 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         openGraph: {
             title: `${title} News | Quik`,
             description: `Latest ${title} news and intelligence, synthesized by AI.`,
+            url: `https://quiknews.online/${lowerCategory}`,
+        },
+        alternates: {
+            canonical: `https://quiknews.online/${lowerCategory}`,
         },
     };
 }
 
 export default async function CategoryPage({ params }: PageProps) {
     const { category } = await params;
-    const signals = await db.getSignals(category, 50);
+    const lowerCategory = category.toLowerCase();
 
-    if (!signals.length) {
-        // Ideally duplicate mock data for demo if empty, 
-        // but db.ts logic handles these categories now.
+    if (!VALID_CATEGORIES.includes(lowerCategory)) {
+        notFound();
     }
+
+    const signals = await db.getSignals(category, 50);
 
     const title = category.charAt(0).toUpperCase() + category.slice(1);
 
@@ -48,7 +64,7 @@ export default async function CategoryPage({ params }: PageProps) {
 
             <main className="max-w-[1200px] mx-auto px-6 pt-40 pb-20 relative z-10">
                 <h1 className="text-4xl font-bold text-slate-900 mb-8 mt-8 border-b border-slate-200 pb-4">
-                    {category === 'pakistan' ? 'Startup Pakistan' : title} News
+                    {lowerCategory === 'pakistan' ? 'Startup Pakistan' : title} News
                 </h1>
 
                 <div className="grid lg:grid-cols-2 gap-8">

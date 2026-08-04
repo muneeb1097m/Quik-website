@@ -4,7 +4,29 @@ import { NewsEvent, Signal } from '@/types';
 import { serialize } from '@/lib/utils';
 import Link from 'next/link';
 
+import type { Metadata } from 'next';
+
 export const revalidate = 43200; // Revalidate every 12 hours
+
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ page?: string }> }): Promise<Metadata> {
+    const params = await searchParams;
+    const page = params.page ? ` - Page ${params.page}` : '';
+    const pageNum = parseInt(params.page || '1');
+    const canonicalUrl = pageNum > 1 ? `https://quiknews.online/archive?page=${pageNum}` : 'https://quiknews.online/archive';
+
+    return {
+        title: `News Archive${page} | Quik`,
+        description: 'Browse the complete history of AI-generated global news coverage on Quik.',
+        openGraph: {
+            title: `News Archive${page} | Quik`,
+            description: 'Browse the complete history of AI-generated global news coverage on Quik.',
+            url: canonicalUrl,
+        },
+        alternates: {
+            canonical: canonicalUrl,
+        },
+    };
+}
 
 export default async function ArchivePage({
     searchParams,

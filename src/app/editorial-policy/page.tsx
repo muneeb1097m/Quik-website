@@ -4,7 +4,7 @@ export const metadata: Metadata = {
     title: 'Editorial Policy | Quik',
     description: 'Our commitment to accuracy, transparency, and ethical AI journalism.',
     alternates: {
-        canonical: '/editorial-policy',
+        canonical: 'https://quiknews.online/editorial-policy',
     },
 };
 
