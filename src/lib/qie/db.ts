@@ -95,29 +95,34 @@ export const db = {
         let targetCategories: string[] = [];
         if (category) {
             const c = category.toLowerCase();
-            targetCategories = [category];
             if (c === 'tech') targetCategories = ['Technology', 'technology', 'Tech'];
-            else if (c === 'business') targetCategories = ['Business', 'economy', 'Business & Finance'];
-            else if (c === 'global') targetCategories = ['Global', 'international', 'World'];
-            else if (c === 'ai') targetCategories = ['AI', 'Artificial Intelligence', 'Robotics'];
-            else if (c === 'auto') targetCategories = ['Auto', 'Automotive', 'EV', 'Electric Vehicles', 'Cars'];
-            else if (c === 'pakistan') targetCategories = ['Pakistan', 'Startup Pakistan'];
-            else if (c === 'sports') targetCategories = ['Sports'];
+            else if (c === 'business') targetCategories = ['Business', 'business', 'Economy', 'economy', 'Business & Finance', 'Markets', 'Finance'];
+            else if (c === 'global') targetCategories = ['Global', 'global', 'International', 'international', 'World'];
+            else if (c === 'ai') targetCategories = ['AI', 'ai', 'Artificial Intelligence', 'Robotics'];
+            else if (c === 'auto') targetCategories = ['Auto', 'auto', 'Automotive', 'EV', 'Electric Vehicles', 'Cars'];
+            else if (c === 'pakistan') targetCategories = ['Pakistan', 'pakistan', 'Startup Pakistan', 'Startups'];
+            else if (c === 'sports') targetCategories = ['Sports', 'sports'];
             else targetCategories = [category, c, c.charAt(0).toUpperCase() + c.slice(1)];
         }
 
-        // TEMPORARY: Bypass cache for category debugging
         return unstable_cache(
             async () => {
-                let query = supabase.from('Signal')
-                    .select(`
+                const selectQuery = targetCategories.length > 0
+                    ? `
+                        id, headline, summary, imageUrl, generatedAt, eventId,
+                        event:NewsEvent!inner(id, title, category, status, detectedAt, lastUpdatedAt, confidenceScore, sources:Source(*))
+                    `
+                    : `
                         id, headline, summary, imageUrl, generatedAt, eventId,
                         event:NewsEvent(id, title, category, status, detectedAt, lastUpdatedAt, confidenceScore, sources:Source(*))
-                    `)
+                    `;
+
+                let query = supabase.from('Signal')
+                    .select(selectQuery)
                     .order('generatedAt', { ascending: false });
 
                 if (targetCategories.length > 0) {
-                    query = query.in('NewsEvent.category', targetCategories);
+                    query = query.in('event.category', targetCategories);
                 }
 
                 if (limit) {
@@ -132,7 +137,7 @@ export const db = {
                 
                 return cleanData;
             },
-            [`signals-${category || 'all'}-${limit || 0}-${skip || 0}-v11`],
+            [`signals-${category || 'all'}-${limit || 0}-${skip || 0}-v14`],
             { revalidate: 60, tags: ['signals'] } // Cache for 60 seconds
         )();
     },
