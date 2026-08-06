@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Clock } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { decodeHtmlEntities } from '@/lib/utils';
+import { decodeHtmlEntities, getNewsUrl } from '@/lib/utils';
 
 interface SignalCardProps {
     signal: Signal;
@@ -30,7 +30,7 @@ export function SignalCard({ signal, event, onClick }: SignalCardProps) {
     const showImage = signal.imageUrl && !imageError;
 
     return (
-        <Link href={`/news/${signal.id}`} className="block group h-full">
+        <Link href={getNewsUrl(signal)} className="block group h-full">
             <div
                 onClick={onClick}
                 className="group relative bg-white border border-slate-100 rounded-[2rem] p-8 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 cursor-pointer overflow-hidden h-full flex flex-col items-start"

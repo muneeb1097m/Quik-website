@@ -1,20 +1,18 @@
 import { db } from '@/lib/qie/db';
 import { notFound } from 'next/navigation';
 import NewsDetailView from '@/components/NewsDetailView';
-import { serialize } from '@/lib/utils';
+import { serialize, extractSignalIdFromParam, formatMetaTitle, formatMetaDescription, getNewsUrl, generateFaqSchema } from '@/lib/utils';
 
 import type { Metadata } from 'next';
 
 // Performance: Enable ISR with 1-year revalidation (static content)
 export const revalidate = 31536000;
 
-// Performance: Defer static generation to runtime to prevent DB pool exhaustion at build time
-
 // Generate Metadata for SEO
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
     const { id } = await params;
-    const decodedId = decodeURIComponent(id);
-    const signal = await db.getSignal(decodedId);
+    const signalId = extractSignalIdFromParam(id);
+    const signal = await db.getSignal(signalId);
 
     if (!signal) {
         return {
@@ -27,14 +25,18 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
         };
     }
 
+    const metaTitle = formatMetaTitle(signal.headline, ' | Quik', 55);
+    const metaDescription = formatMetaDescription(signal.summary, 155);
+    const canonicalUrl = `https://quiknews.online${getNewsUrl(signal)}`;
+
     return {
-        title: signal.headline,
-        description: signal.summary.slice(0, 160), // SEO friendly truncated description
+        title: metaTitle,
+        description: metaDescription,
         openGraph: {
-            title: signal.headline,
-            description: signal.summary,
+            title: metaTitle,
+            description: metaDescription,
             type: 'article',
-            url: `https://quiknews.online/news/${signal.id}`,
+            url: canonicalUrl,
             publishedTime: new Date(signal.generatedAt).toISOString(),
             images: [
                 {
@@ -47,43 +49,43 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
         },
         twitter: {
             card: 'summary_large_image',
-            title: signal.headline,
-            description: signal.summary.slice(0, 200),
+            title: metaTitle,
+            description: metaDescription,
             images: [signal.imageUrl || ''],
         },
         alternates: {
-            canonical: `https://quiknews.online/news/${signal.id}`,
+            canonical: canonicalUrl,
         },
     };
 }
 
 // Server Component (Async)
 export default async function NewsDetailPage({ params }: { params: Promise<{ id: string }> }) {
-    // 1. Unwrap Params
+    // 1. Unwrap Params & Extract Signal ID
     const { id } = await params;
-    const decodedId = decodeURIComponent(id);
+    const signalId = extractSignalIdFromParam(id);
 
     // 2. Fetch Data from DB (Server-side)
-    const signal = await db.getSignal(decodedId);
+    const signal = await db.getSignal(signalId);
 
     if (!signal) {
         notFound();
     }
 
-    // Event is now included in signal fetch
-    const event = signal.event;
+    // Event is included in signal fetch
+    const event = signal.event || { category: 'News' };
 
     // Fetch related stories
     const related = await db.getSignals(event.category, 4);
-    // Filter out current and limit (simple client-side filter logic for now, DB query ideal later)
     const filteredRelated = related.filter((s: any) => s.id !== signal.id).slice(0, 3);
 
-    // JSON-LD Structured Data for Google News
-    const jsonLd = {
+    // JSON-LD Structured Data for Google News (NewsArticle Schema)
+    const canonicalUrl = `https://quiknews.online${getNewsUrl(signal)}`;
+    const newsArticleJsonLd = {
         '@context': 'https://schema.org',
         '@type': 'NewsArticle',
         headline: signal.headline,
-        description: signal.summary,
+        description: formatMetaDescription(signal.summary, 155),
         image: signal.imageUrl || 'https://quiknews.online/og-default.png',
         datePublished: new Date(signal.generatedAt).toISOString(),
         dateModified: new Date(signal.generatedAt).toISOString(),
@@ -103,19 +105,26 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ id:
         },
         mainEntityOfPage: {
             '@type': 'WebPage',
-            '@id': `https://quiknews.online/news/${signal.id}`,
+            '@id': canonicalUrl,
         },
         articleSection: event.category,
         keywords: [event.category, 'AI News', 'Technology', 'Breaking News'].join(', '),
     };
 
-    // 3. Render Client Component with Data
+    // JSON-LD FAQ Schema for Google Rich Results
+    const faqJsonLd = generateFaqSchema(signal, event);
+
     return (
         <>
-            {/* Structured Data */}
+            {/* NewsArticle Structured Data */}
             <script
                 type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(newsArticleJsonLd) }}
+            />
+            {/* FAQPage Structured Data */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
             />
             <NewsDetailView
                 signal={serialize(signal)}
@@ -125,3 +134,4 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ id:
         </>
     );
 }
+

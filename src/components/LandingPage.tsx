@@ -8,7 +8,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { loadMoreSignals } from '@/app/actions';
 import { Loader2 } from 'lucide-react';
-import { decodeHtmlEntities } from '@/lib/utils';
+import { decodeHtmlEntities, getNewsUrl } from '@/lib/utils';
 
 interface LandingPageProps {
     mainStory: Signal | undefined;
@@ -22,7 +22,7 @@ const GridStoryCard = ({ story, event }: { story: Signal, event: NewsEvent | und
     const [imageError, setImageError] = useState(false);
 
     return (
-        <Link href={`/news/${story.id}`} className="relative flex-1 group cursor-pointer overflow-hidden rounded-[2rem] bg-slate-900 p-8 flex flex-col justify-end shadow-sm hover:shadow-lg transition-all min-h-[260px]">
+        <Link href={getNewsUrl(story)} className="relative flex-1 group cursor-pointer overflow-hidden rounded-[2rem] bg-slate-900 p-8 flex flex-col justify-end shadow-sm hover:shadow-lg transition-all min-h-[260px]">
             {/* Background Image */}
             <div className="absolute inset-0 bg-slate-800">
                 {!imageError && story.imageUrl ? (
@@ -102,7 +102,7 @@ export function LandingPage({ mainStory, mainStoryEvent, gridStories, children }
 
                     {/* Main Card (Left) */}
                     <div className="lg:col-span-8 h-[500px] lg:h-full block">
-                        <Link href={mainStory ? `/news/${mainStory.id}` : '#'} className="block h-full">
+                        <Link href={mainStory ? getNewsUrl(mainStory) : '#'} className="block h-full">
                             <div className="relative group cursor-pointer overflow-hidden rounded-[1.5rem] md:rounded-[2.5rem] bg-slate-900 shadow-sm hover:shadow-2xl hover:shadow-brand-green/10 transition-all duration-700 h-full">
                                 {/* Static Image Container - No Framer Motion Delay */}
                                 <div className="absolute inset-0 overflow-hidden transform transition-transform duration-1000 group-hover:scale-105">

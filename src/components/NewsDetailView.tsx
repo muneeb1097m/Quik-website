@@ -5,6 +5,7 @@ import { useRef, useState } from 'react';
 import { ArrowLeft, Clock, Share2, Shield, Calendar, Globe, Sparkles, Check } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { getNewsUrl } from '@/lib/utils';
 
 // Define Props - using 'any' to speed up migration, ideal would be full types
 interface NewsDetailViewProps {
@@ -84,6 +85,15 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
         setTimeout(() => setCopied(false), 2000);
     };
 
+    const handlePinterestShare = () => {
+        if (typeof window === 'undefined') return;
+        const pageUrl = window.location.href;
+        const mediaUrl = signal?.imageUrl || '';
+        const description = encodeURIComponent(`${signal?.headline || 'News'} - Quik News`);
+        const pinterestUrl = `https://www.pinterest.com/pin/create/button/?url=${encodeURIComponent(pageUrl)}&media=${encodeURIComponent(mediaUrl)}&description=${description}`;
+        window.open(pinterestUrl, '_blank', 'noopener,noreferrer,width=750,height=600');
+    };
+
     if (!signal || !event) return null; // Safety check
 
     return (
@@ -146,15 +156,28 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
                                 </div>
                             </div>
 
-                            {/* Share Button logic reused */}
-                            <button
-                                onClick={handleShare}
-                                aria-label="Share Article"
-                                className="w-full mt-6 flex items-center justify-center gap-2 bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-slate-800 transition-all active:scale-[0.98]"
-                            >
-                                {copied ? <Check className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
-                                {copied ? 'Link Copied' : 'Share Intelligence'}
-                            </button>
+                            {/* Share & Pinterest Buttons */}
+                            <div className="space-y-3 mt-6">
+                                <button
+                                    onClick={handleShare}
+                                    aria-label="Share Article"
+                                    className="w-full flex items-center justify-center gap-2 bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-slate-800 transition-all active:scale-[0.98]"
+                                >
+                                    {copied ? <Check className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
+                                    {copied ? 'Link Copied' : 'Share Intelligence'}
+                                </button>
+
+                                <button
+                                    onClick={handlePinterestShare}
+                                    aria-label="Pin on Pinterest"
+                                    className="w-full flex items-center justify-center gap-2 bg-[#E60023] text-white font-bold py-3 rounded-xl hover:bg-[#ad081b] transition-all active:scale-[0.98] shadow-sm"
+                                >
+                                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                                        <path d="M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12 0-6.628-5.373-12-12-12z"/>
+                                    </svg>
+                                    Pin on Pinterest
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -192,7 +215,6 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
                                         className="object-cover"
                                         onError={(e) => {
                                             // Next/Image onError handling is limited, usually parent div handles hiding
-                                            // or we can use a state to switch to fallback, but for now we keep simple
                                         }}
                                     />
                                 </div>
@@ -218,7 +240,7 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
                                 <h3 className="text-2xl font-bold text-slate-900 mb-8">Related Intelligence</h3>
                                 <div className="grid md:grid-cols-2 gap-6">
                                     {related.map((item: any) => (
-                                        <Link key={item.id} href={`/news/${item.id}`} className="block h-full">
+                                        <Link key={item.id} href={getNewsUrl(item)} className="block h-full">
                                             <div className="group h-full bg-white rounded-2xl border border-slate-200 hover:border-slate-300 hover:shadow-xl transition-all overflow-hidden flex flex-col hover:-translate-y-1">
                                                 {item.imageUrl && (
                                                     <div className="h-48 overflow-hidden relative">
@@ -229,9 +251,6 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
                                                             unoptimized={true}
                                                             sizes="(max-width: 768px) 100vw, 33vw"
                                                             className="object-cover transition-transform duration-700 group-hover:scale-110"
-                                                            onError={(e) => {
-                                                                // e.currentTarget.style.display = 'none'; // Not working on Next/Image component
-                                                            }}
                                                         />
                                                     </div>
                                                 )}
@@ -255,3 +274,4 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
         </div>
     );
 }
+

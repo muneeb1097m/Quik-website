@@ -137,3 +137,122 @@ export function stripHtml(html: string): string {
     const cleaned = html.replace(/<[^>]*>?/gm, '');
     return decodeHtmlEntities(cleaned).trim();
 }
+
+/**
+ * Converts text into a clean URL-friendly slug.
+ */
+export function slugify(text: string): string {
+    if (!text) return '';
+    return decodeHtmlEntities(text)
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .trim()
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-');
+}
+
+/**
+ * Formats a canonical news article URL using title slug and ID fallback.
+ */
+export function getNewsUrl(signal: { id: string; headline?: string; title?: string }): string {
+    if (!signal || !signal.id) return '/news';
+    const title = signal.headline || signal.title || '';
+    const slug = slugify(title);
+    if (slug) {
+        return `/news/${slug}-${signal.id}`;
+    }
+    return `/news/${signal.id}`;
+}
+
+/**
+ * Extracts signal ID from route param (handles both '/news/slug-sig_123' and '/news/sig_123').
+ */
+export function extractSignalIdFromParam(param: string): string {
+    if (!param) return '';
+    const decoded = decodeURIComponent(param);
+    const sigMatch = decoded.match(/(sig_[a-zA-Z0-9_]+)$/);
+    if (sigMatch) {
+        return sigMatch[1];
+    }
+    const sigAnyMatch = decoded.match(/(sig_[a-zA-Z0-9_]+)/);
+    if (sigAnyMatch) {
+        return sigAnyMatch[1];
+    }
+    return decoded;
+}
+
+/**
+ * Formats meta titles to fit strictly within target length (default 55 chars).
+ */
+export function formatMetaTitle(headline: string, suffix = ' | Quik', maxLen = 55): string {
+    if (!headline) return `News${suffix}`;
+    const cleanHeadline = decodeHtmlEntities(stripHtml(headline));
+    const fullTitle = `${cleanHeadline}${suffix}`;
+    
+    if (fullTitle.length <= maxLen) {
+        return fullTitle;
+    }
+
+    const targetHeadlineLen = maxLen - suffix.length;
+    if (targetHeadlineLen <= 10) {
+        return cleanHeadline.slice(0, maxLen);
+    }
+
+    const truncated = cleanHeadline.slice(0, targetHeadlineLen).replace(/\s+[^\s]*$/, '');
+    return `${truncated}${suffix}`;
+}
+
+/**
+ * Formats meta descriptions to fit strictly within target length (default 155 chars).
+ */
+export function formatMetaDescription(text: string, maxLen = 155): string {
+    if (!text) return 'Latest real-time news and intelligence, synthesized by AI on Quik.';
+    const clean = decodeHtmlEntities(stripHtml(text));
+    if (clean.length <= maxLen) {
+        return clean;
+    }
+    
+    const truncated = clean.slice(0, maxLen - 3).replace(/\s+[^\s]*$/, '');
+    return `${truncated}...`;
+}
+
+/**
+ * Generates JSON-LD FAQPage Schema for structured rich snippet data.
+ */
+export function generateFaqSchema(signal: any, event?: any) {
+    const headline = decodeHtmlEntities(signal.headline || '');
+    const summary = decodeHtmlEntities(signal.summary || '');
+    const category = event?.category || 'News';
+    
+    return {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: [
+            {
+                '@type': 'Question',
+                name: `What is the latest update on ${headline}?`,
+                acceptedAnswer: {
+                    '@type': 'Answer',
+                    text: summary || `Latest ${category} news report synthesized by Quik AI.`,
+                },
+            },
+            {
+                '@type': 'Question',
+                name: `What category does this news story belong to?`,
+                acceptedAnswer: {
+                    '@type': 'Answer',
+                    text: `This article is categorized under ${category} news on Quik.`,
+                },
+            },
+            {
+                '@type': 'Question',
+                name: `Where is this news signal sourced from?`,
+                acceptedAnswer: {
+                    '@type': 'Answer',
+                    text: `This real-time signal is aggregated and verified by Quik AI from leading global media sources.`,
+                },
+            },
+        ],
+    };
+}
+

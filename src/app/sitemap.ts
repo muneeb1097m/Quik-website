@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { db } from '@/lib/qie/db';
+import { getNewsUrl } from '@/lib/utils';
 
 export const revalidate = 3600; // Revalidate every hour
 
@@ -36,7 +37,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     try {
         const latestSignals = await db.getSignals(undefined, 500);
         newsRoutes = latestSignals.map((signal: any) => ({
-            url: `${baseUrl}/news/${signal.id}`,
+            url: `${baseUrl}${getNewsUrl(signal)}`,
             lastModified: new Date(signal.generatedAt || Date.now()),
             changeFrequency: 'monthly' as const, // News articles don't change much once published
             priority: 0.6,

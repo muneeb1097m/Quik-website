@@ -1,6 +1,6 @@
 import { db } from '@/lib/qie/db';
 import { SignalCard } from './SignalCard';
-import { serialize, decodeHtmlEntities } from '@/lib/utils';
+import { serialize, decodeHtmlEntities, getNewsUrl } from '@/lib/utils';
 import { Cpu, Globe } from 'lucide-react';
 import Link from 'next/link';
 
@@ -48,7 +48,7 @@ export async function SidebarSection() {
                     </h3>
                     <div className="space-y-6">
                         {serializedTrending.map((story: any) => (
-                            <Link key={story.id} href={`/news/${story.id}`} className="block relative z-10">
+                            <Link key={story.id} href={getNewsUrl(story)} className="block relative z-10">
                                 <div className="group cursor-pointer mb-6 last:mb-0">
                                     <div className="flex items-center gap-3 mb-2">
                                         <span className="text-xs font-bold text-brand-red">{story.event?.category || 'Global'}</span>
