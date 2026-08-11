@@ -1,3 +1,5 @@
+import { getNewsUrl } from './utils';
+
 interface NewsItem {
     id: string;
     headline: string;
@@ -66,14 +68,14 @@ export function generateDigestEmail(subscriberName: string, newsItems: NewsItem[
                                             ${item.category}
                                         </div>
                                         <h2 style="margin: 0 0 10px; color: #1e293b; font-size: 18px; font-weight: 700; line-height: 1.4;">
-                                            <a href="https://quiknews.online/news/${item.id}" style="color: #1e293b; text-decoration: none;">
+                                            <a href="https://quiknews.online${getNewsUrl(item)}" style="color: #1e293b; text-decoration: none;">
                                                 ${item.headline}
                                             </a>
                                         </h2>
                                         <p style="margin: 0 0 12px; color: #64748b; font-size: 14px; line-height: 1.6;">
                                             ${item.summary}
                                         </p>
-                                        <a href="https://quiknews.online/news/${item.id}" style="display: inline-block; color: #1e293b; font-size: 13px; font-weight: 600; text-decoration: none; border-bottom: 2px solid #1e293b; padding-bottom: 2px;">
+                                        <a href="https://quiknews.online${getNewsUrl(item)}" style="display: inline-block; color: #1e293b; font-size: 13px; font-weight: 600; text-decoration: none; border-bottom: 2px solid #1e293b; padding-bottom: 2px;">
                                             Read Full Report →
                                         </a>
                                     </td>

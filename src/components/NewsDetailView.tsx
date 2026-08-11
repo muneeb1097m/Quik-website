@@ -220,14 +220,19 @@ export default function NewsDetailView({ signal, event, related }: NewsDetailVie
                                 </div>
                             )}
 
-                            {/* Detailed Report */}
-                            <div className="prose prose-base md:prose-lg text-slate-600 leading-relaxed max-w-none">
-                                <p className="text-sm text-slate-400 mb-8 italic">
+                            {/* Detailed Report & Summary */}
+                            <div className="prose prose-base md:prose-lg text-slate-700 leading-relaxed max-w-none">
+                                <p className="text-sm text-slate-400 mb-6 italic">
                                     Intelligence report synthesized for precision. Verified source updates below.
                                 </p>
+                                {signal.summary && (
+                                    <div className="text-lg md:text-xl text-slate-800 font-medium leading-relaxed mb-8 bg-slate-50 p-6 rounded-2xl border border-slate-100 shadow-2xs">
+                                        {signal.summary}
+                                    </div>
+                                )}
                                 {signal.fullReport && (
-                                    <div className="mt-12 pt-12 border-t border-slate-200">
-                                        <h3 className="text-2xl font-bold text-slate-900 mb-8 tracking-tight">Detailed Report</h3>
+                                    <div className="mt-8 pt-8 border-t border-slate-200">
+                                        <h3 className="text-2xl font-bold text-slate-900 mb-6 tracking-tight">Detailed Report</h3>
                                         <FormattedReport content={signal.fullReport} />
                                     </div>
                                 )}

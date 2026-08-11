@@ -4,7 +4,9 @@ import { sendEmail } from '@/lib/email';
 import { validateEmail } from '@/lib/email-validator';
 import { generateWelcomeEmail } from '@/lib/email-template';
 
-export const runtime = 'edge';
+export async function GET() {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+}
 
 export async function POST(request: Request) {
     try {

@@ -2,7 +2,7 @@ import { generateNewsImage } from '../image-gen';
 import { triggerIndexNow } from '../indexnow';
 import { unstable_cache } from 'next/cache';
 import { createClient } from '@supabase/supabase-js';
-import { deduplicateSignals } from '@/lib/utils';
+import { deduplicateSignals, getNewsUrl } from '@/lib/utils';
 
 // Initialize Supabase client
 const getSupabaseConfig = () => {
@@ -251,7 +251,7 @@ export const db = {
                 return;
             }
 
-            triggerIndexNow(`https://quiknews.online/news/${data.id}`);
+            triggerIndexNow(`https://quiknews.online${getNewsUrl(data)}`);
         } catch (e) {
             console.error("DB Add Signal Error", e);
         }

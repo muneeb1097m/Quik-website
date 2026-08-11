@@ -1,5 +1,5 @@
 import { db } from '@/lib/qie/db';
-import { notFound } from 'next/navigation';
+import { notFound, redirect, RedirectType } from 'next/navigation';
 import NewsDetailView from '@/components/NewsDetailView';
 import { serialize, extractSignalIdFromParam, formatMetaTitle, formatMetaDescription, getNewsUrl, generateFaqSchema } from '@/lib/utils';
 
@@ -72,6 +72,13 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ id:
         notFound();
     }
 
+    // 3. Ensure Canonical Slug Redirect (301 Permanent Redirect for non-canonical URLs)
+    const canonicalPath = getNewsUrl(signal);
+    const canonicalSlug = canonicalPath.replace('/news/', '');
+    if (id !== canonicalSlug) {
+        redirect(canonicalPath, RedirectType.replace);
+    }
+
     // Event is included in signal fetch
     const event = signal.event || { category: 'News' };
 
@@ -80,7 +87,7 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ id:
     const filteredRelated = related.filter((s: any) => s.id !== signal.id).slice(0, 3);
 
     // JSON-LD Structured Data for Google News (NewsArticle Schema)
-    const canonicalUrl = `https://quiknews.online${getNewsUrl(signal)}`;
+    const canonicalUrl = `https://quiknews.online${canonicalPath}`;
     const newsArticleJsonLd = {
         '@context': 'https://schema.org',
         '@type': 'NewsArticle',
@@ -111,6 +118,32 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ id:
         keywords: [event.category, 'AI News', 'Technology', 'Breaking News'].join(', '),
     };
 
+    // JSON-LD BreadcrumbList Schema for Google Search Console
+    const breadcrumbJsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+            {
+                '@type': 'ListItem',
+                position: 1,
+                name: 'Home',
+                item: 'https://quiknews.online',
+            },
+            {
+                '@type': 'ListItem',
+                position: 2,
+                name: event.category || 'News',
+                item: `https://quiknews.online/${(event.category || 'news').toLowerCase()}`,
+            },
+            {
+                '@type': 'ListItem',
+                position: 3,
+                name: signal.headline,
+                item: canonicalUrl,
+            },
+        ],
+    };
+
     // JSON-LD FAQ Schema for Google Rich Results
     const faqJsonLd = generateFaqSchema(signal, event);
 
@@ -120,6 +153,11 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ id:
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(newsArticleJsonLd) }}
+            />
+            {/* BreadcrumbList Structured Data */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
             />
             {/* FAQPage Structured Data */}
             <script

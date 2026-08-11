@@ -28,7 +28,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         url: `${baseUrl}${route}`,
         lastModified: new Date(),
         changeFrequency: 'daily' as const,
-        priority: route === '' ? 1.0 : 0.8,
+        priority: route === '' ? 1.0 : (['/tech', '/business', '/global', '/ai', '/sports', '/pakistan', '/auto'].includes(route) ? 0.9 : 0.8),
     }));
 
     // 2. Dynamic News Routes
@@ -36,12 +36,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     let newsRoutes: MetadataRoute.Sitemap = [];
     try {
         const latestSignals = await db.getSignals(undefined, 500);
-        newsRoutes = latestSignals.map((signal: any) => ({
-            url: `${baseUrl}${getNewsUrl(signal)}`,
-            lastModified: new Date(signal.generatedAt || Date.now()),
-            changeFrequency: 'monthly' as const, // News articles don't change much once published
-            priority: 0.6,
-        }));
+        const seenUrls = new Set<string>(staticRoutes.map(r => r.url));
+
+        for (const signal of latestSignals) {
+            const path = getNewsUrl(signal);
+            const fullUrl = `${baseUrl}${path}`;
+            if (!seenUrls.has(fullUrl)) {
+                seenUrls.add(fullUrl);
+                newsRoutes.push({
+                    url: fullUrl,
+                    lastModified: new Date(signal.generatedAt || Date.now()),
+                    changeFrequency: 'weekly' as const,
+                    priority: 0.7,
+                });
+            }
+        }
     } catch (error) {
         console.error('Sitemap dynamic fetch error:', error);
     }
