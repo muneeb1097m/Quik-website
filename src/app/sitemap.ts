@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { db } from '@/lib/qie/db';
 import { getNewsUrl } from '@/lib/utils';
 
-export const revalidate = 3600; // Revalidate every hour
+export const revalidate = 43200; // Revalidate every 12 hours
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://quiknews.online').replace(/\/$/, '');

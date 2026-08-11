@@ -32,6 +32,26 @@ const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
 
+  async redirects() {
+    return [
+      {
+        source: '/index',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/index.html',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/index.php',
+        destination: '/',
+        permanent: true,
+      },
+    ];
+  },
+
   // Performance: Add cache headers for better caching
   async headers() {
     return [

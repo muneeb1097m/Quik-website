@@ -6,8 +6,15 @@ import type { Metadata } from 'next';
 
 // Performance: Enable ISR with 4-hour revalidation
 export const revalidate = 14400;
+export const dynamicParams = false;
 
 const VALID_CATEGORIES = ['tech', 'business', 'global', 'ai', 'auto', 'pakistan', 'sports'];
+
+export async function generateStaticParams() {
+    return VALID_CATEGORIES.map((category) => ({
+        category,
+    }));
+}
 
 interface PageProps {
     params: Promise<{ category: string }>;

@@ -5,9 +5,8 @@ import { Suspense } from 'react';
 import { RawFeedSection, SidebarSection } from '@/components/HomeStreaming';
 import { SignalCardSkeleton, SidebarSkeleton } from '@/components/Skeletons';
 
-// Instant Live Updates: Set revalidate to 0 so new news signals appear immediately when fetched
-export const revalidate = 0;
-export const dynamic = 'force-dynamic';
+// Performance: Enable ISR with 60-second revalidation to serve edge cached responses
+export const revalidate = 60;
 
 import type { Metadata } from 'next';
 
