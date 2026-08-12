@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
     const metaTitle = formatMetaTitle(signal.headline, ' | Quik', 55);
     const metaDescription = formatMetaDescription(signal.summary, 155);
-    const canonicalUrl = `https://quiknews.online${getNewsUrl(signal)}`;
+    const canonicalUrl = `https://www.quiknews.online${getNewsUrl(signal)}`;
 
     return {
         title: metaTitle,
@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
             publishedTime: new Date(signal.generatedAt).toISOString(),
             images: [
                 {
-                    url: signal.imageUrl || 'https://quiknews.online/og-default.png',
+                    url: signal.imageUrl || 'https://www.quiknews.online/og-default.png',
                     width: 1200,
                     height: 630,
                     alt: signal.headline,
@@ -87,27 +87,27 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ id:
     const filteredRelated = related.filter((s: any) => s.id !== signal.id).slice(0, 3);
 
     // JSON-LD Structured Data for Google News (NewsArticle Schema)
-    const canonicalUrl = `https://quiknews.online${canonicalPath}`;
+    const canonicalUrl = `https://www.quiknews.online${canonicalPath}`;
     const newsArticleJsonLd = {
         '@context': 'https://schema.org',
         '@type': 'NewsArticle',
         headline: signal.headline,
         description: formatMetaDescription(signal.summary, 155),
-        image: signal.imageUrl || 'https://quiknews.online/og-default.png',
+        image: signal.imageUrl || 'https://www.quiknews.online/og-default.png',
         datePublished: new Date(signal.generatedAt).toISOString(),
         dateModified: new Date(signal.generatedAt).toISOString(),
         author: {
             '@type': 'Organization',
             name: 'Quik AI',
-            url: 'https://quiknews.online',
+            url: 'https://www.quiknews.online',
         },
         publisher: {
             '@type': 'Organization',
             name: 'Quik',
-            url: 'https://quiknews.online',
+            url: 'https://www.quiknews.online',
             logo: {
                 '@type': 'ImageObject',
-                url: 'https://quiknews.online/logo.png',
+                url: 'https://www.quiknews.online/logo.png',
             },
         },
         mainEntityOfPage: {
@@ -127,13 +127,13 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ id:
                 '@type': 'ListItem',
                 position: 1,
                 name: 'Home',
-                item: 'https://quiknews.online',
+                item: 'https://www.quiknews.online',
             },
             {
                 '@type': 'ListItem',
                 position: 2,
                 name: event.category || 'News',
-                item: `https://quiknews.online/${(event.category || 'news').toLowerCase()}`,
+                item: `https://www.quiknews.online/${(event.category || 'news').toLowerCase()}`,
             },
             {
                 '@type': 'ListItem',

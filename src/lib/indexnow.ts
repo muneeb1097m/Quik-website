@@ -5,9 +5,9 @@
  * @param articleUrl - The full URL of the newly created article.
  */
 export const triggerIndexNow = async (articleUrl: string) => {
-    const host = "quiknews.online";
+    const host = "www.quiknews.online";
     const key = "83b4c92a5d9146df";
-    const keyLocation = `https://quiknews.online/${key}.txt`;
+    const keyLocation = `https://www.quiknews.online/${key}.txt`;
 
     try {
         const response = await fetch('https://www.bing.com/indexnow', {

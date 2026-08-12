@@ -16,7 +16,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://quiknews.online'),
+  metadataBase: new URL('https://www.quiknews.online'),
   title: {
     default: 'Quik | AI-Powered Global News & Breaking Headlines',
     template: '%s | Quik'
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://quiknews.online',
+    url: 'https://www.quiknews.online',
     title: 'Quik | AI-Powered Global News',
     description: 'Real-time intelligence from around the world, synthesized by AI.',
     siteName: 'Quik',
@@ -82,10 +82,10 @@ export default function RootLayout({
               '@context': 'https://schema.org',
               '@type': 'WebSite',
               name: 'Quik News',
-              url: 'https://quiknews.online',
+              url: 'https://www.quiknews.online',
               potentialAction: {
                 '@type': 'SearchAction',
-                target: 'https://quiknews.online/search?q={search_term_string}',
+                target: 'https://www.quiknews.online/search?q={search_term_string}',
                 'query-input': 'required name=search_term_string',
               },
             }),
@@ -98,8 +98,8 @@ export default function RootLayout({
               '@context': 'https://schema.org',
               '@type': 'Organization',
               name: 'Quik',
-              url: 'https://quiknews.online',
-              logo: 'https://quiknews.online/logo.png',
+              url: 'https://www.quiknews.online',
+              logo: 'https://www.quiknews.online/logo.png',
               sameAs: [
                 'https://x.com/quik_news',
                 'https://www.instagram.com/quikn.ews/',

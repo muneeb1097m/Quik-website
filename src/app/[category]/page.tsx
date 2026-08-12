@@ -43,10 +43,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         openGraph: {
             title: `${title} News | Quik`,
             description: `Latest ${title} news and intelligence, synthesized by AI.`,
-            url: `https://quiknews.online/${lowerCategory}`,
+            url: `https://www.quiknews.online/${lowerCategory}`,
         },
         alternates: {
-            canonical: `https://quiknews.online/${lowerCategory}`,
+            canonical: `https://www.quiknews.online/${lowerCategory}`,
         },
     };
 }

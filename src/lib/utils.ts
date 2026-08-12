@@ -100,22 +100,52 @@ export function isSimilarHeadline(h1: string, h2: string, threshold = 0.60): boo
     return jaccardScore >= threshold || (minLength >= 3 && inclusionScore >= 0.75);
 }
 
-/**
- * Filters out duplicate or near-duplicate signal objects from an array.
- */
 export function deduplicateSignals<T extends { headline?: string; title?: string }>(signals: T[]): T[] {
     if (!signals || signals.length === 0) return [];
 
     const unique: T[] = [];
+    const uniqueWordSets: Set<string>[] = [];
+
+    const normalizeTitle = (text: string): string[] =>
+        text
+            .toLowerCase()
+            .replace(/[^a-z0-9\s]/gi, '')
+            .split(/\s+/)
+            .filter(w => w.length > 2);
+
     for (const item of signals) {
         const itemTitle = item.headline || item.title || '';
-        const isDup = unique.some(existing => {
-            const existingTitle = existing.headline || existing.title || '';
-            return isSimilarHeadline(itemTitle, existingTitle);
-        });
+        if (!itemTitle) continue;
+
+        const words = normalizeTitle(itemTitle);
+        if (words.length === 0) {
+            unique.push(item);
+            continue;
+        }
+
+        const set2 = new Set(words);
+        let isDup = false;
+
+        for (let i = 0; i < uniqueWordSets.length; i++) {
+            const set1 = uniqueWordSets[i];
+            let sharedCount = 0;
+            for (const w of set2) {
+                if (set1.has(w)) sharedCount++;
+            }
+            const minLength = Math.min(set1.size, set2.size);
+            const unionSize = set1.size + set2.size - sharedCount;
+            const jaccardScore = unionSize > 0 ? sharedCount / unionSize : 0;
+            const inclusionScore = minLength > 0 ? sharedCount / minLength : 0;
+
+            if (jaccardScore >= 0.60 || (minLength >= 3 && inclusionScore >= 0.75)) {
+                isDup = true;
+                break;
+            }
+        }
 
         if (!isDup) {
             unique.push(item);
+            uniqueWordSets.push(set2);
         }
     }
     return unique;

@@ -17,7 +17,7 @@ export class PollinationProvider implements ImageProvider {
 
             // Return Absolute Proxy URL to use authenticated server-side generation
             // FIX: Cron job runs on server where relative URLs fail
-            const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://quiknews.online';
+            const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.quiknews.online';
             return `${baseUrl}/api/generate-image?prompt=${encodedPrompt}`;
         } catch (error) {
             console.error("Pollination generation failed:", error);
@@ -39,7 +39,7 @@ export class CloudflareProvider implements ImageProvider {
             const cleanTitle = prompt.replace(/[^\w\s]/g, '');
             const encodedPrompt = encodeURIComponent(`Generate a cinematic, hyper-realistic 4K news image representing the headline: "${cleanTitle}". Visually depict the main subject and consequence of the event in a dramatic photojournalistic style. Ultra-detailed, natural lighting, high contrast, realistic skin tones, depth of field, professional camera photography, sharp focus, emotional intensity, documentary realism. Shot with a 50mm lens, DSLR quality, cinematic color grading, realistic shadows, atmospheric depth. 16:9 aspect ratio, ultra HD. No text, no logos, no watermark.`);
             // Use ?provider=cloudflare to trigger real Cloudflare generation
-            const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://quiknews.online';
+            const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.quiknews.online';
             return `${baseUrl}/api/generate-image?prompt=${encodedPrompt}&provider=cloudflare`;
         } catch (e) {
             console.error("Cloudflare URL generation failed:", e);

@@ -4,7 +4,7 @@ export const metadata: Metadata = {
     title: 'Terms of Service | Quik News',
     description: 'Terms of Service for Quik News. Please read our terms and conditions carefully.',
     alternates: {
-        canonical: 'https://quiknews.online/terms',
+        canonical: 'https://www.quiknews.online/terms',
     },
 };
 

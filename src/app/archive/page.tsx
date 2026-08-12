@@ -12,7 +12,7 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
     const params = await searchParams;
     const page = params.page ? ` - Page ${params.page}` : '';
     const pageNum = parseInt(params.page || '1');
-    const canonicalUrl = pageNum > 1 ? `https://quiknews.online/archive?page=${pageNum}` : 'https://quiknews.online/archive';
+    const canonicalUrl = pageNum > 1 ? `https://www.quiknews.online/archive?page=${pageNum}` : 'https://www.quiknews.online/archive';
 
     return {
         title: `News Archive${page} | Quik`,

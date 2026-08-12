@@ -68,14 +68,14 @@ export function generateDigestEmail(subscriberName: string, newsItems: NewsItem[
                                             ${item.category}
                                         </div>
                                         <h2 style="margin: 0 0 10px; color: #1e293b; font-size: 18px; font-weight: 700; line-height: 1.4;">
-                                            <a href="https://quiknews.online${getNewsUrl(item)}" style="color: #1e293b; text-decoration: none;">
+                                            <a href="https://www.quiknews.online${getNewsUrl(item)}" style="color: #1e293b; text-decoration: none;">
                                                 ${item.headline}
                                             </a>
                                         </h2>
                                         <p style="margin: 0 0 12px; color: #64748b; font-size: 14px; line-height: 1.6;">
                                             ${item.summary}
                                         </p>
-                                        <a href="https://quiknews.online${getNewsUrl(item)}" style="display: inline-block; color: #1e293b; font-size: 13px; font-weight: 600; text-decoration: none; border-bottom: 2px solid #1e293b; padding-bottom: 2px;">
+                                        <a href="https://www.quiknews.online${getNewsUrl(item)}" style="display: inline-block; color: #1e293b; font-size: 13px; font-weight: 600; text-decoration: none; border-bottom: 2px solid #1e293b; padding-bottom: 2px;">
                                             Read Full Report →
                                         </a>
                                     </td>
@@ -91,7 +91,7 @@ export function generateDigestEmail(subscriberName: string, newsItems: NewsItem[
                             <table width="100%" cellpadding="0" cellspacing="0">
                                 <tr>
                                     <td align="center">
-                                        <a href="https://quiknews.online" style="display: inline-block; background-color: #1e293b; color: #ffffff; font-size: 15px; font-weight: 700; text-decoration: none; padding: 14px 32px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+                                        <a href="https://www.quiknews.online" style="display: inline-block; background-color: #1e293b; color: #ffffff; font-size: 15px; font-weight: 700; text-decoration: none; padding: 14px 32px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
                                             View All News
                                         </a>
                                     </td>
@@ -107,8 +107,8 @@ export function generateDigestEmail(subscriberName: string, newsItems: NewsItem[
                                 You're receiving this because you subscribed to Quik News.
                             </p>
                             <p style="margin: 0; color: #cbd5e1; font-size: 11px;">
-                                <a href="https://quiknews.online/about" style="color: #64748b; text-decoration: underline;">Manage Preferences</a> · 
-                                <a href="https://quiknews.online/about" style="color: #64748b; text-decoration: underline;">Unsubscribe</a>
+                                <a href="https://www.quiknews.online/about" style="color: #64748b; text-decoration: underline;">Manage Preferences</a> · 
+                                <a href="https://www.quiknews.online/about" style="color: #64748b; text-decoration: underline;">Unsubscribe</a>
                             </p>
                         </td>
                     </tr>
@@ -179,7 +179,7 @@ export function generateWelcomeEmail(subscriberName: string): string {
                                 © ${new Date().getFullYear()} Quik News. All rights reserved.
                             </p>
                             <p style="margin: 0; color: #cbd5e1; font-size: 11px;">
-                                <a href="https://quiknews.online" style="color: #64748b; text-decoration: none;">Visit Website</a>
+                                <a href="https://www.quiknews.online" style="color: #64748b; text-decoration: none;">Visit Website</a>
                             </p>
                         </td>
                     </tr>

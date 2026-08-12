@@ -13,7 +13,7 @@ export const metadata: Metadata = {
         description: 'Browse the latest global news headlines and AI-synthesized intelligence updates on Quik.',
     },
     alternates: {
-        canonical: 'https://quiknews.online/news',
+        canonical: 'https://www.quiknews.online/news',
     },
 };
 

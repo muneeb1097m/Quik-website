@@ -137,8 +137,8 @@ export const db = {
                 
                 return cleanData;
             },
-            [`signals-${category || 'all'}-${limit || 0}-${skip || 0}-v14`],
-            { revalidate: 60, tags: ['signals'] } // Cache for 60 seconds
+            [`signals-${category || 'all'}-${limit || 0}-${skip || 0}-v15`],
+            { revalidate: 300, tags: ['signals'] } // Cache for 5 minutes (300s) for low CPU usage
         )();
     },
 
@@ -251,7 +251,7 @@ export const db = {
                 return;
             }
 
-            triggerIndexNow(`https://quiknews.online${getNewsUrl(data)}`);
+            triggerIndexNow(`https://www.quiknews.online${getNewsUrl(data)}`);
         } catch (e) {
             console.error("DB Add Signal Error", e);
         }
