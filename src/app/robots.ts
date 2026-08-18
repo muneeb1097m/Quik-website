@@ -1,14 +1,18 @@
 import { MetadataRoute } from 'next';
+import { getBaseUrl } from '@/lib/seo';
 
 export default function robots(): MetadataRoute.Robots {
-    const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://www.quiknews.online').replace(/\/$/, '');
+    const baseUrl = getBaseUrl();
     return {
         rules: {
             userAgent: '*',
             allow: '/',
-            disallow: ['/api/'],
+            disallow: ['/api/', '/admin/'],
         },
-        sitemap: `${baseUrl}/sitemap.xml`,
+        sitemap: [
+            `${baseUrl}/sitemap.xml`,
+            `${baseUrl}/news-sitemap.xml`,
+        ],
         host: baseUrl,
     };
 }

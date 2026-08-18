@@ -1,7 +1,9 @@
 import { db } from '@/lib/qie/db';
 import { notFound, redirect, RedirectType } from 'next/navigation';
 import NewsDetailView from '@/components/NewsDetailView';
-import { serialize, extractSignalIdFromParam, formatMetaTitle, formatMetaDescription, getNewsUrl, generateFaqSchema } from '@/lib/utils';
+import { serialize, extractSignalIdFromParam, formatMetaTitle, formatMetaDescription, getNewsUrl } from '@/lib/utils';
+import { generateNewsArticleSchema, generateBreadcrumbSchema, getBaseUrl } from '@/lib/seo';
+import { getAuthor, DEFAULT_AUTHOR } from '@/lib/authors';
 
 import type { Metadata } from 'next';
 
@@ -25,9 +27,10 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
         };
     }
 
+    const baseUrl = getBaseUrl();
     const metaTitle = formatMetaTitle(signal.headline, ' | Quik', 55);
-    const metaDescription = formatMetaDescription(signal.summary, 155);
-    const canonicalUrl = `https://www.quiknews.online${getNewsUrl(signal)}`;
+    const metaDescription = formatMetaDescription(signal.summary || signal.fullReport || signal.headline, 155);
+    const canonicalUrl = `${baseUrl}${getNewsUrl(signal)}`;
 
     return {
         title: metaTitle,
@@ -40,7 +43,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
             publishedTime: new Date(signal.generatedAt).toISOString(),
             images: [
                 {
-                    url: signal.imageUrl || 'https://www.quiknews.online/og-default.png',
+                    url: signal.imageUrl || `${baseUrl}/og-default.png`,
                     width: 1200,
                     height: 630,
                     alt: signal.headline,
@@ -51,7 +54,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
             card: 'summary_large_image',
             title: metaTitle,
             description: metaDescription,
-            images: [signal.imageUrl || ''],
+            images: [signal.imageUrl || `${baseUrl}/og-default.png`],
         },
         alternates: {
             canonical: canonicalUrl,
@@ -80,76 +83,24 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ id:
     }
 
     // Event is included in signal fetch
-    const event = signal.event || { category: 'News' };
+    const event = signal.event || { category: 'Technology', lastUpdatedAt: signal.generatedAt, sources: [] };
+    const author = DEFAULT_AUTHOR;
 
     // Fetch related stories
-    const related = await db.getSignals(event.category, 4);
-    const filteredRelated = related.filter((s: any) => s.id !== signal.id).slice(0, 3);
+    const related = await db.getSignals(event.category, 6);
+    const filteredRelated = related.filter((s: any) => s.id !== signal.id).slice(0, 4);
 
-    // JSON-LD Structured Data for Google News (NewsArticle Schema)
-    const canonicalUrl = `https://www.quiknews.online${canonicalPath}`;
-    const newsArticleJsonLd = {
-        '@context': 'https://schema.org',
-        '@type': 'NewsArticle',
-        headline: signal.headline,
-        description: formatMetaDescription(signal.summary, 155),
-        image: signal.imageUrl || 'https://www.quiknews.online/og-default.png',
-        datePublished: new Date(signal.generatedAt).toISOString(),
-        dateModified: new Date(signal.generatedAt).toISOString(),
-        author: {
-            '@type': 'Organization',
-            name: 'Quik AI',
-            url: 'https://www.quiknews.online',
-        },
-        publisher: {
-            '@type': 'Organization',
-            name: 'Quik',
-            url: 'https://www.quiknews.online',
-            logo: {
-                '@type': 'ImageObject',
-                url: 'https://www.quiknews.online/logo.png',
-            },
-        },
-        mainEntityOfPage: {
-            '@type': 'WebPage',
-            '@id': canonicalUrl,
-        },
-        articleSection: event.category,
-        keywords: [event.category, 'AI News', 'Technology', 'Breaking News'].join(', '),
-    };
-
-    // JSON-LD BreadcrumbList Schema for Google Search Console
-    const breadcrumbJsonLd = {
-        '@context': 'https://schema.org',
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-            {
-                '@type': 'ListItem',
-                position: 1,
-                name: 'Home',
-                item: 'https://www.quiknews.online',
-            },
-            {
-                '@type': 'ListItem',
-                position: 2,
-                name: event.category || 'News',
-                item: `https://www.quiknews.online/${(event.category || 'news').toLowerCase()}`,
-            },
-            {
-                '@type': 'ListItem',
-                position: 3,
-                name: signal.headline,
-                item: canonicalUrl,
-            },
-        ],
-    };
-
-    // JSON-LD FAQ Schema for Google Rich Results
-    const faqJsonLd = generateFaqSchema(signal, event);
+    // JSON-LD Structured Data (NewsArticle & BreadcrumbList)
+    const newsArticleJsonLd = generateNewsArticleSchema(signal, event, author);
+    const breadcrumbJsonLd = generateBreadcrumbSchema([
+        { name: 'Home', url: '/' },
+        { name: event.category || 'News', url: `/${(event.category || 'news').toLowerCase()}` },
+        { name: signal.headline, url: canonicalPath },
+    ]);
 
     return (
         <>
-            {/* NewsArticle Structured Data */}
+            {/* NewsArticle Structured Data (schema.org/NewsArticle) */}
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(newsArticleJsonLd) }}
@@ -159,17 +110,13 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ id:
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
             />
-            {/* FAQPage Structured Data */}
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
-            />
+
             <NewsDetailView
                 signal={serialize(signal)}
                 event={serialize(event)}
+                author={serialize(author)}
                 related={serialize(filteredRelated)}
             />
         </>
     );
 }
-

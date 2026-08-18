@@ -38,15 +38,16 @@ export const metadata: Metadata = {
     'AI Journalism',
     'Quik News'
   ],
-  authors: [{ name: 'Quik AI' }],
-  creator: 'Quik',
+  authors: [{ name: 'Quik Editorial Desk', url: 'https://www.quiknews.online/authors' }],
+  creator: 'Quik News',
+  publisher: 'Quik News',
   openGraph: {
     type: 'website',
     locale: 'en_US',
     url: 'https://www.quiknews.online',
     title: 'Quik | AI-Powered Global News',
     description: 'Real-time intelligence from around the world, synthesized by AI.',
-    siteName: 'Quik',
+    siteName: 'Quik News',
   },
   twitter: {
     card: 'summary_large_image',

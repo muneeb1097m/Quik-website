@@ -69,10 +69,13 @@ export default function AppFooter() {
                     </div>
 
                     <div>
-                        <h4 className="font-bold text-slate-900 mb-6">Topics</h4>
-                        <ul className="space-y-4 text-sm text-slate-500">
-                            <li><FooterLink href="/auto">Automotive</FooterLink></li>
-                            <li><FooterLink href="/sports">Sports</FooterLink></li>
+                        <h4 className="font-bold text-slate-900 mb-6">Topic Hubs</h4>
+                        <ul className="space-y-3 text-sm text-slate-500">
+                            <li><FooterLink href="/topic/artificial-intelligence">Artificial Intelligence</FooterLink></li>
+                            <li><FooterLink href="/topic/openai">OpenAI</FooterLink></li>
+                            <li><FooterLink href="/topic/markets">Markets &amp; Economy</FooterLink></li>
+                            <li><FooterLink href="/topic/nvidia">Nvidia &amp; Chips</FooterLink></li>
+                            <li><FooterLink href="/topic/cybersecurity">Cybersecurity</FooterLink></li>
                         </ul>
                     </div>
 
