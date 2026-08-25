@@ -1,20 +1,48 @@
+import { cache } from 'react';
 import { db } from '@/lib/qie/db';
 import { notFound, redirect, RedirectType } from 'next/navigation';
 import NewsDetailView from '@/components/NewsDetailView';
 import { serialize, extractSignalIdFromParam, formatMetaTitle, formatMetaDescription, getNewsUrl } from '@/lib/utils';
 import { generateNewsArticleSchema, generateBreadcrumbSchema, getBaseUrl } from '@/lib/seo';
-import { getAuthor, DEFAULT_AUTHOR } from '@/lib/authors';
+import { DEFAULT_AUTHOR } from '@/lib/authors';
 
 import type { Metadata } from 'next';
 
 // Performance: Enable ISR with 1-year revalidation (static content)
 export const revalidate = 31536000;
+export const dynamicParams = true;
+
+// React per-request cache to deduplicate DB lookups between generateMetadata and NewsDetailPage
+const getCachedSignal = cache(async (signalId: string) => {
+    return await db.getSignal(signalId);
+});
+
+// React per-request cache for related stories
+const getCachedRelated = cache(async (category: string, currentSignalId: string) => {
+    const related = await db.getSignals(category, 6);
+    return related.filter((s: any) => s.id !== currentSignalId).slice(0, 4);
+});
+
+// Pre-render top recent news articles at build time to serve from CDN (0 server load)
+export async function generateStaticParams() {
+    try {
+        const recentSignals = await db.getSignals(undefined, 30);
+        return recentSignals.map((signal: any) => {
+            const canonicalPath = getNewsUrl(signal);
+            const slug = canonicalPath.replace('/news/', '');
+            return { id: slug };
+        });
+    } catch (e) {
+        console.error('generateStaticParams error in /news/[id]:', e);
+        return [];
+    }
+}
 
 // Generate Metadata for SEO
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
     const { id } = await params;
     const signalId = extractSignalIdFromParam(id);
-    const signal = await db.getSignal(signalId);
+    const signal = await getCachedSignal(signalId);
 
     if (!signal) {
         return {
@@ -68,8 +96,8 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ id:
     const { id } = await params;
     const signalId = extractSignalIdFromParam(id);
 
-    // 2. Fetch Data from DB (Server-side)
-    const signal = await db.getSignal(signalId);
+    // 2. Fetch Data from DB (Deduplicated via React cache)
+    const signal = await getCachedSignal(signalId);
 
     if (!signal) {
         notFound();
@@ -83,18 +111,18 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ id:
     }
 
     // Event is included in signal fetch
-    const event = signal.event || { category: 'Technology', lastUpdatedAt: signal.generatedAt, sources: [] };
+    const rawEvent: any = signal.event;
+    const event: any = (Array.isArray(rawEvent) ? rawEvent[0] : rawEvent) || { category: 'Technology', lastUpdatedAt: signal.generatedAt, sources: [] };
     const author = DEFAULT_AUTHOR;
 
-    // Fetch related stories
-    const related = await db.getSignals(event.category, 6);
-    const filteredRelated = related.filter((s: any) => s.id !== signal.id).slice(0, 4);
+    // Fetch related stories (Cached)
+    const filteredRelated = await getCachedRelated(event?.category || 'Technology', signal.id);
 
     // JSON-LD Structured Data (NewsArticle & BreadcrumbList)
-    const newsArticleJsonLd = generateNewsArticleSchema(signal, event, author);
+    const newsArticleJsonLd = generateNewsArticleSchema(signal as any, event as any, author);
     const breadcrumbJsonLd = generateBreadcrumbSchema([
         { name: 'Home', url: '/' },
-        { name: event.category || 'News', url: `/${(event.category || 'news').toLowerCase()}` },
+        { name: event?.category || 'News', url: `/${(event?.category || 'news').toLowerCase()}` },
         { name: signal.headline, url: canonicalPath },
     ]);
 

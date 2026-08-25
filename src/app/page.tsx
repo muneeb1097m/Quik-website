@@ -5,8 +5,8 @@ import { Suspense } from 'react';
 import { RawFeedSection, SidebarSection } from '@/components/HomeStreaming';
 import { SignalCardSkeleton, SidebarSkeleton } from '@/components/Skeletons';
 
-// Performance: Enable ISR with 60-second revalidation to serve edge cached responses
-export const revalidate = 60;
+// Performance: Enable ISR with 1-hour fallback revalidation (on-demand revalidated via cron)
+export const revalidate = 3600;
 
 import type { Metadata } from 'next';
 

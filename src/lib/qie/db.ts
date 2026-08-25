@@ -60,7 +60,7 @@ export const db = {
                 return data;
             },
             [`event-${id}-v10`],
-            { revalidate: 3600 }
+            { revalidate: 86400 }
         )();
     },
 
@@ -68,14 +68,14 @@ export const db = {
         return unstable_cache(
             async () => {
                 const { data, error } = await supabase.from('Signal')
-                    .select('*, event:NewsEvent(*, sources:Source(*))')
+                    .select('id, headline, summary, fullReport, imageUrl, generatedAt, eventId, event:NewsEvent(id, title, category, status, detectedAt, lastUpdatedAt, confidenceScore, sources:Source(*))')
                     .eq('id', id)
                     .single();
                 if (error) { console.error(error); return null; }
                 return data;
             },
-            [`signal-${id}-v10`],
-            { revalidate: 3600 }
+            [`signal-${id}-v11`],
+            { revalidate: 86400, tags: [`signal-${id}`, 'signals'] }
         )();
     },
 
@@ -133,12 +133,10 @@ export const db = {
                 if (error) { console.error("getSignals Error:", error); return []; }
                 
                 const cleanData = deduplicateSignals(data || []);
-                console.log(`[DB] getSignals(${category}): found ${cleanData.length} unique signals (out of ${data?.length || 0})`);
-                
                 return cleanData;
             },
-            [`signals-${category || 'all'}-${limit || 0}-${skip || 0}-v15`],
-            { revalidate: 300, tags: ['signals'] } // Cache for 5 minutes (300s) for low CPU usage
+            [`signals-${category || 'all'}-${limit || 0}-${skip || 0}-v16`],
+            { revalidate: 43200, tags: ['signals'] } // 12-hour cache fallback, invalidated on-demand when cron adds new news
         )();
     },
 
@@ -157,16 +155,14 @@ export const db = {
                 if (signalsReq.error) console.error("getHomePageData signals error:", signalsReq.error.message, signalsReq.error.code, signalsReq.error.details);
                 if (eventsReq.error) console.error("getHomePageData events error:", eventsReq.error.message, eventsReq.error.code, eventsReq.error.details);
 
-                console.log(`[DB] getHomePageData v10: trending=${trendingReq.data?.length}, signals=${signalsReq.data?.length}`);
-
                 return {
                     trending: deduplicateSignals(trendingReq.data || []),
                     signals: deduplicateSignals(signalsReq.data || []),
                     events: eventsReq.data || []
                 };
             },
-            ['home-page-data-v10'],
-            { revalidate: 3600 }
+            ['home-page-data-v11'],
+            { revalidate: 43200, tags: ['signals'] }
         )().catch((err: any) => {
             console.error("getHomePageData caught error:", err);
             return { trending: [], signals: [], events: [] };
