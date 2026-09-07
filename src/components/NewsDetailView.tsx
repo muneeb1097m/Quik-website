@@ -166,6 +166,28 @@ export default function NewsDetailView({ signal, event, author, related }: NewsD
                     <span className="text-slate-900 font-bold truncate max-w-xs">{signal.headline}</span>
                 </nav>
 
+                {/* Adsterra Top Article Leaderboard */}
+                <div className="mb-8 flex justify-center">
+                    <div className="hidden md:flex justify-center">
+                        <AdsterraBanner
+                            adKey={ADSTERRA_CONFIG.banner728x90.key}
+                            width={728}
+                            height={90}
+                            formatName="Desktop Leaderboard"
+                            scriptDomain={ADSTERRA_CONFIG.banner728x90.scriptDomain}
+                        />
+                    </div>
+                    <div className="flex md:hidden justify-center">
+                        <AdsterraBanner
+                            adKey={ADSTERRA_CONFIG.banner320x50.key}
+                            width={320}
+                            height={50}
+                            formatName="Mobile Leaderboard"
+                            scriptDomain={ADSTERRA_CONFIG.banner320x50.scriptDomain}
+                        />
+                    </div>
+                </div>
+
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
                     {/* Left Column: Context & Metadata */}
                     <div className="lg:col-span-4 space-y-6 lg:space-y-8 order-2 lg:order-1">

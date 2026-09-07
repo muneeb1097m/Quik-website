@@ -36,7 +36,8 @@ export const ADSTERRA_CONFIG = {
         name: '728x90_1',
         width: 728,
         height: 90,
-        key: process.env.NEXT_PUBLIC_ADSTERRA_728x90_KEY || '',
+        key: process.env.NEXT_PUBLIC_ADSTERRA_728x90_KEY || '56f59c1088c061af1b86d0f030e36391',
+        scriptDomain: 'www.highrevenueformat.com',
     },
     // 5. Banner 300x250 (Medium Rectangle - High CPM)
     banner300x250: {

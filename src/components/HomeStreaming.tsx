@@ -23,6 +23,7 @@ export async function RawFeedSection() {
                         width={728}
                         height={90}
                         formatName="Desktop Leaderboard"
+                        scriptDomain={ADSTERRA_CONFIG.banner728x90.scriptDomain}
                     />
                 </div>
                 <div className="flex md:hidden justify-center">
