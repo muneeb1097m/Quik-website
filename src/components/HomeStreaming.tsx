@@ -3,6 +3,8 @@ import { SignalCard } from './SignalCard';
 import { serialize, decodeHtmlEntities, getNewsUrl } from '@/lib/utils';
 import { Cpu, Globe } from 'lucide-react';
 import Link from 'next/link';
+import { AdsterraBanner } from './ads/AdsterraBanner';
+import { ADSTERRA_CONFIG } from '@/lib/adsterra';
 
 export async function RawFeedSection() {
     // Fetch signals inside the component to enable streaming
@@ -13,6 +15,26 @@ export async function RawFeedSection() {
 
     return (
         <div className="lg:col-span-8">
+            {/* Adsterra Feed Leaderboard */}
+            <div className="mb-6">
+                <div className="hidden md:flex justify-center">
+                    <AdsterraBanner
+                        adKey={ADSTERRA_CONFIG.banner728x90.key}
+                        width={728}
+                        height={90}
+                        formatName="Desktop Leaderboard"
+                    />
+                </div>
+                <div className="flex md:hidden justify-center">
+                    <AdsterraBanner
+                        adKey={ADSTERRA_CONFIG.banner320x50.key}
+                        width={320}
+                        height={50}
+                        formatName="Mobile Leaderboard"
+                    />
+                </div>
+            </div>
+
             <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-6 md:mb-8 flex items-center gap-3">
                 <Cpu className="w-6 h-6 text-slate-400" />
                 Latest Updates
@@ -64,6 +86,27 @@ export async function SidebarSection() {
                             </Link>
                         ))}
                     </div>
+                </div>
+
+                {/* Adsterra Sidebar Banner */}
+                <div className="flex justify-center">
+                    {ADSTERRA_CONFIG.banner300x250.key ? (
+                        <AdsterraBanner
+                            adKey={ADSTERRA_CONFIG.banner300x250.key}
+                            width={300}
+                            height={250}
+                            formatName="Sidebar Banner"
+                            scriptDomain={ADSTERRA_CONFIG.banner300x250.scriptDomain}
+                        />
+                    ) : (
+                        <AdsterraBanner
+                            adKey={ADSTERRA_CONFIG.banner160x300.key}
+                            width={160}
+                            height={300}
+                            formatName="Sidebar 160x300"
+                            scriptDomain={ADSTERRA_CONFIG.banner160x300.scriptDomain}
+                        />
+                    )}
                 </div>
             </div>
         </div>

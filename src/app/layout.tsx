@@ -4,6 +4,8 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { Toaster } from 'sonner';
 import { GoogleAnalytics } from '@next/third-parties/google';
+import Script from 'next/script';
+import { ADSTERRA_CONFIG } from '@/lib/adsterra';
 import { Navigation } from '@/components/Navigation';
 import AppFooter from '@/components/AppFooter';
 
@@ -66,6 +68,11 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  verification: {
+    other: {
+      'p:domain_verify': 'd1440e0087e5aea77d4c1319c5dfdd77',
+    },
+  },
 };
 
 export default function RootLayout({
@@ -75,6 +82,17 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <meta name="p:domain_verify" content="d1440e0087e5aea77d4c1319c5dfdd77" />
+        <link rel="alternate" type="application/rss+xml" title="Quik News RSS Feed" href="/rss.xml" />
+        {/* Adsterra Popunder */}
+        {ADSTERRA_CONFIG.popunder.scriptUrl && (
+          <script
+            type="text/javascript"
+            src={ADSTERRA_CONFIG.popunder.scriptUrl}
+          />
+        )}
+      </head>
       <body className={inter.className}>
         <script
           type="application/ld+json"
@@ -118,6 +136,15 @@ export default function RootLayout({
         <AppFooter />
 
         <GoogleAnalytics gaId="G-VDRE507J76" />
+
+        {/* Adsterra Social Bar */}
+        {ADSTERRA_CONFIG.socialBar.scriptUrl && (
+          <Script
+            src={ADSTERRA_CONFIG.socialBar.scriptUrl}
+            strategy="afterInteractive"
+            type="text/javascript"
+          />
+        )}
       </body>
     </html>
   );

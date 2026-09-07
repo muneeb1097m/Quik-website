@@ -1,12 +1,15 @@
 // @ts-nocheck
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { ArrowLeft, Clock, Share2, Shield, Calendar, Globe, Sparkles, Check, ChevronRight, ExternalLink, UserCheck, Layers } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getNewsUrl, decodeHtmlEntities } from '@/lib/utils';
 import { extractEntities } from '@/lib/seo';
+import { AdsterraBanner } from '@/components/ads/AdsterraBanner';
+import { AdsterraNative } from '@/components/ads/AdsterraNative';
+import { ADSTERRA_CONFIG } from '@/lib/adsterra';
 
 interface NewsDetailViewProps {
     signal: any;
@@ -66,9 +69,35 @@ const FormattedReport = ({ content }: { content: string }) => {
 
                 // 4. Regular Paragraphs
                 return (
-                    <p key={index} className="text-slate-700 text-base md:text-lg leading-relaxed font-normal">
-                        {trimmed}
-                    </p>
+                    <React.Fragment key={index}>
+                        <p className="text-slate-700 text-base md:text-lg leading-relaxed font-normal">
+                            {trimmed}
+                        </p>
+                        {index === 1 && (
+                            <div className="my-6 flex justify-center not-prose">
+                                <div className="w-full flex justify-center">
+                                    <div className="hidden sm:block">
+                                        <AdsterraBanner
+                                            adKey={ADSTERRA_CONFIG.banner468x60.key || ADSTERRA_CONFIG.banner300x250.key}
+                                            width={ADSTERRA_CONFIG.banner468x60.key ? 468 : 300}
+                                            height={ADSTERRA_CONFIG.banner468x60.key ? 60 : 250}
+                                            formatName="In-Article Banner"
+                                            scriptDomain={ADSTERRA_CONFIG.banner468x60.scriptDomain}
+                                        />
+                                    </div>
+                                    <div className="block sm:hidden">
+                                        <AdsterraBanner
+                                            adKey={ADSTERRA_CONFIG.banner320x50.key}
+                                            width={320}
+                                            height={50}
+                                            formatName="Mobile Banner"
+                                            scriptDomain={ADSTERRA_CONFIG.banner320x50.scriptDomain}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </React.Fragment>
                 );
             })}
         </div>
@@ -235,6 +264,27 @@ export default function NewsDetailView({ signal, event, author, related }: NewsD
                                     Pin on Pinterest
                                 </button>
                             </div>
+
+                            {/* Adsterra Sidebar Banner */}
+                            <div className="pt-4 border-t border-slate-100 flex flex-col items-center">
+                                {ADSTERRA_CONFIG.banner300x250.key ? (
+                                    <AdsterraBanner
+                                        adKey={ADSTERRA_CONFIG.banner300x250.key}
+                                        width={300}
+                                        height={250}
+                                        formatName="Sidebar Banner"
+                                        scriptDomain={ADSTERRA_CONFIG.banner300x250.scriptDomain}
+                                    />
+                                ) : (
+                                    <AdsterraBanner
+                                        adKey={ADSTERRA_CONFIG.banner160x300.key}
+                                        width={160}
+                                        height={300}
+                                        formatName="Sidebar 160x300"
+                                        scriptDomain={ADSTERRA_CONFIG.banner160x300.scriptDomain}
+                                    />
+                                )}
+                            </div>
                         </div>
                     </div>
 
@@ -327,6 +377,12 @@ export default function NewsDetailView({ signal, event, author, related }: NewsD
                                 </div>
                             )}
                         </article>
+
+                        {/* Adsterra Native Banner Unit */}
+                        <AdsterraNative
+                            widgetKey={ADSTERRA_CONFIG.nativeBanner.key}
+                            scriptUrl={ADSTERRA_CONFIG.nativeBanner.scriptUrl}
+                        />
 
                         {/* Related Stories */}
                         {related.length > 0 && (
