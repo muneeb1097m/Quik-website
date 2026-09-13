@@ -33,6 +33,11 @@ async function triggerVercelRevalidation() {
 
 export async function runIngestion() {
     console.log('=== News Ingestion Pipeline Started ===');
+    console.log('[Env Diagnostics]', {
+        hasSupabaseUrl: !!(process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_PROJECT_ID),
+        hasGeminiKey: !!process.env.GEMINI_API_KEY,
+        hasSupabaseKey: !!(process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY),
+    });
     const startTime = Date.now();
 
     const monitor = new NewsMonitor();
