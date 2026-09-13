@@ -53,7 +53,10 @@ function getSafeImageUrl(url: string, category?: string): string {
 }
 
 export async function GET() {
-    const baseUrl = getBaseUrl();
+    let baseUrl = getBaseUrl();
+    if (!baseUrl.includes('www.') && baseUrl.includes('quiknews.online')) {
+        baseUrl = baseUrl.replace('quiknews.online', 'www.quiknews.online');
+    }
 
     let articles: any[] = [];
     try {
@@ -62,7 +65,7 @@ export async function GET() {
             .select('id, headline, summary, imageUrl, generatedAt, event:NewsEvent(category)')
             .not('imageUrl', 'is', null)
             .order('generatedAt', { ascending: false })
-            .limit(100);
+            .limit(50);
 
         if (!error && data) {
             // Only include articles that actually have a valid HTTP(S) image
@@ -91,15 +94,14 @@ export async function GET() {
       <link>${fullUrl}</link>
       <guid isPermaLink="true">${fullUrl}</guid>
       <pubDate>${pubDate}</pubDate>
-      <description><![CDATA[<img src="${imageUrl}" alt="${decodeHtmlEntities(stripHtml(signal.headline || ''))}" /><p>${decodeHtmlEntities(stripHtml(signal.summary || ''))}</p>]]></description>
-      <content:encoded><![CDATA[<img src="${imageUrl}" alt="${decodeHtmlEntities(stripHtml(signal.headline || ''))}" /><p>${decodeHtmlEntities(stripHtml(signal.summary || ''))}</p>]]></content:encoded>
+      <description><![CDATA[<img src="${imageUrl}" alt="${cleanTitle}" /><p>${cleanSummary}</p>]]></description>
+      <content:encoded><![CDATA[<img src="${imageUrl}" alt="${cleanTitle}" /><p>${cleanSummary}</p>]]></content:encoded>
       <enclosure url="${escapeXml(imageUrl)}" type="${mimeType}" length="250000" />
       <media:content url="${escapeXml(imageUrl)}" medium="image" type="${mimeType}" width="1200" height="675">
         <media:title type="plain">${cleanTitle}</media:title>
         <media:description type="plain">${cleanSummary}</media:description>
         <media:thumbnail url="${escapeXml(imageUrl)}" />
       </media:content>
-      <media:thumbnail url="${escapeXml(imageUrl)}" />
     </item>`;
         })
         .join('\n');
@@ -123,7 +125,7 @@ ${itemsXml}
 
     return new NextResponse(rssXml, {
         headers: {
-            'Content-Type': 'application/rss+xml; charset=utf-8',
+            'Content-Type': 'application/xml; charset=utf-8',
             'Cache-Control': 'public, max-age=600, s-maxage=600, stale-while-revalidate=86400',
         },
     });
