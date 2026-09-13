@@ -8,7 +8,8 @@
     "build": "next build",
     "pages:build": "npx @cloudflare/next-on-pages",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "ingest": "npx tsx scripts/ingest-news.ts"
   },
   "dependencies": {
     "@cloudflare/next-on-pages": "^1.13.16",
@@ -46,6 +47,7 @@
     "prisma": "^6.19.2",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
+    "tsx": "^4.23.13",
     "typescript": "^5"
   },
   "overrides": {

@@ -33,6 +33,14 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
     },
 });
 
+const cachedOrRaw = async <T>(fn: () => Promise<T>, keys: string[], opts?: any): Promise<T> => {
+    try {
+        return await unstable_cache(fn, keys, opts)();
+    } catch {
+        return await fn();
+    }
+};
+
 // Helper accessor for Supabase Events
 export const db = {
     getEvents: async (limit?: number) => {
@@ -50,7 +58,7 @@ export const db = {
     },
 
     getEvent: async (id: string) => {
-        return unstable_cache(
+        return cachedOrRaw(
             async () => {
                 const { data, error } = await supabase.from('NewsEvent')
                     .select('*, sources:Source(*), signals:Signal(*)')
@@ -61,11 +69,11 @@ export const db = {
             },
             [`event-${id}-v10`],
             { revalidate: 86400 }
-        )();
+        );
     },
 
     getSignal: async (id: string) => {
-        return unstable_cache(
+        return cachedOrRaw(
             async () => {
                 const { data, error } = await supabase.from('Signal')
                     .select('id, headline, summary, fullReport, imageUrl, generatedAt, eventId, event:NewsEvent(id, title, category, status, detectedAt, lastUpdatedAt, confidenceScore, sources:Source(*))')
@@ -76,7 +84,7 @@ export const db = {
             },
             [`signal-${id}-v11`],
             { revalidate: 86400, tags: [`signal-${id}`, 'signals'] }
-        )();
+        );
     },
 
     getPaginatedSignals: async (cursor: string | undefined, limit: number = 20) => {
@@ -105,7 +113,7 @@ export const db = {
             else targetCategories = [category, c, c.charAt(0).toUpperCase() + c.slice(1)];
         }
 
-        return unstable_cache(
+        return cachedOrRaw(
             async () => {
                 const selectQuery = targetCategories.length > 0
                     ? `
@@ -137,11 +145,11 @@ export const db = {
             },
             [`signals-${category || 'all'}-${limit || 0}-${skip || 0}-v16`],
             { revalidate: 43200, tags: ['signals'] } // 12-hour cache fallback, invalidated on-demand when cron adds new news
-        )();
+        );
     },
 
     getHomePageData: async () => {
-        return unstable_cache(
+        return cachedOrRaw(
             async () => {
                 const commonSignalSelect = `id, headline, summary, imageUrl, generatedAt, eventId, event:NewsEvent(id, title, category, sources:Source(*))`;
 
@@ -163,7 +171,7 @@ export const db = {
             },
             ['home-page-data-v11'],
             { revalidate: 43200, tags: ['signals'] }
-        )().catch((err: any) => {
+        ).catch((err: any) => {
             console.error("getHomePageData caught error:", err);
             return { trending: [], signals: [], events: [] };
         });

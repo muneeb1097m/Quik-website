@@ -5,7 +5,7 @@ const API_KEY = process.env.GEMINI_API_KEY || '';
 const genAI = new GoogleGenerativeAI(API_KEY);
 
 const model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-flash',
+    model: 'gemini-3.6-flash',
     systemInstruction: `You are the Senior Executive Editor of "Quik Intelligence". Your mission is to synthesize raw news reporting into rich, authoritative, highly-structured intelligence reports.
 
     TONE & EDITORIAL STANDARDS:
