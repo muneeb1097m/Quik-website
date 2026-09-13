@@ -18,6 +18,28 @@ interface NewsDetailViewProps {
     related: any[];
 }
 
+function renderFormattedText(text: string): React.ReactNode {
+    if (!text) return null;
+    const parts = text.split(/(\*\*[^*]+?\*\*|\*[^*]+?\*)/g);
+    return parts.map((part, i) => {
+        if (part.startsWith('**') && part.endsWith('**') && part.length >= 4) {
+            return (
+                <strong key={i} className="font-bold text-slate-900">
+                    {part.slice(2, -2)}
+                </strong>
+            );
+        }
+        if (part.startsWith('*') && part.endsWith('*') && part.length >= 3) {
+            return (
+                <em key={i} className="italic text-slate-800">
+                    {part.slice(1, -1)}
+                </em>
+            );
+        }
+        return part;
+    });
+}
+
 const FormattedReport = ({ content }: { content: string }) => {
     if (!content) return null;
 
@@ -36,7 +58,7 @@ const FormattedReport = ({ content }: { content: string }) => {
                         <div key={index} className="pt-6 pb-2 border-b border-slate-100 flex items-center gap-3">
                             <div className="w-1.5 h-6 bg-slate-900 rounded-full flex-shrink-0" />
                             <h3 className="text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight">
-                                {headingText}
+                                {renderFormattedText(headingText)}
                             </h3>
                         </div>
                     );
@@ -50,7 +72,7 @@ const FormattedReport = ({ content }: { content: string }) => {
                             {items.map((item, itemIdx) => (
                                 <li key={itemIdx} className="flex items-start gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200/60 text-slate-800 font-medium text-base md:text-lg shadow-2xs">
                                     <span className="w-2.5 h-2.5 rounded-full bg-slate-900 mt-2 flex-shrink-0" />
-                                    <span>{item.replace(/^[-*]\s*/, '')}</span>
+                                    <span>{renderFormattedText(item.replace(/^[-*]\s*/, ''))}</span>
                                 </li>
                             ))}
                         </ul>
@@ -62,7 +84,7 @@ const FormattedReport = ({ content }: { content: string }) => {
                     const quoteText = trimmed.replace(/^>\s*/, '');
                     return (
                         <blockquote key={index} className="my-6 p-6 rounded-2xl bg-slate-900 text-white font-medium text-lg md:text-xl leading-relaxed shadow-sm border-l-4 border-emerald-400 italic">
-                            &ldquo;{quoteText}&rdquo;
+                            &ldquo;{renderFormattedText(quoteText)}&rdquo;
                         </blockquote>
                     );
                 }
@@ -71,7 +93,7 @@ const FormattedReport = ({ content }: { content: string }) => {
                 return (
                     <React.Fragment key={index}>
                         <p className="text-slate-700 text-base md:text-lg leading-relaxed font-normal">
-                            {trimmed}
+                            {renderFormattedText(trimmed)}
                         </p>
                         {index === 1 && (
                             <div className="my-6 flex justify-center not-prose">
@@ -338,7 +360,7 @@ export default function NewsDetailView({ signal, event, author, related }: NewsD
                             {/* Lead Summary */}
                             {signal.summary && (
                                 <div className="text-lg md:text-xl text-slate-900 font-semibold leading-relaxed mb-8 bg-slate-50 p-6 rounded-2xl border border-slate-100 shadow-2xs">
-                                    {decodeHtmlEntities(signal.summary)}
+                                    {renderFormattedText(decodeHtmlEntities(signal.summary))}
                                 </div>
                             )}
 
