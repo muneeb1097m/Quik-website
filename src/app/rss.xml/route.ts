@@ -23,6 +23,35 @@ function getImageMimeType(url: string): string {
     return 'image/jpeg';
 }
 
+const BLOCKED_HOTLINK_DOMAINS = [
+    'static01.nyt.com',
+    'aljazeera.com',
+    'www.aljazeera.com',
+    'propakistani.pk',
+];
+
+const CATEGORY_SAFE_IMAGES: Record<string, string> = {
+    'Pakistan': 'https://images.unsplash.com/photo-1568347877546-444654572239?q=80&w=1200&auto=format&fit=crop',
+    'Technology': 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop',
+    'AI': 'https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1200&auto=format&fit=crop',
+    'Business': 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200&auto=format&fit=crop',
+    'Sports': 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?q=80&w=1200&auto=format&fit=crop',
+    'Auto': 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?q=80&w=1200&auto=format&fit=crop',
+    'Startups': 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=1200&auto=format&fit=crop',
+    'Global': 'https://images.unsplash.com/photo-1521295121783-8a321d551ad2?q=80&w=1200&auto=format&fit=crop',
+};
+
+function getSafeImageUrl(url: string, category?: string): string {
+    try {
+        const parsed = new URL(url);
+        if (BLOCKED_HOTLINK_DOMAINS.some(d => parsed.hostname.includes(d))) {
+            const cat = category || 'Technology';
+            return CATEGORY_SAFE_IMAGES[cat] || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1200&auto=format&fit=crop';
+        }
+    } catch {}
+    return url;
+}
+
 export async function GET() {
     const baseUrl = getBaseUrl();
 
@@ -30,7 +59,7 @@ export async function GET() {
     try {
         const { data, error } = await supabase
             .from('Signal')
-            .select('id, headline, summary, imageUrl, generatedAt')
+            .select('id, headline, summary, imageUrl, generatedAt, event:NewsEvent(category)')
             .not('imageUrl', 'is', null)
             .order('generatedAt', { ascending: false })
             .limit(100);
@@ -53,7 +82,8 @@ export async function GET() {
             const cleanTitle = escapeXml(decodeHtmlEntities(stripHtml(signal.headline || 'Breaking News')));
             const cleanSummary = escapeXml(decodeHtmlEntities(stripHtml(signal.summary || signal.headline || '')));
             const pubDate = new Date(signal.generatedAt || Date.now()).toUTCString();
-            const imageUrl = signal.imageUrl.trim();
+            const category = signal.event?.category || 'Technology';
+            const imageUrl = getSafeImageUrl(signal.imageUrl.trim(), category);
             const mimeType = getImageMimeType(imageUrl);
 
             return `    <item>
