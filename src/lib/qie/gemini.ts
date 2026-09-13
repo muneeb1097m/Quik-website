@@ -6,54 +6,63 @@ const genAI = new GoogleGenerativeAI(API_KEY);
 
 const model = genAI.getGenerativeModel({
     model: 'gemini-3.6-flash',
-    systemInstruction: `You are the Senior Executive Editor of "Quik Intelligence". Your mission is to synthesize raw news reporting into rich, authoritative, highly-structured intelligence reports.
+    systemInstruction: `You are the Chief Investigative Editor and Senior Columnist of "Quik News". Your mission is to write authoritative, comprehensive, in-depth journalistic news analysis articles (600 - 1,000 words). Every article must be thorough, analytical, engaging, and structured with rich Markdown headings to satisfy the highest Google Search, Google News, and E-E-A-T editorial standards.
 
     TONE & EDITORIAL STANDARDS:
-    1. **Anti-AI Persona**: Strictly avoid generic AI clichés and buzzwords.
-       - BANNED WORDS/PHRASES: "Delve", "Leverage", "Revolutionize", "Game-changer", "Foster", "Spearhead", "In the rapidly evolving landscape", "Unlock", "Seamless", "Testament to", "A beacon of".
-    2. **Factual & Authoritative**: Write with journalistic precision like Bloomberg Terminal, Financial Times, or Reuters.
-    3. **Evidence-Based Guardrails**:
-       - Under NO circumstances should you speculate on predictions or manufacture quotes/facts.
-       - Only include "Confirmed Next Steps" if verified launch dates, regulatory deadlines, or announced public plans exist in the source material.
-    4. **Original Voice**: Synthesize as an objective Quik intelligence report without mentioning CTAs, subscription prompts, or self-promotional text.
+    1. **Anti-AI Persona**: Write like a veteran Financial Times, Bloomberg, or Reuters investigative journalist. Strictly avoid AI clichés: "Delve", "Leverage", "Revolutionize", "Game-changer", "Foster", "Spearhead", "In the rapidly evolving landscape", "Unlock", "Seamless", "Testament to", "A beacon of".
+    2. **Substance & Depth**: Never write superficial snippets or 2-sentence summaries. Explore root causes, key stakeholders, concrete statistics, broader economic/market impacts, and historical context.
+    3. **Evidence-Based Guardrails**: Ground all facts, figures, and direct quotes in the reported facts. Frame broader insights as analytical context.
+    4. **Original Voice**: Produce an independent, authoritative Quik News intelligence report without boilerplate artifacts ("Read more...", "The post appeared first on...").
     `
 });
 
 export class GeminiSynthesizer {
 
     async rewriteStory(rawHeadline: string, rawSnippet: string): Promise<{ headline: string, summary: string, category: string, fullReport: string }> {
+        const cleanedSnippet = stripHtml(rawSnippet)
+            .replace(/The post .* appeared first on .*/gi, '')
+            .replace(/Read More\s*.*/gi, '')
+            .trim();
+
         if (!API_KEY) {
             console.warn('GEMINI_API_KEY not found. Returning raw data.');
-            const fallbackSummary = stripHtml(rawSnippet).slice(0, 150) + '...';
+            const fallbackSummary = cleanedSnippet.slice(0, 150) + '...';
             return {
                 headline: rawHeadline,
                 summary: fallbackSummary,
                 category: 'Technology',
-                fullReport: stripHtml(rawSnippet)
+                fullReport: cleanedSnippet
             };
         }
 
         try {
             const prompt = `RAW HEADLINE: "${rawHeadline}"
-RAW CONTENT: "${rawSnippet}"
+RAW SOURCE CONTENT:
+"${cleanedSnippet}"
 
-TASK: Synthesize this into a structured, highly valuable Quik news intelligence report.
+TASK: Produce an exhaustive, full-length, comprehensive news analysis article (600 to 900+ words) suitable for Google News, Google Search indexing, and professional news readers.
 
 STRUCTURE REQUIREMENTS:
-1. "headline": Factual, punchy, active-voice headline (25-90 characters). No clickbait.
-2. "summary": Exactly 2 clear, informative sentences (40-80 words) summarizing the core event and its primary consequence.
+1. "headline": Authoritative, factual, active-voice, SEO-optimized headline (35-90 characters). No clickbait.
+2. "summary": A compelling 2-sentence executive summary (45-80 words) summarizing the core event and its primary consequence.
 3. "category": "Technology" | "Business" | "Pakistan" | "Global" | "Sports" | "AI" | "Auto" | "Startups"
-4. "fullReport": Multi-section Markdown report:
-   ### Key Developments
-   - Bulleted breakdown of essential facts, numbers, dates, and confirmed announcements.
+4. "fullReport": An extensive, high-value Markdown article (600 - 900+ words) strictly formatted with the following sections:
    
-   ### Why It Matters
-   - 1 concise paragraph explaining the strategic, economic, or technological significance.
+   Start directly with 2 to 3 rich, detailed introductory paragraphs explaining the news event, the main figures, the latest announcements, and the immediate context.
    
-   ### Background & Context
-   - 1 concise paragraph providing relevant preceding history or context.
+   ### Key Developments & Policy Breakdown
+   - Provide 4 to 6 detailed bullet points breaking down specific data points, dates, policy decisions, and verified statements.
    
-   ### Confirmed Next Steps (ONLY include if specific dates/deadlines/launches were mentioned in the source; otherwise omit entirely).
+   ### In-Depth Analysis & Real-World Impact
+   - 2 to 3 detailed paragraphs analyzing the economic, market, regulatory, or societal ripple effects. Explain what this means for stakeholders, consumers, or industry competitors.
+   
+   ### Background, Preceding Events & Historical Context
+   - 2 detailed paragraphs explaining the broader history and timeline. Mention preceding policy shifts, previous market conditions, or earlier related developments.
+   
+   > [A compelling pull-quote or central takeaway summarizing the broader significance]
+   
+   ### Strategic Outlook & What to Watch Next
+   - 2 detailed paragraphs analyzing upcoming implementation timelines, potential obstacles, upcoming regulatory decisions, or what readers should monitor in the coming weeks.
 
 Format output STRICTLY as a JSON object:
 {
