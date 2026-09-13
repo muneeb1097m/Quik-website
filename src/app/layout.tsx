@@ -85,13 +85,6 @@ export default function RootLayout({
       <head>
         <meta name="p:domain_verify" content="d1440e0087e5aea77d4c1319c5dfdd77" />
         <link rel="alternate" type="application/rss+xml" title="Quik News RSS Feed" href="/rss.xml" />
-        {/* Adsterra Popunder */}
-        {ADSTERRA_CONFIG.popunder.scriptUrl && (
-          <script
-            type="text/javascript"
-            src={ADSTERRA_CONFIG.popunder.scriptUrl}
-          />
-        )}
       </head>
       <body className={inter.className}>
         <script
