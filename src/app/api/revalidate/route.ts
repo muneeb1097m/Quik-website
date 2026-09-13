@@ -14,6 +14,7 @@ export async function POST(req: NextRequest) {
     try {
         revalidatePath('/', 'page');
         revalidatePath('/news', 'page');
+        revalidatePath('/rss.xml');
         (revalidateTag as any)('signals');
         return NextResponse.json({ revalidated: true, now: Date.now() });
     } catch (err: any) {
