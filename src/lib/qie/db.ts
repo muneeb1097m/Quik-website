@@ -83,7 +83,7 @@ export const db = {
                 return data;
             },
             [`signal-${id}-v11`],
-            { revalidate: 86400, tags: [`signal-${id}`, 'signals'] }
+            { revalidate: 86400, tags: [`signal-${id}`] }
         );
     },
 
