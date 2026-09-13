@@ -3,9 +3,8 @@ import { revalidatePath, revalidateTag } from 'next/cache';
 
 export async function POST(req: NextRequest) {
     const { searchParams } = new URL(req.url);
-    const secret = searchParams.get('secret');
-
-    const expectedSecret = process.env.CRON_SECRET || process.env.REVALIDATE_SECRET;
+    const secret = searchParams.get('secret')?.trim();
+    const expectedSecret = (process.env.CRON_SECRET || process.env.REVALIDATE_SECRET || '').trim();
 
     if (expectedSecret && secret !== expectedSecret) {
         return NextResponse.json({ message: 'Invalid token' }, { status: 401 });

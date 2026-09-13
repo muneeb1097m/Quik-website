@@ -9,8 +9,8 @@ import { isSimilarHeadline } from '@/lib/utils';
 import { evaluateSeoQuality } from '@/lib/seo';
 
 async function triggerVercelRevalidation() {
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL;
-    const secret = process.env.CRON_SECRET || process.env.REVALIDATE_SECRET;
+    const appUrl = (process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || '').trim();
+    const secret = (process.env.CRON_SECRET || process.env.REVALIDATE_SECRET || '').trim();
 
     if (!appUrl || !secret) {
         console.log('[Revalidation] Skipped: APP_URL or CRON_SECRET not provided.');
