@@ -11,8 +11,13 @@ export async function POST(req: NextRequest) {
     }
 
     try {
+        const path = searchParams.get('path')?.trim();
+        if (path) {
+            revalidatePath(path);
+        }
         revalidatePath('/', 'page');
         revalidatePath('/news', 'page');
+        revalidatePath('/news/[id]', 'page');
         revalidatePath('/rss.xml');
         (revalidateTag as any)('signals');
         return NextResponse.json({ revalidated: true, now: Date.now() });

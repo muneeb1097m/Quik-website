@@ -8,8 +8,8 @@ import { DEFAULT_AUTHOR } from '@/lib/authors';
 
 import type { Metadata } from 'next';
 
-// Performance: Enable ISR with 1-year revalidation (static content)
-export const revalidate = 31536000;
+// Performance: Enable ISR with 1-hour revalidation (refreshes updated content automatically)
+export const revalidate = 3600;
 export const dynamicParams = true;
 
 // React per-request cache to deduplicate DB lookups between generateMetadata and NewsDetailPage

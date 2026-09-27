@@ -82,8 +82,8 @@ export const db = {
                 if (error) { console.error(error); return null; }
                 return data;
             },
-            [`signal-${id}-v11`],
-            { revalidate: 86400, tags: [`signal-${id}`] }
+            [`signal-${id}-v12`],
+            { revalidate: 3600, tags: [`signal-${id}`, 'signals'] }
         );
     },
 
