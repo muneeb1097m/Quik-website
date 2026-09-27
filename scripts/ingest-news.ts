@@ -127,6 +127,13 @@ export async function runIngestion() {
         console.log('[AI Synthesizer] Rewriting and analyzing story with Gemini...');
         const aiResult = await synthesizer.rewriteStory(selectedItem.headline, contextToAnalyze);
 
+        const wordCount = aiResult.fullReport.split(/\s+/).filter(Boolean).length;
+        if (wordCount < 400) {
+            console.warn(`[Quality Gate Reject] Article "${aiResult.headline}" only has ${wordCount} words. Skipping publication.`);
+            return;
+        }
+        console.log(`[AI Synthesizer] Successfully synthesized article (${wordCount} words).`);
+
         // POST-AI Similarity Check
         if (recentHeadlines.length > 0) {
             const isSimilar = recentHeadlines.some((recent: string) => isSimilarHeadline(aiResult.headline, recent));

@@ -9,7 +9,8 @@
     "pages:build": "npx @cloudflare/next-on-pages",
     "start": "next start",
     "lint": "eslint",
-    "ingest": "npx tsx scripts/ingest-news.ts"
+    "ingest": "npx tsx scripts/ingest-news.ts",
+    "enrich:short": "npx tsx scripts/enrich-short-articles.ts"
   },
   "dependencies": {
     "@cloudflare/next-on-pages": "^1.13.16",

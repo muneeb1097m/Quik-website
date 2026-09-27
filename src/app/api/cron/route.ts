@@ -107,6 +107,13 @@ export async function GET() {
                 console.log(`[${item.source}] Synthesizing...`);
                 const aiResult = await synthesizer.rewriteStory(item.headline, contextToAnalyze);
 
+                const wordCount = aiResult.fullReport.split(/\s+/).filter(Boolean).length;
+                if (wordCount < 400) {
+                    console.warn(`[Quality Gate Reject] Article "${aiResult.headline}" only has ${wordCount} words. Skipping publication.`);
+                    return null;
+                }
+                console.log(`[${item.source}] Successfully synthesized article (${wordCount} words).`);
+
                 // POST-AI Similarity Check
                 if (recentHeadlines.length > 0) {
                     const isSimilar = recentHeadlines.some((recent: string) => isSimilarHeadline(aiResult.headline, recent));
