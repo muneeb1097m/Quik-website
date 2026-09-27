@@ -22,7 +22,7 @@ export async function GET() {
     try {
         const { data, error } = await supabase
             .from('Signal')
-            .select('id, headline, generatedAt')
+            .select('id, headline, imageUrl, generatedAt')
             .gte('generatedAt', fortyEightHoursAgo)
             .order('generatedAt', { ascending: false })
             .limit(200);
@@ -40,6 +40,9 @@ export async function GET() {
             const fullUrl = `${baseUrl}${path}`;
             const cleanTitle = escapeXml(decodeHtmlEntities(stripHtml(signal.headline || 'Breaking News')));
             const pubDate = new Date(signal.generatedAt || Date.now()).toISOString();
+            const imageBlock = (signal.imageUrl && signal.imageUrl.startsWith('http'))
+                ? `\n    <image:image>\n      <image:loc>${escapeXml(signal.imageUrl)}</image:loc>\n      <image:title>${cleanTitle}</image:title>\n    </image:image>`
+                : '';
 
             return `  <url>
     <loc>${fullUrl}</loc>
@@ -50,14 +53,15 @@ export async function GET() {
       </news:publication>
       <news:publication_date>${pubDate}</news:publication_date>
       <news:title>${cleanTitle}</news:title>
-    </news:news>
+    </news:news>${imageBlock}
   </url>`;
         })
         .join('\n');
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 ${xmlItems}
 </urlset>`;
 
