@@ -104,7 +104,18 @@ CRITICAL REQUIREMENT: "fullReport" MUST be a detailed, rich, multi-paragraph mar
 
                 const result = await model.generateContent(prompt);
                 const text = result.response.text();
-                const json = JSON.parse(text);
+                
+                let json: any;
+                try {
+                    json = JSON.parse(text);
+                } catch {
+                    const cleaned = text
+                        .replace(/```json/gi, '')
+                        .replace(/```/gi, '')
+                        .replace(/[\u0000-\u0009\u000B-\u001F\u007F]/g, ' ')
+                        .trim();
+                    json = JSON.parse(cleaned);
+                }
 
                 if (!json.fullReport || typeof json.fullReport !== 'string') {
                     throw new Error('Gemini response missing valid fullReport property.');
