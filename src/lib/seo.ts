@@ -4,7 +4,11 @@ import { getAllTopics } from './topics';
 import { decodeHtmlEntities, stripHtml, slugify, getNewsUrl } from './utils';
 
 export function getBaseUrl(): string {
-    return (process.env.NEXT_PUBLIC_APP_URL || 'https://www.quiknews.online').replace(/\/$/, '');
+    const url = (process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || 'https://www.quiknews.online').trim().replace(/\/$/, '');
+    if (url.includes('quiknews.online') && !url.includes('www.quiknews.online')) {
+        return 'https://www.quiknews.online';
+    }
+    return url;
 }
 
 /**
