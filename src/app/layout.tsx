@@ -43,6 +43,9 @@ export const metadata: Metadata = {
   authors: [{ name: 'Quik Editorial Desk', url: 'https://www.quiknews.online/authors' }],
   creator: 'Quik News',
   publisher: 'Quik News',
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
     type: 'website',
     locale: 'en_US',

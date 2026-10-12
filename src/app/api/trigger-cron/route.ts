@@ -23,8 +23,7 @@ async function handleTrigger(request: NextRequest) {
   const githubToken =
     process.env.GITHUB_PAT ||
     process.env.GITHUB_TOKEN ||
-    searchParams.get('token') ||
-    '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';
+    searchParams.get('token');
   const repoOwner = process.env.GITHUB_OWNER || 'muneeb1097m';
   const repoName = process.env.GITHUB_REPO || 'Quik-website';
   const workflowName = 'news-cron.yml';

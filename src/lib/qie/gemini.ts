@@ -122,8 +122,8 @@ CRITICAL REQUIREMENT: "fullReport" MUST be a detailed, rich, multi-paragraph mar
                 }
 
                 const words = json.fullReport.split(/\s+/).filter(Boolean).length;
-                if (words < 350) {
-                    throw new Error(`Generated fullReport is too short (${words} words). Minimum required is 400 words.`);
+                if (words < 500) {
+                    throw new Error(`Generated fullReport is too short (${words} words). Minimum required is 550 words for Google indexation.`);
                 }
 
                 return {

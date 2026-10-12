@@ -11,17 +11,17 @@ export interface AdsterraUnitConfig {
 }
 
 export const ADSTERRA_CONFIG = {
-    // 1. Social Bar (Sticky notification / push banner)
+    // 1. Social Bar (Sticky notification / push banner - disabled by default to comply with Google Better Ads & Interstitial policies)
     socialBar: {
         id: '31131328',
         name: 'SocialBar_1',
-        scriptUrl: process.env.NEXT_PUBLIC_ADSTERRA_SOCIAL_BAR_URL || 'https://pl31231827.profitableratecpmnetwork.com/0d/29/23/0d2923efe4b6805fa2a29d52e033d7fd.js',
+        scriptUrl: process.env.NEXT_PUBLIC_ADSTERRA_SOCIAL_BAR_URL || '',
     },
-    // 2. Popunder (Background popup on user tap/click)
+    // 2. Popunder (Disabled by default to prevent Google deindexing penalties)
     popunder: {
         id: '31131331',
         name: 'Popunder_1',
-        scriptUrl: process.env.NEXT_PUBLIC_ADSTERRA_POPUNDER_URL || 'https://pl31231830.profitableratecpmnetwork.com/c7/ac/5e/c7ac5e966d288658b139991c199346eb.js',
+        scriptUrl: process.env.NEXT_PUBLIC_ADSTERRA_POPUNDER_URL || '',
     },
     // 3. Native Banner (Content recommendation widget)
     nativeBanner: {
