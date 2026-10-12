@@ -83,13 +83,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
                 if (!seenUrls.has(fullUrl)) {
                     seenUrls.add(fullUrl);
-                    const validImage = signal.imageUrl && signal.imageUrl.startsWith('http') ? [signal.imageUrl] : [];
                     newsRoutes.push({
                         url: fullUrl,
                         lastModified: new Date(signal.generatedAt || Date.now()),
                         changeFrequency: 'weekly' as const,
                         priority: 0.75,
-                        images: validImage,
                     });
                 }
             }
