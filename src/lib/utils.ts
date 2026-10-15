@@ -286,3 +286,25 @@ export function generateFaqSchema(signal: any, event?: any) {
     };
 }
 
+/**
+ * Maps arbitrary category names (e.g. 'Technology', 'Startups', 'Artificial Intelligence')
+ * to their valid canonical route slug ('tech', 'business', 'ai', 'auto', 'global', 'pakistan', 'sports').
+ */
+export function getCategorySlug(category?: string): string {
+    if (!category) return 'tech';
+    const cat = category.toLowerCase().trim();
+
+    if (cat === 'technology' || cat === 'tech') return 'tech';
+    if (cat === 'startups' || cat === 'startup' || cat === 'business' || cat === 'markets' || cat === 'finance' || cat === 'economy') return 'business';
+    if (cat === 'artificial intelligence' || cat === 'artificial-intelligence' || cat === 'ai') return 'ai';
+    if (cat === 'automotive' || cat === 'auto' || cat === 'ev' || cat === 'electric-vehicles') return 'auto';
+    if (cat === 'global' || cat === 'world' || cat === 'global affairs') return 'global';
+    if (cat === 'pakistan' || cat === 'startup pakistan') return 'pakistan';
+    if (cat === 'sports' || cat === 'sport' || cat === 'cricket') return 'sports';
+
+    const validCategories = ['tech', 'business', 'global', 'ai', 'auto', 'pakistan', 'sports'];
+    if (validCategories.includes(cat)) return cat;
+
+    return 'tech';
+}
+

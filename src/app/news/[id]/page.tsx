@@ -2,7 +2,7 @@ import { cache } from 'react';
 import { db } from '@/lib/qie/db';
 import { notFound, redirect, RedirectType } from 'next/navigation';
 import NewsDetailView from '@/components/NewsDetailView';
-import { serialize, extractSignalIdFromParam, formatMetaTitle, formatMetaDescription, getNewsUrl } from '@/lib/utils';
+import { serialize, extractSignalIdFromParam, formatMetaTitle, formatMetaDescription, getNewsUrl, getCategorySlug } from '@/lib/utils';
 import { generateNewsArticleSchema, generateBreadcrumbSchema, getBaseUrl } from '@/lib/seo';
 import { DEFAULT_AUTHOR } from '@/lib/authors';
 
@@ -122,7 +122,7 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ id:
     const newsArticleJsonLd = generateNewsArticleSchema(signal as any, event as any, author);
     const breadcrumbJsonLd = generateBreadcrumbSchema([
         { name: 'Home', url: '/' },
-        { name: event?.category || 'News', url: `/${(event?.category || 'news').toLowerCase()}` },
+        { name: event?.category || 'News', url: `/${getCategorySlug(event?.category)}` },
         { name: signal.headline, url: canonicalPath },
     ]);
 

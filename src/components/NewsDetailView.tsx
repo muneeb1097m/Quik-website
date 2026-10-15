@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { ArrowLeft, Clock, Share2, Shield, Calendar, Globe, Sparkles, Check, ChevronRight, ExternalLink, UserCheck, Layers } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { getNewsUrl, decodeHtmlEntities } from '@/lib/utils';
+import { getNewsUrl, decodeHtmlEntities, getCategorySlug } from '@/lib/utils';
 import { extractEntities } from '@/lib/seo';
 import { AdsterraBanner } from '@/components/ads/AdsterraBanner';
 import { AdsterraNative } from '@/components/ads/AdsterraNative';
@@ -181,7 +181,7 @@ export default function NewsDetailView({ signal, event, author, related }: NewsD
                 <nav className="flex items-center gap-2 text-xs font-semibold text-slate-500 mb-8" aria-label="Breadcrumb">
                     <Link href="/" className="hover:text-slate-900 transition-colors">Home</Link>
                     <ChevronRight className="w-3.5 h-3.5" />
-                    <Link href={`/${(event.category || 'news').toLowerCase()}`} className="hover:text-slate-900 transition-colors">
+                    <Link href={`/${getCategorySlug(event.category)}`} className="hover:text-slate-900 transition-colors">
                         {event.category || 'News'}
                     </Link>
                     <ChevronRight className="w-3.5 h-3.5" />
@@ -266,7 +266,7 @@ export default function NewsDetailView({ signal, event, author, related }: NewsD
                                 )}
                                 <div className="flex justify-between py-2 border-b border-slate-100">
                                     <span className="text-slate-500 flex items-center gap-2"><Calendar className="w-4 h-4" /> Category</span>
-                                    <Link href={`/${(event.category || 'news').toLowerCase()}`} className="font-medium text-brand-blue px-2.5 py-0.5 bg-brand-blue/10 rounded-full hover:bg-brand-blue/20 transition-colors">
+                                    <Link href={`/${getCategorySlug(event.category)}`} className="font-medium text-brand-blue px-2.5 py-0.5 bg-brand-blue/10 rounded-full hover:bg-brand-blue/20 transition-colors">
                                         {event.category}
                                     </Link>
                                 </div>

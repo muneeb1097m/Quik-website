@@ -2,6 +2,7 @@ import { getTopic, getAllTopics, isTopicIndexable } from '@/lib/topics';
 import { db } from '@/lib/qie/db';
 import { SignalCard } from '@/components/SignalCard';
 import { generateTopicCollectionSchema, generateBreadcrumbSchema, getBaseUrl } from '@/lib/seo';
+import { getCategorySlug } from '@/lib/utils';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -74,7 +75,7 @@ export default async function TopicHubPage({ params }: TopicPageProps) {
     const collectionSchema = generateTopicCollectionSchema(topic, signals);
     const breadcrumbSchema = generateBreadcrumbSchema([
         { name: 'Home', url: '/' },
-        { name: topic.parentCategory, url: `/${topic.parentCategory.toLowerCase()}` },
+        { name: topic.parentCategory, url: `/${getCategorySlug(topic.parentCategory)}` },
         { name: topic.name, url: `/topic/${topic.slug}` },
     ]);
 
@@ -99,7 +100,7 @@ export default async function TopicHubPage({ params }: TopicPageProps) {
                 <nav className="flex items-center gap-2 text-xs font-semibold text-slate-500 mb-8" aria-label="Breadcrumb">
                     <Link href="/" className="hover:text-slate-900 transition-colors">Home</Link>
                     <ChevronRight className="w-3.5 h-3.5" />
-                    <Link href={`/${topic.parentCategory.toLowerCase()}`} className="hover:text-slate-900 transition-colors">
+                    <Link href={`/${getCategorySlug(topic.parentCategory)}`} className="hover:text-slate-900 transition-colors">
                         {topic.parentCategory}
                     </Link>
                     <ChevronRight className="w-3.5 h-3.5" />

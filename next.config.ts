@@ -49,6 +49,36 @@ const nextConfig: NextConfig = {
         destination: '/',
         permanent: true,
       },
+      {
+        source: '/technology',
+        destination: '/tech',
+        permanent: true,
+      },
+      {
+        source: '/technology/:path*',
+        destination: '/tech',
+        permanent: true,
+      },
+      {
+        source: '/startups',
+        destination: '/business',
+        permanent: true,
+      },
+      {
+        source: '/startups/:path*',
+        destination: '/business',
+        permanent: true,
+      },
+      {
+        source: '/artificial-intelligence',
+        destination: '/ai',
+        permanent: true,
+      },
+      {
+        source: '/automotive',
+        destination: '/auto',
+        permanent: true,
+      },
     ];
   },
 

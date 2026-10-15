@@ -104,7 +104,7 @@ export const db = {
         if (category) {
             const c = category.toLowerCase();
             if (c === 'tech') targetCategories = ['Technology', 'technology', 'Tech'];
-            else if (c === 'business') targetCategories = ['Business', 'business', 'Economy', 'economy', 'Business & Finance', 'Markets', 'Finance'];
+            else if (c === 'business') targetCategories = ['Business', 'business', 'Economy', 'economy', 'Business & Finance', 'Markets', 'Finance', 'Startups', 'startups'];
             else if (c === 'global') targetCategories = ['Global', 'global', 'International', 'international', 'World'];
             else if (c === 'ai') targetCategories = ['AI', 'ai', 'Artificial Intelligence', 'Robotics'];
             else if (c === 'auto') targetCategories = ['Auto', 'auto', 'Automotive', 'EV', 'Electric Vehicles', 'Cars'];
