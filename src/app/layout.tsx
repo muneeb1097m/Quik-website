@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     default: 'Quik | AI-Powered Global News & Breaking Headlines',
     template: '%s | Quik'
   },
-  description: 'Real-time global news powered by AI. Get breaking headlines, tech updates, business insights, and sports from around the world. Fast, intelligent, and always current.',
+  description: 'Real-time global news powered by AI. Get breaking headlines, tech updates, business insights, and sports from around the world. Fast and verified.',
   keywords: [
     'AI News',
     'Breaking News',
@@ -53,12 +53,21 @@ export const metadata: Metadata = {
     title: 'Quik | AI-Powered Global News',
     description: 'Real-time intelligence from around the world, synthesized by AI.',
     siteName: 'Quik News',
+    images: [
+      {
+        url: 'https://www.quiknews.online/og-default.png',
+        width: 1200,
+        height: 630,
+        alt: 'Quik News - AI-Powered Global Intelligence',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Quik | AI-Powered Global News',
     description: 'Breaking headlines and insights powered by AI. Global coverage, instant updates.',
     creator: '@quik_news',
+    images: ['https://www.quiknews.online/og-default.png'],
   },
   robots: {
     index: true,
@@ -98,11 +107,6 @@ export default function RootLayout({
               '@type': 'WebSite',
               name: 'Quik News',
               url: 'https://www.quiknews.online',
-              potentialAction: {
-                '@type': 'SearchAction',
-                target: 'https://www.quiknews.online/search?q={search_term_string}',
-                'query-input': 'required name=search_term_string',
-              },
             }),
           }}
         />

@@ -9,6 +9,20 @@ export const metadata: Metadata = {
     alternates: {
         canonical: 'https://www.quiknews.online/authors',
     },
+    openGraph: {
+        title: 'Editorial Team & Authors | Quik News',
+        description: 'Meet the editorial desks, journalists, and intelligence systems behind Quik News.',
+        url: 'https://www.quiknews.online/authors',
+        type: 'website',
+        images: [
+            {
+                url: 'https://www.quiknews.online/og-default.png',
+                width: 1200,
+                height: 630,
+                alt: 'Quik News Editorial Team & Authors',
+            },
+        ],
+    },
 };
 
 export default function AuthorsDirectoryPage() {

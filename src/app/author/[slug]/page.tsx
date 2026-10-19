@@ -43,6 +43,14 @@ export async function generateMetadata({ params }: AuthorPageProps): Promise<Met
             description: author.bio,
             url: canonicalUrl,
             type: 'profile',
+            images: [
+                {
+                    url: author.avatarUrl?.startsWith('http') ? author.avatarUrl : `${baseUrl}${author.avatarUrl || '/og-default.png'}`,
+                    width: 1200,
+                    height: 630,
+                    alt: author.name,
+                },
+            ],
         },
         alternates: {
             canonical: canonicalUrl,

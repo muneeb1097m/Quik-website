@@ -21,6 +21,15 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
             title: `News Archive${page} | Quik`,
             description: 'Browse the complete history of AI-generated global news coverage on Quik.',
             url: canonicalUrl,
+            type: 'website',
+            images: [
+                {
+                    url: 'https://www.quiknews.online/og-default.png',
+                    width: 1200,
+                    height: 630,
+                    alt: `Quik News Archive${page}`,
+                },
+            ],
         },
         alternates: {
             canonical: canonicalUrl,

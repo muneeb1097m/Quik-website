@@ -237,7 +237,13 @@ export function formatMetaTitle(headline: string, suffix = ' | Quik', maxLen = 5
  */
 export function formatMetaDescription(text: string, maxLen = 155): string {
     if (!text) return 'Latest real-time news and intelligence, synthesized by AI on Quik.';
-    const clean = decodeHtmlEntities(stripHtml(text));
+    let clean = decodeHtmlEntities(stripHtml(text)).trim();
+
+    // Prevent "Meta description too short" warning by ensuring a minimum length
+    if (clean.length < 80) {
+        clean = `${clean} — Read verified real-time coverage and intelligence updates on Quik.`;
+    }
+
     if (clean.length <= maxLen) {
         return clean;
     }

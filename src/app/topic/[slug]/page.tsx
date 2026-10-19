@@ -47,6 +47,14 @@ export async function generateMetadata({ params }: TopicPageProps): Promise<Meta
             description: topic.description,
             url: canonicalUrl,
             type: 'website',
+            images: [
+                {
+                    url: 'https://www.quiknews.online/og-default.png',
+                    width: 1200,
+                    height: 630,
+                    alt: `${topic.name} News & Intelligence Analysis | Quik`,
+                },
+            ],
         },
         alternates: {
             canonical: canonicalUrl,

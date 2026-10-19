@@ -8,6 +8,20 @@ export const metadata: Metadata = {
     alternates: {
         canonical: 'https://www.quiknews.online/editorial-policy',
     },
+    openGraph: {
+        title: 'Editorial Policy & Standards | Quik News',
+        description: 'Our commitment to journalistic accuracy, multi-source verification, ethical AI synthesis, transparency, and error corrections.',
+        url: 'https://www.quiknews.online/editorial-policy',
+        type: 'website',
+        images: [
+            {
+                url: 'https://www.quiknews.online/og-default.png',
+                width: 1200,
+                height: 630,
+                alt: 'Quik News Editorial Policy & Standards',
+            },
+        ],
+    },
 };
 
 export default function EditorialPolicyPage() {

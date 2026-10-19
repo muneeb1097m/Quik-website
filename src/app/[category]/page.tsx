@@ -71,6 +71,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
             title: `${title} News & Intelligence Updates | Quik`,
             description,
             url: canonicalUrl,
+            type: 'website',
+            images: [
+                {
+                    url: 'https://www.quiknews.online/og-default.png',
+                    width: 1200,
+                    height: 630,
+                    alt: `${title} News & Intelligence Updates | Quik`,
+                },
+            ],
         },
         alternates: {
             canonical: canonicalUrl,

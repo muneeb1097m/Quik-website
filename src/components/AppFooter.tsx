@@ -61,6 +61,8 @@ export default function AppFooter() {
                     <div>
                         <h4 className="font-bold text-slate-900 mb-6">News</h4>
                         <ul className="space-y-4 text-sm text-slate-500">
+                            <li><FooterLink href="/news">Latest News</FooterLink></li>
+                            <li><FooterLink href="/archive">Archive</FooterLink></li>
                             <li><FooterLink href="/pakistan">Pakistan</FooterLink></li>
                             <li><FooterLink href="/global">Global</FooterLink></li>
                             <li><FooterLink href="/business">Business</FooterLink></li>
@@ -85,7 +87,7 @@ export default function AppFooter() {
                             <li><FooterLink href="/about">About Us</FooterLink></li>
                             <li><FooterLink href="/authors">Our Team</FooterLink></li>
                             <li><FooterLink href="/editorial-policy">Editorial Policy</FooterLink></li>
-                            <li><FooterLink href="#">Contact</FooterLink></li>
+                            <li><FooterLink href="mailto:editor@quiknews.online">Contact</FooterLink></li>
                             <li><FooterLink href="/privacy">Privacy Policy</FooterLink></li>
                             <li><FooterLink href="/terms">Terms of Service</FooterLink></li>
                         </ul>
@@ -99,7 +101,7 @@ export default function AppFooter() {
                     <div className="flex gap-8 text-sm text-slate-500">
                         <FooterLink href="/privacy">Privacy</FooterLink>
                         <FooterLink href="/terms">Terms</FooterLink>
-                        <FooterLink href="#">Cookies</FooterLink>
+                        <FooterLink href="/privacy">Cookies</FooterLink>
                     </div>
                 </div>
             </div>

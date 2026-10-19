@@ -104,15 +104,16 @@ export function generateBreadcrumbSchema(items: { name: string; url: string }[])
 export function generateAuthorProfileSchema(author: AuthorProfile) {
     const baseUrl = getBaseUrl();
     const authorUrl = `${baseUrl}/author/${author.slug}`;
+    const isPerson = author.type === 'Person';
 
     return {
         '@context': 'https://schema.org',
         '@type': 'ProfilePage',
         mainEntity: {
-            '@type': author.type === 'Person' ? 'Person' : 'NewsMediaOrganization',
+            '@type': isPerson ? 'Person' : 'NewsMediaOrganization',
             name: author.name,
             description: author.bio,
-            jobTitle: author.role,
+            ...(isPerson && author.role ? { jobTitle: author.role } : {}),
             url: authorUrl,
             sameAs: Object.values(author.socials || {}).filter(Boolean),
             knowsAbout: author.areasOfCoverage,
@@ -135,12 +136,19 @@ export function generateTopicCollectionSchema(topic: TopicHub, articles: any[]) 
         url: topicUrl,
         mainEntity: {
             '@type': 'ItemList',
-            itemListElement: articles.slice(0, 10).map((signal, index) => ({
-                '@type': 'ListItem',
-                position: index + 1,
-                url: `${baseUrl}${getNewsUrl(signal)}`,
-                name: signal.headline,
-            })),
+            itemListElement: articles.slice(0, 10).map((signal, index) => {
+                const articleUrl = `${baseUrl}${getNewsUrl(signal)}`;
+                return {
+                    '@type': 'ListItem',
+                    position: index + 1,
+                    item: {
+                        '@type': 'NewsArticle',
+                        '@id': articleUrl,
+                        url: articleUrl,
+                        name: signal.headline,
+                    },
+                };
+            }),
         },
     };
 }

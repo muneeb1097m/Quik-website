@@ -6,6 +6,20 @@ export const metadata: Metadata = {
     alternates: {
         canonical: 'https://www.quiknews.online/privacy',
     },
+    openGraph: {
+        title: 'Privacy Policy | Quik News',
+        description: 'Privacy Policy for Quik News. Learn how we collect, use, and protect your data.',
+        url: 'https://www.quiknews.online/privacy',
+        type: 'website',
+        images: [
+            {
+                url: 'https://www.quiknews.online/og-default.png',
+                width: 1200,
+                height: 630,
+                alt: 'Quik News Privacy Policy',
+            },
+        ],
+    },
 };
 
 export default function PrivacyPage() {

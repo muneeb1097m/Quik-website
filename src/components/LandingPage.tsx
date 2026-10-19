@@ -142,9 +142,9 @@ export function LandingPage({ mainStory, mainStoryEvent, gridStories, children }
                                             </div>
                                         </div>
                                         <div className="overflow-hidden">
-                                            <h2 className="text-3xl md:text-5xl lg:text-7xl font-extrabold text-white leading-[1.1] md:leading-[1] max-w-4xl tracking-tight mb-4 md:mb-6 drop-shadow-xl">
+                                            <h1 className="text-3xl md:text-5xl lg:text-7xl font-extrabold text-white leading-[1.1] md:leading-[1] max-w-4xl tracking-tight mb-4 md:mb-6 drop-shadow-xl">
                                                 {decodeHtmlEntities(mainStory.headline)}
-                                            </h2>
+                                            </h1>
                                         </div>
                                         <div className="flex items-center gap-4 text-slate-300 font-medium text-sm md:text-base">
                                             <span>{mainStoryEvent?.sources[0]?.name || 'N/A'}</span>

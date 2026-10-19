@@ -24,7 +24,7 @@ function CurrentDate() {
 
 export function Navigation() {
     const pathname = usePathname();
-    const navItems = ['About', 'Tech', 'Business', 'AI', 'Global', 'Auto', 'Pakistan', 'Sports'];
+    const navItems = ['About', 'Tech', 'Business', 'AI', 'Global', 'Auto', 'Pakistan', 'Sports', 'Archive'];
     const [isOpen, setIsOpen] = useState(false);
 
     // Close menu when route changes
@@ -63,7 +63,7 @@ export function Navigation() {
 
             {/* Desktop Nav Pill (Center) */}
             <nav className="pointer-events-auto absolute left-1/2 -translate-x-1/2 hidden lg:block">
-                <div className="glass-panel px-8 py-4 rounded-full flex items-center gap-8 shadow-2xl backdrop-blur-xl border border-white/40">
+                <div className="glass-panel px-6 xl:px-8 py-3.5 xl:py-4 rounded-full flex items-center gap-5 xl:gap-7 shadow-2xl backdrop-blur-xl border border-white/40">
                     <Link
                         href="/"
                         className={`text-base font-bold transition-all ${pathname === '/' ? 'text-slate-900' : 'text-slate-500 hover:text-slate-900'

@@ -11,6 +11,16 @@ export const metadata: Metadata = {
     openGraph: {
         title: 'Latest News & Signals | Quik',
         description: 'Browse the latest global news headlines and AI-synthesized intelligence updates on Quik.',
+        url: 'https://www.quiknews.online/news',
+        type: 'website',
+        images: [
+            {
+                url: 'https://www.quiknews.online/og-default.png',
+                width: 1200,
+                height: 630,
+                alt: 'Quik News - Latest News & Signals',
+            },
+        ],
     },
     alternates: {
         canonical: 'https://www.quiknews.online/news',

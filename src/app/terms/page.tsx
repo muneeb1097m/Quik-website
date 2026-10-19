@@ -6,6 +6,20 @@ export const metadata: Metadata = {
     alternates: {
         canonical: 'https://www.quiknews.online/terms',
     },
+    openGraph: {
+        title: 'Terms of Service | Quik News',
+        description: 'Terms of Service for Quik News. Please read our terms and conditions carefully.',
+        url: 'https://www.quiknews.online/terms',
+        type: 'website',
+        images: [
+            {
+                url: 'https://www.quiknews.online/og-default.png',
+                width: 1200,
+                height: 630,
+                alt: 'Quik News Terms of Service',
+            },
+        ],
+    },
 };
 
 export default function TermsPage() {
