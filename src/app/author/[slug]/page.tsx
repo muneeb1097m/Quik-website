@@ -2,6 +2,7 @@ import { getAuthor, getAllAuthors } from '@/lib/authors';
 import { db } from '@/lib/qie/db';
 import { SignalCard } from '@/components/SignalCard';
 import { generateAuthorProfileSchema, getBaseUrl } from '@/lib/seo';
+import { formatMetaTitle, formatMetaDescription } from '@/lib/utils';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Image from 'next/image';
@@ -34,23 +35,32 @@ export async function generateMetadata({ params }: AuthorPageProps): Promise<Met
 
     const baseUrl = getBaseUrl();
     const canonicalUrl = `${baseUrl}/author/${author.slug}`;
+    const metaTitle = formatMetaTitle(`${author.name} - ${author.role}`, ' | Quik', 58);
+    const metaDescription = formatMetaDescription(author.bio, 155);
+    const imageUrl = author.avatarUrl?.startsWith('http') ? author.avatarUrl : `${baseUrl}${author.avatarUrl || '/og-default.png'}`;
 
     return {
-        title: `${author.name} - ${author.role} | Quik News`,
-        description: author.bio,
+        title: metaTitle,
+        description: metaDescription,
         openGraph: {
-            title: `${author.name} - ${author.role} | Quik News`,
-            description: author.bio,
+            title: metaTitle,
+            description: metaDescription,
             url: canonicalUrl,
             type: 'profile',
             images: [
                 {
-                    url: author.avatarUrl?.startsWith('http') ? author.avatarUrl : `${baseUrl}${author.avatarUrl || '/og-default.png'}`,
+                    url: imageUrl,
                     width: 1200,
                     height: 630,
                     alt: author.name,
                 },
             ],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: metaTitle,
+            description: metaDescription,
+            images: [imageUrl],
         },
         alternates: {
             canonical: canonicalUrl,

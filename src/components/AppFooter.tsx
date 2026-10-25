@@ -59,14 +59,17 @@ export default function AppFooter() {
                     </div>
 
                     <div>
-                        <h4 className="font-bold text-slate-900 mb-6">News</h4>
-                        <ul className="space-y-4 text-sm text-slate-500">
+                        <h4 className="font-bold text-slate-900 mb-6">News Desks</h4>
+                        <ul className="space-y-3 text-sm text-slate-500">
                             <li><FooterLink href="/news">Latest News</FooterLink></li>
-                            <li><FooterLink href="/archive">Archive</FooterLink></li>
-                            <li><FooterLink href="/pakistan">Pakistan</FooterLink></li>
-                            <li><FooterLink href="/global">Global</FooterLink></li>
-                            <li><FooterLink href="/business">Business</FooterLink></li>
                             <li><FooterLink href="/tech">Technology</FooterLink></li>
+                            <li><FooterLink href="/business">Business &amp; Markets</FooterLink></li>
+                            <li><FooterLink href="/ai">Artificial Intelligence</FooterLink></li>
+                            <li><FooterLink href="/global">Global Affairs</FooterLink></li>
+                            <li><FooterLink href="/auto">Automotive &amp; EV</FooterLink></li>
+                            <li><FooterLink href="/pakistan">Startup Pakistan</FooterLink></li>
+                            <li><FooterLink href="/sports">Sports</FooterLink></li>
+                            <li><FooterLink href="/archive">News Archive</FooterLink></li>
                         </ul>
                     </div>
 
@@ -75,9 +78,13 @@ export default function AppFooter() {
                         <ul className="space-y-3 text-sm text-slate-500">
                             <li><FooterLink href="/topic/artificial-intelligence">Artificial Intelligence</FooterLink></li>
                             <li><FooterLink href="/topic/openai">OpenAI</FooterLink></li>
-                            <li><FooterLink href="/topic/markets">Markets &amp; Economy</FooterLink></li>
+                            <li><FooterLink href="/topic/google">Google &amp; Alphabet</FooterLink></li>
+                            <li><FooterLink href="/topic/apple">Apple</FooterLink></li>
                             <li><FooterLink href="/topic/nvidia">Nvidia &amp; Chips</FooterLink></li>
+                            <li><FooterLink href="/topic/markets">Markets &amp; Economy</FooterLink></li>
                             <li><FooterLink href="/topic/cybersecurity">Cybersecurity</FooterLink></li>
+                            <li><FooterLink href="/topic/electric-vehicles">Electric Vehicles</FooterLink></li>
+                            <li><FooterLink href="/topic/cricket">Cricket World</FooterLink></li>
                         </ul>
                     </div>
 
@@ -87,6 +94,7 @@ export default function AppFooter() {
                             <li><FooterLink href="/about">About Us</FooterLink></li>
                             <li><FooterLink href="/authors">Our Team</FooterLink></li>
                             <li><FooterLink href="/editorial-policy">Editorial Policy</FooterLink></li>
+                            <li><FooterLink href="/site-directory">Site Directory &amp; Sitemap</FooterLink></li>
                             <li><FooterLink href="mailto:editor@quiknews.online">Contact</FooterLink></li>
                             <li><FooterLink href="/privacy">Privacy Policy</FooterLink></li>
                             <li><FooterLink href="/terms">Terms of Service</FooterLink></li>
@@ -101,6 +109,7 @@ export default function AppFooter() {
                     <div className="flex gap-8 text-sm text-slate-500">
                         <FooterLink href="/privacy">Privacy</FooterLink>
                         <FooterLink href="/terms">Terms</FooterLink>
+                        <FooterLink href="/site-directory">Sitemap</FooterLink>
                         <FooterLink href="/privacy">Cookies</FooterLink>
                     </div>
                 </div>

@@ -143,7 +143,7 @@ export function LandingPage({ mainStory, mainStoryEvent, gridStories, children }
                                         </div>
                                         <div className="overflow-hidden">
                                             <h1 className="text-3xl md:text-5xl lg:text-7xl font-extrabold text-white leading-[1.1] md:leading-[1] max-w-4xl tracking-tight mb-4 md:mb-6 drop-shadow-xl">
-                                                {decodeHtmlEntities(mainStory.headline)}
+                                                {decodeHtmlEntities(mainStory.headline) || 'Real-Time Global News & AI Intelligence'}
                                             </h1>
                                         </div>
                                         <div className="flex items-center gap-4 text-slate-300 font-medium text-sm md:text-base">
@@ -156,6 +156,13 @@ export function LandingPage({ mainStory, mainStoryEvent, gridStories, children }
                                                 })()}
                                             </span>
                                         </div>
+                                    </div>
+                                )}
+                                {!mainStory && (
+                                    <div className="absolute inset-0 p-6 md:p-12 flex flex-col justify-end">
+                                        <h1 className="text-3xl md:text-5xl lg:text-7xl font-extrabold text-white leading-[1.1] md:leading-[1] max-w-4xl tracking-tight mb-4 md:mb-6 drop-shadow-xl">
+                                            Quik News — Real-Time Global News &amp; AI Intelligence
+                                        </h1>
                                     </div>
                                 )}
                             </div>

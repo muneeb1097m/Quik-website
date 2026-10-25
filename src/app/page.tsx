@@ -11,8 +11,25 @@ export const revalidate = 3600;
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
+  title: 'Quik | AI-Powered Global News & Breaking Headlines',
+  description: 'Real-time global news powered by AI. Get breaking headlines, tech updates, business insights, and sports from around the world. Fast and verified.',
   alternates: {
     canonical: 'https://www.quiknews.online',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://www.quiknews.online',
+    title: 'Quik | AI-Powered Global News & Breaking Headlines',
+    description: 'Real-time global news powered by AI. Get breaking headlines, tech updates, business insights, and sports from around the world. Fast and verified.',
+    images: [
+      {
+        url: 'https://www.quiknews.online/og-default.png',
+        width: 1200,
+        height: 630,
+        alt: 'Quik News - AI-Powered Global Intelligence',
+      },
+    ],
   },
 };
 

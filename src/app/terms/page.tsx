@@ -2,13 +2,13 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
     title: 'Terms of Service | Quik News',
-    description: 'Terms of Service for Quik News. Please read our terms and conditions carefully.',
+    description: 'Terms of Service for Quik News. Review our official terms, platform conditions, and guidelines for AI-assisted global intelligence reporting.',
     alternates: {
         canonical: 'https://www.quiknews.online/terms',
     },
     openGraph: {
         title: 'Terms of Service | Quik News',
-        description: 'Terms of Service for Quik News. Please read our terms and conditions carefully.',
+        description: 'Terms of Service for Quik News. Review our official terms, platform conditions, and guidelines for AI-assisted global intelligence reporting.',
         url: 'https://www.quiknews.online/terms',
         type: 'website',
         images: [
@@ -19,6 +19,12 @@ export const metadata: Metadata = {
                 alt: 'Quik News Terms of Service',
             },
         ],
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'Terms of Service | Quik News',
+        description: 'Terms of Service for Quik News. Review our official terms, platform conditions, and guidelines for AI-assisted global intelligence reporting.',
+        images: ['https://www.quiknews.online/og-default.png'],
     },
 };
 

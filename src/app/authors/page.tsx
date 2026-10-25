@@ -5,13 +5,13 @@ import { ShieldCheck, ArrowRight, Sparkles } from 'lucide-react';
 
 export const metadata: Metadata = {
     title: 'Editorial Team & Authors | Quik News',
-    description: 'Meet the editorial desks, journalists, and intelligence systems behind Quik News.',
+    description: 'Meet the editorial desks, journalists, researchers, and autonomous intelligence systems powering real-time news verification on Quik News.',
     alternates: {
         canonical: 'https://www.quiknews.online/authors',
     },
     openGraph: {
         title: 'Editorial Team & Authors | Quik News',
-        description: 'Meet the editorial desks, journalists, and intelligence systems behind Quik News.',
+        description: 'Meet the editorial desks, journalists, researchers, and autonomous intelligence systems powering real-time news verification on Quik News.',
         url: 'https://www.quiknews.online/authors',
         type: 'website',
         images: [
@@ -22,6 +22,12 @@ export const metadata: Metadata = {
                 alt: 'Quik News Editorial Team & Authors',
             },
         ],
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'Editorial Team & Authors | Quik News',
+        description: 'Meet the editorial desks, journalists, researchers, and autonomous intelligence systems powering real-time news verification on Quik News.',
+        images: ['https://www.quiknews.online/og-default.png'],
     },
 };
 

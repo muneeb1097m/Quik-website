@@ -17,11 +17,20 @@ export const metadata: Metadata = {
         description: 'Learn about Quik News mission to deliver real-time, verified global news and intelligence synthesized by autonomous AI agents.',
         url: 'https://www.quiknews.online/about',
         type: 'website',
+        images: [
+            {
+                url: 'https://www.quiknews.online/og-default.png',
+                width: 1200,
+                height: 630,
+                alt: 'About Quik News',
+            },
+        ],
     },
     twitter: {
         card: 'summary_large_image',
         title: 'About Quik | AI-Powered Global Intelligence Platform',
-        description: 'Learn about Quik News mission to deliver real-time, verified global news.',
+        description: 'Learn about Quik News mission to deliver real-time, verified global news and intelligence synthesized by autonomous AI agents.',
+        images: ['https://www.quiknews.online/og-default.png'],
     },
     alternates: {
         canonical: 'https://www.quiknews.online/about',

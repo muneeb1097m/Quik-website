@@ -22,6 +22,12 @@ export const metadata: Metadata = {
             },
         ],
     },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'Editorial Policy & Standards | Quik News',
+        description: 'Our commitment to journalistic accuracy, multi-source verification, ethical AI synthesis, transparency, and error corrections.',
+        images: ['https://www.quiknews.online/og-default.png'],
+    },
 };
 
 export default function EditorialPolicyPage() {

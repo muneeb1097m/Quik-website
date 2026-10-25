@@ -2,13 +2,13 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
     title: 'Privacy Policy | Quik News',
-    description: 'Privacy Policy for Quik News. Learn how we collect, use, and protect your data.',
+    description: 'Privacy Policy for Quik News. Learn how our real-time news intelligence platform collects, protects, and handles your data with full transparency.',
     alternates: {
         canonical: 'https://www.quiknews.online/privacy',
     },
     openGraph: {
         title: 'Privacy Policy | Quik News',
-        description: 'Privacy Policy for Quik News. Learn how we collect, use, and protect your data.',
+        description: 'Privacy Policy for Quik News. Learn how our real-time news intelligence platform collects, protects, and handles your data with full transparency.',
         url: 'https://www.quiknews.online/privacy',
         type: 'website',
         images: [
@@ -19,6 +19,12 @@ export const metadata: Metadata = {
                 alt: 'Quik News Privacy Policy',
             },
         ],
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'Privacy Policy | Quik News',
+        description: 'Privacy Policy for Quik News. Learn how our real-time news intelligence platform collects, protects, and handles your data with full transparency.',
+        images: ['https://www.quiknews.online/og-default.png'],
     },
 };
 

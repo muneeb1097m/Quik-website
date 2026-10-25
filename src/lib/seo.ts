@@ -44,7 +44,7 @@ export function generateNewsArticleSchema(
             sameAs: Object.values(author.socials || {}).filter(Boolean),
         }
         : {
-            '@type': 'NewsMediaOrganization',
+            '@type': 'Organization',
             name: author.name,
             url: author.socials?.website || `${baseUrl}/author/${author.slug}`,
         };
@@ -61,7 +61,7 @@ export function generateNewsArticleSchema(
         dateModified: modifiedDate,
         author: authorSchema,
         publisher: {
-            '@type': 'NewsMediaOrganization',
+            '@type': 'Organization',
             name: 'Quik News',
             url: baseUrl,
             logo: {
@@ -110,7 +110,7 @@ export function generateAuthorProfileSchema(author: AuthorProfile) {
         '@context': 'https://schema.org',
         '@type': 'ProfilePage',
         mainEntity: {
-            '@type': isPerson ? 'Person' : 'NewsMediaOrganization',
+            '@type': isPerson ? 'Person' : 'Organization',
             name: author.name,
             description: author.bio,
             ...(isPerson && author.role ? { jobTitle: author.role } : {}),
@@ -141,12 +141,8 @@ export function generateTopicCollectionSchema(topic: TopicHub, articles: any[]) 
                 return {
                     '@type': 'ListItem',
                     position: index + 1,
-                    item: {
-                        '@type': 'NewsArticle',
-                        '@id': articleUrl,
-                        url: articleUrl,
-                        name: signal.headline,
-                    },
+                    url: articleUrl,
+                    name: decodeHtmlEntities(stripHtml(signal.headline || 'News Article')),
                 };
             }),
         },

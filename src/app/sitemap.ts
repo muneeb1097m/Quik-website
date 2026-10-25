@@ -18,6 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         '/editorial-policy',
         '/authors',
         '/archive',
+        '/site-directory',
         '/privacy',
         '/terms',
     ].map((route) => ({
@@ -60,12 +61,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
     // 5. Dynamic Indexable News Articles
-    // Fetches all eligible canonical indexable articles with accurate lastModified timestamps
+    // Exclude articles younger than 48 hours from standard sitemap so they are served exclusively by news-sitemap.xml (prevents "Page in multiple sitemaps")
     let newsRoutes: MetadataRoute.Sitemap = [];
     try {
+        const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
         const { data: allSignals } = await supabase
             .from('Signal')
-            .select('id, headline, imageUrl, generatedAt')
+            .select('id, headline, title, imageUrl, generatedAt')
+            .lt('generatedAt', fortyEightHoursAgo)
             .order('generatedAt', { ascending: false })
             .limit(10000);
 
@@ -78,7 +81,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             ]);
 
             for (const signal of allSignals) {
-                if (!signal.headline) continue;
+                if (!signal.headline && !signal.title && !signal.id) continue;
                 const path = getNewsUrl(signal);
                 const fullUrl = `${baseUrl}${path}`;
 

@@ -44,7 +44,7 @@ export const metadata: Metadata = {
   creator: 'Quik News',
   publisher: 'Quik News',
   alternates: {
-    canonical: '/',
+    canonical: 'https://www.quiknews.online',
   },
   openGraph: {
     type: 'website',

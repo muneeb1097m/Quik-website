@@ -19,8 +19,8 @@ const getCachedSignal = cache(async (signalId: string) => {
 
 // React per-request cache for related stories
 const getCachedRelated = cache(async (category: string, currentSignalId: string) => {
-    const related = await db.getSignals(category, 6);
-    return related.filter((s: any) => s.id !== currentSignalId).slice(0, 4);
+    const related = await db.getSignals(category, 8);
+    return related.filter((s: any) => s.id !== currentSignalId).slice(0, 6);
 });
 
 // Pre-render top recent news articles at build time to serve from CDN (0 server load)
@@ -68,7 +68,10 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
             description: metaDescription,
             type: 'article',
             url: canonicalUrl,
-            publishedTime: new Date(signal.generatedAt).toISOString(),
+            publishedTime: (() => {
+                const d = new Date(signal.generatedAt || Date.now());
+                return isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString();
+            })(),
             images: [
                 {
                     url: signal.imageUrl || `${baseUrl}/og-default.png`,
@@ -115,8 +118,11 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ id:
     const event: any = (Array.isArray(rawEvent) ? rawEvent[0] : rawEvent) || { category: 'Technology', lastUpdatedAt: signal.generatedAt, sources: [] };
     const author = DEFAULT_AUTHOR;
 
-    // Fetch related stories (Cached)
-    const filteredRelated = await getCachedRelated(event?.category || 'Technology', signal.id);
+    // Fetch related stories & adjacent stories for sequential crawl chaining
+    const [filteredRelated, adjacent] = await Promise.all([
+        getCachedRelated(event?.category || 'Technology', signal.id),
+        db.getAdjacentSignals(signal.generatedAt || new Date().toISOString(), signal.id)
+    ]);
 
     // JSON-LD Structured Data (NewsArticle & BreadcrumbList)
     const newsArticleJsonLd = generateNewsArticleSchema(signal as any, event as any, author);
@@ -144,6 +150,8 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ id:
                 event={serialize(event)}
                 author={serialize(author)}
                 related={serialize(filteredRelated)}
+                prevStory={adjacent?.prev ? serialize(adjacent.prev) : null}
+                nextStory={adjacent?.next ? serialize(adjacent.next) : null}
             />
         </>
     );

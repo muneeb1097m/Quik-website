@@ -50,6 +50,15 @@ export async function RawFeedSection() {
                     );
                 })}
             </div>
+            <div className="mt-10 flex justify-center">
+                <Link
+                    href="/news"
+                    className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm shadow-md transition-all group"
+                >
+                    Explore All News &amp; Intelligence Signals
+                    <span className="group-hover:translate-x-1 transition-transform">→</span>
+                </Link>
+            </div>
         </div>
     );
 }

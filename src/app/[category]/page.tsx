@@ -4,13 +4,14 @@ import { notFound } from 'next/navigation';
 import { NewsEvent } from '@/types';
 import { getAllTopics } from '@/lib/topics';
 import { generateBreadcrumbSchema, getBaseUrl } from '@/lib/seo';
+import { formatMetaTitle, formatMetaDescription } from '@/lib/utils';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ChevronRight, Layers } from 'lucide-react';
 
 // Performance: Enable ISR with 4-hour revalidation
 export const revalidate = 14400;
-export const dynamicParams = false;
+export const dynamicParams = true;
 
 const VALID_CATEGORIES = ['tech', 'business', 'global', 'ai', 'auto', 'pakistan', 'sports'];
 
@@ -42,9 +43,10 @@ export async function generateStaticParams() {
 
 interface PageProps {
     params: Promise<{ category: string }>;
+    searchParams?: Promise<{ page?: string }>;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
     const { category } = await params;
     const lowerCategory = category.toLowerCase();
 
@@ -59,27 +61,39 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         };
     }
 
+    const searchParamsData = searchParams ? await searchParams : {};
+    const pageNum = parseInt(searchParamsData?.page || '1');
+    const pageStr = pageNum > 1 ? ` - Page ${pageNum}` : '';
+
     const title = CATEGORY_NAMES[lowerCategory] || (category.charAt(0).toUpperCase() + category.slice(1));
-    const description = CATEGORY_DESCRIPTIONS[lowerCategory] || `Latest ${title} news and verified intelligence on Quik.`;
     const baseUrl = getBaseUrl();
-    const canonicalUrl = `${baseUrl}/${lowerCategory}`;
+    const canonicalUrl = pageNum > 1 ? `${baseUrl}/${lowerCategory}?page=${pageNum}` : `${baseUrl}/${lowerCategory}`;
+    const metaTitle = formatMetaTitle(`${title} News & Intelligence${pageStr}`, ' | Quik', 58);
+    const metaDescription = formatMetaDescription(CATEGORY_DESCRIPTIONS[lowerCategory] || `Latest ${title} news and verified intelligence on Quik.`, 155);
+    const imageUrl = `${baseUrl}/og-default.png`;
 
     return {
-        title: `${title} News & Intelligence Updates | Quik`,
-        description,
+        title: metaTitle,
+        description: metaDescription,
         openGraph: {
-            title: `${title} News & Intelligence Updates | Quik`,
-            description,
+            title: metaTitle,
+            description: metaDescription,
             url: canonicalUrl,
             type: 'website',
             images: [
                 {
-                    url: 'https://www.quiknews.online/og-default.png',
+                    url: imageUrl,
                     width: 1200,
                     height: 630,
-                    alt: `${title} News & Intelligence Updates | Quik`,
+                    alt: `${title} News & Intelligence | Quik`,
                 },
             ],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: metaTitle,
+            description: metaDescription,
+            images: [imageUrl],
         },
         alternates: {
             canonical: canonicalUrl,
@@ -87,7 +101,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
 }
 
-export default async function CategoryPage({ params }: PageProps) {
+export default async function CategoryPage({ params, searchParams }: PageProps) {
     const { category } = await params;
     const lowerCategory = category.toLowerCase();
 
@@ -95,10 +109,15 @@ export default async function CategoryPage({ params }: PageProps) {
         notFound();
     }
 
+    const searchParamsData = searchParams ? await searchParams : {};
+    const page = parseInt(searchParamsData?.page || '1');
+    const limit = 36;
+    const skip = (page - 1) * limit;
+
     const title = CATEGORY_NAMES[lowerCategory] || (category.charAt(0).toUpperCase() + category.slice(1));
     const description = CATEGORY_DESCRIPTIONS[lowerCategory];
 
-    const signals = await db.getSignals(category, 50);
+    const signals = await db.getSignals(category, limit, skip);
 
     // Find topics under this category
     const relevantTopics = getAllTopics().filter(t => {
@@ -137,7 +156,7 @@ export default async function CategoryPage({ params }: PageProps) {
                         {title} News &amp; Signals
                     </h1>
                     <p className="text-slate-600 text-base md:text-lg max-w-3xl leading-relaxed font-medium mb-6">
-                        {description}
+                        {description}{page > 1 ? ` (Page ${page})` : ''}
                     </p>
 
                     {/* Subtopic Pills */}
@@ -171,6 +190,26 @@ export default async function CategoryPage({ params }: PageProps) {
                         <div className="col-span-full bg-white p-12 rounded-2xl border border-slate-200 text-center text-slate-500">
                             No news signals available for {title} right now.
                         </div>
+                    )}
+                </div>
+
+                {/* Server-rendered pagination links for internal link authority & crawler discovery */}
+                <div className="mt-16 flex items-center justify-center gap-4">
+                    {page > 1 && (
+                        <Link
+                            href={page === 2 ? `/${lowerCategory}` : `/${lowerCategory}?page=${page - 1}`}
+                            className="px-6 py-3 bg-white border border-slate-200 rounded-full font-bold text-slate-900 shadow-sm hover:shadow-md transition-all"
+                        >
+                            ← Previous Page
+                        </Link>
+                    )}
+                    {signals.length === limit && (
+                        <Link
+                            href={`/${lowerCategory}?page=${page + 1}`}
+                            className="px-6 py-3 bg-white border border-slate-200 rounded-full font-bold text-slate-900 shadow-sm hover:shadow-md transition-all"
+                        >
+                            Next Page →
+                        </Link>
                     )}
                 </div>
             </main>

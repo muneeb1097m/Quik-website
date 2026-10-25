@@ -236,12 +236,12 @@ export function formatMetaTitle(headline: string, suffix = ' | Quik', maxLen = 5
  * Formats meta descriptions to fit strictly within target length (default 155 chars).
  */
 export function formatMetaDescription(text: string, maxLen = 155): string {
-    if (!text) return 'Latest real-time news and intelligence, synthesized by AI on Quik.';
+    if (!text) return 'Latest real-time news and intelligence, synthesized by AI on Quik. Read breaking global headlines, verified insights, and technology updates.';
     let clean = decodeHtmlEntities(stripHtml(text)).trim();
 
-    // Prevent "Meta description too short" warning by ensuring a minimum length
-    if (clean.length < 80) {
-        clean = `${clean} — Read verified real-time coverage and intelligence updates on Quik.`;
+    // Prevent "Meta description too short" (< 110 chars) warning by ensuring a minimum length
+    if (clean.length < 115) {
+        clean = `${clean} — Read verified real-time coverage, intelligence updates, and deep analysis on Quik News.`;
     }
 
     if (clean.length <= maxLen) {

@@ -87,6 +87,38 @@ export const db = {
         );
     },
 
+    getAdjacentSignals: async (generatedAt: string, currentId: string) => {
+        return cachedOrRaw(
+            async () => {
+                try {
+                    const [prevRes, nextRes] = await Promise.all([
+                        supabase.from('Signal')
+                            .select('id, headline, imageUrl, generatedAt')
+                            .lt('generatedAt', generatedAt)
+                            .order('generatedAt', { ascending: false })
+                            .limit(1)
+                            .maybeSingle(),
+                        supabase.from('Signal')
+                            .select('id, headline, imageUrl, generatedAt')
+                            .gt('generatedAt', generatedAt)
+                            .order('generatedAt', { ascending: true })
+                            .limit(1)
+                            .maybeSingle()
+                    ]);
+                    return {
+                        prev: prevRes.data || null,
+                        next: nextRes.data || null
+                    };
+                } catch (e) {
+                    console.error('getAdjacentSignals error:', e);
+                    return { prev: null, next: null };
+                }
+            },
+            [`adjacent-${currentId}-v1`],
+            { revalidate: 3600 }
+        );
+    },
+
     getPaginatedSignals: async (cursor: string | undefined, limit: number = 20) => {
         const { data, error } = await supabase.from('Signal')
             .select(`

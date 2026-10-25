@@ -136,6 +136,34 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      // Performance: Cache dynamic public pages at CDN edge for fast crawler & user response
+      {
+        source: '/news/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400',
+          },
+        ],
+      },
+      {
+        source: '/topic/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=600, s-maxage=7200, stale-while-revalidate=86400',
+          },
+        ],
+      },
+      {
+        source: '/author/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=600, s-maxage=7200, stale-while-revalidate=86400',
+          },
+        ],
+      },
     ];
   },
 };

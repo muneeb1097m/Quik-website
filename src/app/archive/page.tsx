@@ -14,12 +14,14 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
     const pageNum = parseInt(params.page || '1');
     const canonicalUrl = pageNum > 1 ? `https://www.quiknews.online/archive?page=${pageNum}` : 'https://www.quiknews.online/archive';
 
+    const description = 'Browse the complete historical archive of AI-synthesized global news coverage, breaking headlines, and real-time intelligence signals on Quik.';
+
     return {
         title: `News Archive${page} | Quik`,
-        description: 'Browse the complete history of AI-generated global news coverage on Quik.',
+        description,
         openGraph: {
             title: `News Archive${page} | Quik`,
-            description: 'Browse the complete history of AI-generated global news coverage on Quik.',
+            description,
             url: canonicalUrl,
             type: 'website',
             images: [
@@ -30,6 +32,12 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
                     alt: `Quik News Archive${page}`,
                 },
             ],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: `News Archive${page} | Quik`,
+            description,
+            images: ['https://www.quiknews.online/og-default.png'],
         },
         alternates: {
             canonical: canonicalUrl,

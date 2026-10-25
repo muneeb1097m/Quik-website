@@ -16,9 +16,59 @@ interface NewsDetailViewProps {
     event: any;
     author?: any;
     related: any[];
+    prevStory?: any;
+    nextStory?: any;
 }
 
-function renderFormattedText(text: string): React.ReactNode {
+const TOPIC_ENTITIES: Array<{ phrase: string; slug: string }> = [
+    { phrase: 'Artificial Intelligence', slug: 'artificial-intelligence' },
+    { phrase: 'OpenAI', slug: 'openai' },
+    { phrase: 'ChatGPT', slug: 'openai' },
+    { phrase: 'Google', slug: 'google' },
+    { phrase: 'DeepMind', slug: 'google' },
+    { phrase: 'Alphabet', slug: 'google' },
+    { phrase: 'Apple', slug: 'apple' },
+    { phrase: 'Nvidia', slug: 'nvidia' },
+    { phrase: 'Cybersecurity', slug: 'cybersecurity' },
+    { phrase: 'Electric Vehicles', slug: 'electric-vehicles' },
+    { phrase: 'Wall Street', slug: 'markets' },
+    { phrase: 'Federal Reserve', slug: 'markets' },
+    { phrase: 'Cricket', slug: 'cricket' },
+];
+
+function linkEntitiesInPlainString(str: string, linkedSlugs: Set<string>, maxTotalLinks: number = 3): React.ReactNode[] {
+    if (!str || linkedSlugs.size >= maxTotalLinks) return [str];
+
+    for (const entity of TOPIC_ENTITIES) {
+        if (linkedSlugs.size >= maxTotalLinks) break;
+        if (linkedSlugs.has(entity.slug)) continue;
+
+        const regex = new RegExp(`\\b(${entity.phrase})\\b`, 'i');
+        const match = str.match(regex);
+        if (match && match.index !== undefined) {
+            linkedSlugs.add(entity.slug);
+            const before = str.slice(0, match.index);
+            const matchedWord = match[0];
+            const after = str.slice(match.index + matchedWord.length);
+
+            return [
+                ...linkEntitiesInPlainString(before, linkedSlugs, maxTotalLinks),
+                <Link
+                    key={`entity-${entity.slug}-${match.index}`}
+                    href={`/topic/${entity.slug}`}
+                    className="text-brand-blue font-semibold hover:underline decoration-brand-blue/30 underline-offset-2"
+                >
+                    {matchedWord}
+                </Link>,
+                ...linkEntitiesInPlainString(after, linkedSlugs, maxTotalLinks)
+            ];
+        }
+    }
+
+    return [str];
+}
+
+function renderFormattedText(text: string, linkedSlugs?: Set<string>): React.ReactNode {
     if (!text) return null;
     const parts = text.split(/(\*\*[^*]+?\*\*|\*[^*]+?\*)/g);
     return parts.map((part, i) => {
@@ -36,12 +86,20 @@ function renderFormattedText(text: string): React.ReactNode {
                 </em>
             );
         }
+        if (linkedSlugs) {
+            return (
+                <React.Fragment key={i}>
+                    {linkEntitiesInPlainString(part, linkedSlugs)}
+                </React.Fragment>
+            );
+        }
         return part;
     });
 }
 
 const FormattedReport = ({ content }: { content: string }) => {
     if (!content) return null;
+    const linkedSlugs = new Set<string>();
 
     // Split content into blocks by double newlines or single newlines with Markdown markers
     const rawParagraphs = content.split(/\n\s*\n/).filter(p => p.trim().length > 0);
@@ -93,7 +151,7 @@ const FormattedReport = ({ content }: { content: string }) => {
                 return (
                     <React.Fragment key={index}>
                         <p className="text-slate-700 text-base md:text-lg leading-relaxed font-normal">
-                            {renderFormattedText(trimmed)}
+                            {renderFormattedText(trimmed, linkedSlugs)}
                         </p>
                         {index === 1 && (
                             <div className="my-6 flex justify-center not-prose">
@@ -126,7 +184,7 @@ const FormattedReport = ({ content }: { content: string }) => {
     );
 };
 
-export default function NewsDetailView({ signal, event, author, related }: NewsDetailViewProps) {
+export default function NewsDetailView({ signal, event, author, related, prevStory, nextStory }: NewsDetailViewProps) {
     const [copied, setCopied] = useState(false);
 
     const handleShare = () => {
@@ -338,7 +396,7 @@ export default function NewsDetailView({ signal, event, author, related }: NewsD
                             {/* Header */}
                             <header className="mb-8 md:mb-10 relative z-10">
                                 <h1 className="text-3xl md:text-5xl font-extrabold text-slate-900 leading-[1.1] mb-4 md:mb-6 tracking-tight">
-                                    {decodeHtmlEntities(signal.headline)}
+                                    {decodeHtmlEntities(signal.headline) || 'Breaking News Intelligence Signal'}
                                 </h1>
                             </header>
 
@@ -402,12 +460,12 @@ export default function NewsDetailView({ signal, event, author, related }: NewsD
                                         Primary Reporting &amp; Verification Sources
                                     </div>
                                     <div className="flex flex-wrap gap-3">
-                                        {sources.map((src: any) => (
+                                        {sources.filter((src: any) => src.url && src.url.startsWith('http')).map((src: any) => (
                                             <a
                                                 key={src.id || src.url}
                                                 href={src.url}
                                                 target="_blank"
-                                                rel="noopener noreferrer"
+                                                rel="noopener noreferrer nofollow"
                                                 className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900 hover:border-slate-400 transition-colors shadow-2xs"
                                             >
                                                 {src.name || 'Verified Media Source'}
@@ -427,6 +485,47 @@ export default function NewsDetailView({ signal, event, author, related }: NewsD
                             widgetKey={ADSTERRA_CONFIG.nativeBanner.key}
                             scriptUrl={ADSTERRA_CONFIG.nativeBanner.scriptUrl}
                         />
+
+                        {/* Sequential Article Crawl Navigation (Prev / Next Story) */}
+                        {(prevStory || nextStory) && (
+                            <nav aria-label="Sequential Article Navigation" className="mt-12 pt-8 border-t border-slate-200">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {prevStory ? (
+                                        <Link
+                                            href={getNewsUrl(prevStory)}
+                                            rel="prev"
+                                            className="group flex flex-col p-5 bg-white rounded-2xl border border-slate-200 hover:border-brand-blue/50 hover:shadow-md transition-all text-left"
+                                        >
+                                            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1 group-hover:text-brand-blue transition-colors mb-2">
+                                                <ArrowLeft className="w-3.5 h-3.5" />
+                                                Previous Story
+                                            </span>
+                                            <span className="text-sm font-bold text-slate-900 group-hover:text-brand-blue transition-colors line-clamp-2 leading-snug">
+                                                {decodeHtmlEntities(prevStory.headline)}
+                                            </span>
+                                        </Link>
+                                    ) : (
+                                        <div className="hidden md:block" />
+                                    )}
+
+                                    {nextStory && (
+                                        <Link
+                                            href={getNewsUrl(nextStory)}
+                                            rel="next"
+                                            className="group flex flex-col p-5 bg-white rounded-2xl border border-slate-200 hover:border-brand-blue/50 hover:shadow-md transition-all text-right items-end"
+                                        >
+                                            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1 group-hover:text-brand-blue transition-colors mb-2">
+                                                Next Story
+                                                <ChevronRight className="w-3.5 h-3.5" />
+                                            </span>
+                                            <span className="text-sm font-bold text-slate-900 group-hover:text-brand-blue transition-colors line-clamp-2 leading-snug">
+                                                {decodeHtmlEntities(nextStory.headline)}
+                                            </span>
+                                        </Link>
+                                    )}
+                                </div>
+                            </nav>
+                        )}
 
                         {/* Related Stories */}
                         {related.length > 0 && (
@@ -462,6 +561,23 @@ export default function NewsDetailView({ signal, event, author, related }: NewsD
                                             </div>
                                         </Link>
                                     ))}
+                                </div>
+
+                                <div className="mt-8 pt-6 border-t border-slate-200 flex flex-wrap items-center justify-between gap-4">
+                                    <Link
+                                        href={`/${getCategorySlug(event.category)}`}
+                                        className="inline-flex items-center gap-1.5 text-sm font-bold text-slate-700 hover:text-brand-blue transition-colors"
+                                    >
+                                        Explore More {event.category || 'News'} Coverage
+                                        <ChevronRight className="w-4 h-4" />
+                                    </Link>
+                                    <Link
+                                        href="/archive"
+                                        className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-500 hover:text-slate-900 transition-colors"
+                                    >
+                                        View Full News Archive
+                                        <ChevronRight className="w-4 h-4" />
+                                    </Link>
                                 </div>
                             </div>
                         )}

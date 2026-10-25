@@ -2,7 +2,7 @@ import { getTopic, getAllTopics, isTopicIndexable } from '@/lib/topics';
 import { db } from '@/lib/qie/db';
 import { SignalCard } from '@/components/SignalCard';
 import { generateTopicCollectionSchema, generateBreadcrumbSchema, getBaseUrl } from '@/lib/seo';
-import { getCategorySlug } from '@/lib/utils';
+import { getCategorySlug, formatMetaTitle, formatMetaDescription } from '@/lib/utils';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -34,27 +34,36 @@ export async function generateMetadata({ params }: TopicPageProps): Promise<Meta
 
     const baseUrl = getBaseUrl();
     const canonicalUrl = `${baseUrl}/topic/${topic.slug}`;
+    const metaTitle = formatMetaTitle(`${topic.name} News & Intelligence`, ' | Quik', 58);
+    const metaDescription = formatMetaDescription(topic.description, 155);
+    const imageUrl = `${baseUrl}/og-default.png`;
 
     // Query signals for indexability check
     const signals = await db.getSignals(topic.parentCategory as string, 20);
     const indexable = isTopicIndexable(topic, signals.length);
 
     return {
-        title: `${topic.name} News & Intelligence Analysis | Quik`,
-        description: topic.description,
+        title: metaTitle,
+        description: metaDescription,
         openGraph: {
-            title: `${topic.name} News & Intelligence Analysis | Quik`,
-            description: topic.description,
+            title: metaTitle,
+            description: metaDescription,
             url: canonicalUrl,
             type: 'website',
             images: [
                 {
-                    url: 'https://www.quiknews.online/og-default.png',
+                    url: imageUrl,
                     width: 1200,
                     height: 630,
-                    alt: `${topic.name} News & Intelligence Analysis | Quik`,
+                    alt: `${topic.name} News & Intelligence | Quik`,
                 },
             ],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: metaTitle,
+            description: metaDescription,
+            images: [imageUrl],
         },
         alternates: {
             canonical: canonicalUrl,
